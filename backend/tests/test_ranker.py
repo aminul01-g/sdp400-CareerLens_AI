@@ -118,7 +118,7 @@ def test_ties_break_deterministically_by_role_id(snapshot: ProfileSnapshot) -> N
 
 
 def test_every_score_is_explainable(snapshot: ProfileSnapshot) -> None:
-    """matched ∪ missing must equal the required set, and be disjoint."""
+    """matched and missing must partition the required set, and be disjoint."""
     by_id = {r.job_role_id: r for r in ROLES}
     for s in rank(snapshot, ROLES, skill_names=NAMES):
         required = set(by_id[s.job_role_id].required_skills)

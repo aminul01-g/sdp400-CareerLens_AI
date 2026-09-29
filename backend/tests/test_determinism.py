@@ -225,6 +225,9 @@ def test_ml_only_imports_from_app_ml_and_allowed_third_party() -> None:
         "dataclasses", "functools", "collections", "decimal", "datetime",
         "enum", "urllib", "hashlib", "itertools", "random", "statistics",
         "__future__", "time", "copy", "abc",
+        # The evaluation harness is a CLI (`python -m app.ml.evaluation`), so it
+        # needs argument parsing. Still stdlib, still no framework.
+        "argparse",
     }
     offenders: list[str] = []
     for path in _python_files():

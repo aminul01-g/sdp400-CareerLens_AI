@@ -109,7 +109,7 @@ def test_weights_and_contributions_are_shown(populated: TestClient) -> None:
 
 
 def test_explainability_partitions_the_required_set(populated: TestClient) -> None:
-    """T150: matched ∪ missing equals the role's required set, and is disjoint."""
+    """T150: matched and missing partition the role's required set, and are disjoint."""
     body = populated.post("/api/recommendations", json={"limit": 50}).json()
     for result in body["results"]:
         detail = populated.get(f"/api/jobs/{result['job_role_id']}").json()

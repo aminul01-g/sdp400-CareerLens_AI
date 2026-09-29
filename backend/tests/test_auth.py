@@ -270,7 +270,7 @@ def test_refresh_issues_a_new_token_and_takes_role_from_the_database(
     headers = {"Authorization": f"Bearer {token}"}
 
     # Escalate in the DB, then refresh: the response must reflect the DB.
-    db_user = client.app.dependency_overrides[list(client.app.dependency_overrides)[0]]()
+    db_user = client.app.dependency_overrides[next(iter(client.app.dependency_overrides))]()
     db_user_obj = db_user.get(User, user.id)
     db_user_obj.role = UserRole.ADMIN
     db_user.commit()

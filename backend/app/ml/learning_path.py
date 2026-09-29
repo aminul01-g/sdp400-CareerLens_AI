@@ -35,7 +35,6 @@ import json
 import logging
 import urllib.error
 import urllib.request
-from collections.abc import Sequence
 
 from app.ml.types import GapReport, RoleSpec
 
@@ -190,7 +189,3 @@ def build_learning_path(
     logger.warning("LLM returned no usable learning steps; using the deterministic ones")
     return fallback, "careerlens-rules"
 
-
-def steps_for_roles(reports: Sequence[GapReport]) -> list[dict[str, object]]:  # pragma: no cover
-    """Convenience helper kept intentionally small."""
-    return [step for report in reports for step in build_fallback_steps(report)]

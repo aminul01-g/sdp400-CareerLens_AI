@@ -19,6 +19,7 @@ from fastapi.testclient import TestClient
 
 from app.ml.text_loader import (
     DocumentTooLargeError,
+    ExtractionFailedError,
     ScannedDocumentError,
     UnsupportedDocumentError,
     extract_text,
@@ -150,7 +151,11 @@ def test_unsupported_type_is_rejected(tmp_path) -> None:
 
 
 def test_missing_file_raises(tmp_path) -> None:
-    with pytest.raises(Exception):
+    # The precise type, not a bare Exception: a bare one would also pass if the
+    # function raised for an unrelated reason. ExtractionFailedError is what the
+    # loader raises when a stored upload has gone missing, which is an internal
+    # inconsistency rather than a caller's bad path.
+    with pytest.raises(ExtractionFailedError):
         extract_text(tmp_path / "absent.pdf", "application/pdf")
 
 

@@ -292,8 +292,43 @@ def main() -> int:  # noqa: C901 - a checklist is linear by nature
 
     tracked = git_tracked()
     if tracked:
-        tracked_env = [name for name in tracked if Path(name).name.startswith(".env") and name != "backend/.env.example"]
+        # A template is not a secret and belongs in the repository; the file
+        # itself is not. Anything named like a sample, example or template is
+        # allowed, anywhere in the tree, rather than one hardcoded path.
+        template_suffixes = (".example", ".sample", ".template", ".dist")
+        tracked_env = [
+            name
+            for name in tracked
+            if Path(name).name.startswith(".env")
+            and not name.endswith(template_suffixes)
+        ]
         check("no .env is tracked by git", not tracked_env, ", ".join(tracked_env[:3]))
+
+        # A template earns that exemption by containing no real values. Placeholders
+        # are fine; anything that looks like a populated secret is not, and shipping
+        # one in a file named .example is the classic way a real key leaks.
+        secretish = re.compile(
+            r"(?i)\b(api[_-]?key|secret|password|passwd|token)\b\s*[=:]\s*[\"']?([^\s\"']+)"
+        )
+        offenders: list[str] = []
+        for name in sorted(tracked):
+            if not name.endswith(template_suffixes):
+                continue
+            try:
+                body = Path(name).read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            for lineno, line in enumerate(body.splitlines(), start=1):
+                if line.lstrip().startswith("#"):
+                    continue
+                match = secretish.search(line)
+                if not match:
+                    continue
+                value = match.group(2).strip()
+                if not value or value.startswith(("<", "$", "{", "your", "change", "replace")):
+                    continue
+                offenders.append(f"{name}:{lineno}")
+        check("no .env template ships a populated secret", not offenders, ", ".join(offenders[:3]))
         tracked_db = [name for name in tracked if name.endswith((".db", ".sqlite", ".sqlite3")) and not name.startswith("docs/archive/")]
         check("no SQLite database is tracked (except the documented archive)", not tracked_db, ", ".join(tracked_db[:3]))
         # The eight legacy Flask modules lived flat at backend/*.py. `backend/app/`,
