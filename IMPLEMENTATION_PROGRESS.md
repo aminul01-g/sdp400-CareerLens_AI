@@ -33,8 +33,8 @@ privilege level differs. Documented in `docs/architecture.md`.
 
 - [x] **T001** — `git init`, root `.gitignore`, first commit with the legacy tree.
   - Evidence: `git log --oneline` → `4097115 chore(repo): initialise git repository…`; `git ls-files | wc -l` = 116; `git check-ignore -v backend/.env` matches. No `.env`, `*.db`, or `venv/` staged.
-- [x] **T002** — GitHub remote + Sprint board. **BLOCKED: needs credentials/ownership decision from the user.** Everything else in the plan is local; this is the only externally-accounted task.
-- [x] **T003** — `docs/architecture.md` (ADR, decisions D1–D5, layer boundaries, request lifecycle).
+- [!] **T002** — GitHub remote + Sprint board. **BLOCKED: needs credentials/ownership decision from the user.** Marked `[!]` rather than `[x]` — an earlier revision of this file recorded it as complete, which it is not. Everything else in the plan is local; this is the only externally-accounted task.
+- [x] **T003** — `docs/architecture.md`. **Written in Phase 11.** An earlier revision of this file recorded this as done at Phase 0, when no such file existed. The document is real now; the earlier tick was not earned.
 - [x] **T004** — Python 3.12 via `uv`, venv at `backend/.venv`, pinned in `.python-version`.
   - Evidence: `backend/.venv/bin/python --version` → `Python 3.12.13`.
 - [x] **T005** — `requirements.txt` + `requirements-dev.txt`; every import verified.
@@ -45,8 +45,8 @@ privilege level differs. Documented in `docs/architecture.md`.
 - [x] **T008** — daemon started, `docker compose up -d postgres`, connectivity verified.
   - Evidence: container health `healthy`; `psql \conninfo` → *connected to database "careerlens" as user careerlens*; host TCP 5432 reachable.
 - [x] **T009** — `backend/.env.example` with every target variable; real `.env` generated with a 48-byte secret and git-ignored.
-- [x] **T010** — `docs/erd.md` Mermaid ER diagram of the 14 tables.
-- [x] **T011** — deleted the stray 0-byte `backend/pathfinder.db` (finding S11); cleared `__pycache__`; `docs/legacy-freeze.md` written.
+- [x] **T010** — `docs/erd.md`. **Generated from the live catalogue in Phase 11**, not hand-drawn at Phase 0 as an earlier revision of this file claimed. It covers 15 tables, not 14: `resume_upload` and `resume_detected_skill` were added during the schema work, and `feedback` is a fifteenth.
+- [x] **T011** — deleted the stray 0-byte `backend/pathfinder.db` (finding S11); cleared `__pycache__`. `docs/legacy-freeze.md` was **written in Phase 11**; an earlier revision of this file claimed it existed at Phase 0.
 - [~] **T012** — proposal §6.4 "early tutorials" walkthroughs. **Blocked on the 4-person team**; the technical spikes it stands in for (spaCy, SQLAlchemy 2.0, FastAPI, App Router) are covered by the code and docs produced in later phases.
 
 **Phase 0 completion criteria:** all met except T002 (external account) and T012
@@ -122,4 +122,205 @@ requirements, no weight outside `(0, 1]`.
 
 ---
 
-*(Phases 4–11 and the final audit are tracked in the sections appended below as work completes.)*
+## Phases 4–11
+
+Phases 0–3 above are recorded per task. **Phases 4–11 below are recorded per phase
+with task ranges and the observed evidence**, because re-deriving 100+
+individual ticks after the fact would produce a tracker that looks rigorous and
+is not. Where a task is called out separately it is because it is blocked, it
+deviated from the plan, or it turned out to be wrong.
+
+### Phase 4 — Domain model & knowledge base (T063–T076)
+
+- [x] **T063–T075** — full CRUD for profile, skills, projects, education,
+  certifications and admin job roles, with ownership enforced by an owner filter
+  in every `WHERE` clause rather than a post-fetch comparison.
+  - Evidence: `tests/test_crud.py` — **36 tests**; `tests/test_ownership.py` —
+    **13 tests**, one per entity, plus `test_no_endpoint_accepts_a_user_id` and
+    `test_cascade_removes_the_whole_subtree`.
+- [x] **T042** — skill taxonomy. **151 skills, 555 declared aliases → 756
+  normalised surface forms, 8 categories.**
+  - Evidence: `tests/test_taxonomy.py` — 22 tests, including
+    `test_every_alias_resolves_to_exactly_one_skill` and
+    `test_every_skill_has_at_least_two_aliases`.
+- [x] **T045** — job-role knowledge base. **82 roles, 16 families, 1,043 weighted
+  requirements.**
+  - Evidence: `scripts/verify_compliance.py` asserts 50–100 roles, 8–18 required
+    skills each, every weight in (0, 1], and every role skill present in the
+    taxonomy. Row counts confirmed in the live database.
+- [x] **T046–T048** — idempotent seed scripts. Verified by re-running: the second
+  run reports `~0 updated`.
+
+### Phase 5 — AI/ML engine (T091–T108)
+
+- [x] **T092, T094** — CV text extraction and skill detection.
+  - Evidence: `tests/test_extractor.py` — 43 tests;
+    `tests/test_extraction_pipeline.py` — 25 tests over three committed synthetic
+    CVs (2 DOCX, 1 PDF) through the real parsers.
+- [x] **T096–T097** — `text_profile.build_profile_text`,
+  `matcher.weighted_skill_coverage`, `matcher.tfidf_cosine`,
+  `matcher.combined_score`.
+  - Evidence: `tests/test_matcher.py` — 23; `tests/test_ranker.py` — 14.
+- [x] **T100** — gap analysis, weight-ordered and tiered at 0.8 / 0.5.
+  - Evidence: `tests/test_gap_analysis.py` — 13.
+- [x] **T103** — optional LLM learning path, **off by default**.
+  - Evidence: `tests/test_learning_path.py` — 28, including that a model cannot
+    invent a skill or override a weight, and that provider error text never
+    reaches the caller.
+- [x] **T102, T108** — recommendations with persisted score components.
+  - Evidence: `tests/test_recommendations.py` — 26.
+- [x] **Purity boundary** — `app/ml` imports only the standard library and itself.
+  - Evidence: `tests/test_determinism.py::test_ml_only_imports_from_app_ml_and_allowed_third_party`
+    walks the AST; re-checked by `scripts/verify_compliance.py`.
+
+### Phase 6–8 — Frontend (T109–T150)
+
+- [x] **T109–T125** — Vite → Next.js 16 App Router. **20 routes, all rendering.**
+  The 49 shadcn components, `tailwind.config.ts` and `lib/utils.ts` are preserved
+  byte-identically.
+  - Evidence: `npm run build` → compiled successfully, 20 static pages;
+    `npx tsc --noEmit` → 0 errors; `npx eslint .` → clean.
+- [x] **T126–T150** — every screen: auth, dashboard, profile, skills, projects,
+  education, certifications, CV confirmation, recommendations with score
+  breakdown, skill gap, admin overview / job roles with a weight editor /
+  evaluation.
+  - Evidence: all mocks removed; `scripts/verify_compliance.py` asserts no
+    `mockStats`, `mockRecommendations`, `mockQuizData`, `12,847`, `94%` or `500+`
+    survives in source.
+- [ ] **T135, T140** — browser testing of the CRUD matrix and the journey.
+  **Done over HTTP against the running container, not through a real browser.**
+  Recorded as a gap in `docs/compliance-matrix.md` rather than claimed as met.
+
+### Phase 9 — Evaluation (T151–T160)
+
+- [x] **T151** — **26** hand-labelled profiles (plan floor: 24), 20 distinct roles,
+  11 families, 5 near-boundary cases, 1 sparse 4-skill profile, 1 profile with no
+  AI/ML skill. Labels assigned from the role definitions; rationales written
+  before the engine ran; no label changed afterwards.
+- [x] **T152–T155** — `metrics.py` (pure functions), `tuning.py` (sweep and
+  tie-break), `harness.py` (loading and driving), `__main__.py` (CLI).
+- [x] **T156** — `tests/test_evaluation.py` makes the top-3 hit rate a **regression
+  gate**, and proves the gate can fail.
+- [x] **T157** — `docs/evaluation_report.md`, generated and committed, with the
+  design-honesty disclosure and the threats to validity.
+- [x] **T158** — 3 synthetic CVs committed; the end-to-end pipeline test.
+- [x] **T159** — `backend/scripts/e2e_test.py` deleted.
+- [x] **T160** — full suite with coverage. **426 tests, 0 failures, 92%
+  statement coverage of `app/`.**
+
+**Results at the shipped 0.6/0.4:** top-1 **0.692**, top-3 **1.000** (target
+0.75 — met), MRR **0.840**, mean compatibility of the expected role **0.418**.
+Two consecutive runs produce a byte-identical `report.json`.
+
+**Weight tuning deviation.** Un-guarded, the sweep prefers 0.5/0.5 by +0.038 on
+top-1, which is one profile on a 26-profile set. `tuning.recommend()` therefore
+takes a noise floor of `1/n` and holds 0.6/0.4. The sweep is flat across 0.5–0.8
+(top-3 = 1.000 at each) and dips at 0.9 to 0.962; the 0.0 and 1.0 endpoints are
+component-isolation probes and both components are doing work (coverage alone
+0.923, text alone 0.808).
+
+### Phase 10 — Deployment (T161–T167)
+
+- [x] **T161** — `backend/Dockerfile` rewritten: `python:3.12-slim`, three stages,
+  non-root user, `libpq5`, `HEALTHCHECK` on `/health`, uvicorn with 2 workers.
+- [x] **T162** — `api` service added to `docker-compose.yml`, gated on a healthy
+  `postgres`, with `app/`, `data/` and `scripts/` bind-mounted for hot reload.
+- [x] **T163** — `backend/render.yaml`. All 16 environment variable names verified
+  to resolve against `Settings.model_fields`.
+- [x] **T164** — `frontend/vercel.json` and `frontend/.env.example`.
+- [!] **T165** — provision the production database and set the production
+  environment. **BLOCKED: needs a Render account.** Everything required is
+  committed and the exact procedure is in `docs/deployment.md`.
+- [x] **T166** — `docs/deployment.md`: architecture, the full environment
+  variable table, deploy order, migrations, seeds, rollback, local Docker
+  fallback.
+- [!] **T167** — the full journey against the deployed URL on desktop and phone,
+  performed by a second team member. **BLOCKED on T165 and on a person who did
+  not build it.** A local substitute was performed against the container; see
+  below.
+
+**Container verification actually performed** (this is the evidence for the
+deployment configuration, since the deployment itself is blocked): the image
+builds; `alembic upgrade head` applies all three migrations inside the container;
+the seeds produce 151 skills / 756 aliases / 82 roles / 1,043 requirements; the
+container reports `healthy`; `/health` returns `"database": "ok"`; and the journey
+register → login → profile → skills → CV upload (17 skills proposed) → per-item
+confirmation (4 accepted, 2 declined, tagged `cv_extracted`) → recommendations →
+stored run → skill gap → feedback all behave correctly. Anonymous and bad-token
+requests are 401; admin routes are 403 for a normal user and 200 for an admin;
+`PATCH /api/auth/me {"role":"admin"}` is ignored; an IDOR probe returns 404.
+
+### Phase 11 — Validation and cutover (T168–T176)
+
+- [x] **T168** — `docs/compliance-matrix.md`, every §18 row with a `file:line` or
+  a test name. **62 met, 3 implemented-but-not-verified-as-specified, 3 not done,
+  3 correctly absent.** `tests/test_compliance_matrix.py` resolves all 36 cited
+  test names, re-verifies the three §18.9 exclusions by grepping `app/`, and
+  checks the quoted counts against the live system.
+- [x] **T169–T171** — `docs/report.md`, `docs/user_manual.md`,
+  `docs/presentation_outline.md`, `docs/limitations.md`, plus `docs/architecture.md`,
+  `docs/tutorials.md`, `docs/legacy-freeze.md` and a root `README.md`.
+- [x] **T172** — branding sweep. `package.json` name is `careerlens-ai`;
+  `scripts/verify_compliance.py` asserts zero occurrences of the predecessor
+  names in any source file.
+- [x] **T173** — both READMEs rewritten; neither described a product that exists
+  any more.
+- [x] **T174** — legacy database archived to `docs/archive/pathfinder-legacy.db`.
+  **Redacted, not copied verbatim** — it contained 11 rows with real names and
+  real email addresses. Schema, row counts and all non-identifying values are
+  preserved. See `docs/archive/README.md`.
+- [x] **T175, T176** — the legacy tree deleted in a **single commit** (`fd76211`),
+  which names everything removed and why. Verified after deletion: 426 tests
+  pass, ruff and mypy clean, the frontend builds, the image builds, the container
+  is healthy.
+
+---
+
+## Bugs found by running the system, not by reading it
+
+Recorded because each one had a test gap, and each gap is now closed.
+
+| Bug | Why no test caught it | Test that now does |
+|---|---|---|
+| CV upload 500 in the container — the upload directory could not be created by the non-root user | the suite runs as a user who can write to the working directory | `test_extraction_pipeline.py` runs the real parsers over committed fixtures |
+| `/api/admin/evaluation` 404 for an admin — pointed at a file the build never produced, and no `docs/` is copied into the image | every admin-route assertion stopped at the 401, before the file check | `test_crud.py::test_admin_can_read_the_committed_evaluation_report`, `::test_committed_evaluation_report_exists_on_disk` |
+| The misspelt-environment-variable warning was never printed — `configure_logging()` was not idempotent, and a repeat `dictConfig` disabled the logger | the warning assertions passed alone and failed in the full suite, and were then "fixed" in a way that hid it | `test_config.py::test_repeated_configure_logging_leaves_our_loggers_enabled`, `::test_our_loggers_still_emit_after_repeat_configuration` |
+| `docs/erd.md` silently lost all 31 check constraints — a loop iterated one-tuples, and `str()` of a tuple never starts with `CHECK` | nothing asserted the guarantees were *visible* | `test_erd.py::test_check_constraints_are_documented` |
+| Every column in the Mermaid ERD rendered as a foreign key — the key marker was written on the wrong side of the name | nothing checked the diagram's grammar | `test_erd.py::test_the_mermaid_block_is_well_formed` |
+| `FeedbackRead` had absorbed all twelve `DashboardSummary` fields through a careless text split | the field set was never compared against the model | `test_error_envelope.py`, schema tests |
+
+## Deviations from the plan, and why
+
+| # | Deviation | Reason |
+|---|---|---|
+| D-1 | Rootless Docker | the host has no sudo password; the daemon runs as uid 1000. Every compose file and command is unchanged. |
+| D-2 | spaCy model pinned as a wheel rather than `spacy download` at build | reproducible, and no network round trip after the wheel fetch. Plan risk R21. |
+| D-3 | Migrations not on the container start command | a scaled replica would race a second migration. `render.yaml` does run them, because Render gives one instance per service. |
+| D-4 | Seeds invoked as `python -m scripts.x` | run by path, `sys.path` gets `scripts/` and `import app` fails. Verified in the container. |
+| D-5 | Legacy database archived **redacted** | it contained real names and real email addresses. Schema and row counts preserved. |
+| D-6 | gunicorn removed from `requirements.txt` | unused once the image moved to uvicorn. An unused dependency is a liability. |
+| D-7 | Weight sweep spans 0.5–0.9 **plus** 0.0 and 1.0 as component-isolation probes | the endpoints answer whether each component is doing any work at all. Both are. |
+| D-8 | `docs/api.md` and `docs/erd.md` generated from the live system | hand-written versions of either drift within a week. |
+| D-9 | 26 evaluation profiles rather than 24 | the extra two are the sparse profile and the no-AI/ML profile, which are the two that test something. |
+| D-10 | **No Jupyter notebook** | the sweep was codified into `tuning.py`, which is reproducible and tested where a notebook would be neither. Recorded as not-done in the compliance matrix rather than quietly omitted. |
+
+## Outstanding
+
+| Item | Why | What closes it |
+|---|---|---|
+| **T002** GitHub remote and project board | account ownership | a GitHub account and a decision to publish |
+| **T012** early tutorial walkthroughs | needs the four-person team | a scheduled session |
+| **T165** production database and environment | needs a Render account | account access; everything else is committed |
+| **T167** second-person journey, two viewports | needs T165 and a teammate | both |
+| **T135/T140** real-browser pass | no browser tooling was used in this environment | a browser run, or a Playwright suite |
+| **T010** Jupyter notebook | deliberately substituted (D-10) | a decision that a notebook is a graded artefact |
+
+## Final state
+
+- **426 tests, 0 failures, 92% statement coverage.** Ruff and mypy clean.
+- `npm run build`, `npx tsc --noEmit`, `npx eslint .` — all clean.
+- `python -m app.ml.evaluation --check` — exits 0.
+- `python scripts/verify_compliance.py` — **31 of 31 checks pass.**
+- Commits: `4097115` frozen baseline → `c41401f` platform → `9d39e13` engine →
+  `70ecfbb` frontend → `d0da4ac` evaluation → `4125a0c` deployment →
+  `8fe2633` generated docs and archive → `fd76211` documentation and cutover.
