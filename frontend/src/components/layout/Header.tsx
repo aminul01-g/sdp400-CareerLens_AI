@@ -1,222 +1,238 @@
-import { useState } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+"use client";
+
+/**
+ * Application header.
+ *
+ * Ported from the predecessor's `Header.tsx`. Three corrections are carried:
+ *
+ * 1. **`react-router-dom` -> `next/link` + `usePathname` + `useRouter`.**
+ * 2. **Every authenticated link resolves to a real route.** The old header linked
+ *    to `/profile`, `/admin`, `/admin/analytics` and `/admin/questions`; the last
+ *    two never existed in any router. The nav below is the full set of routes this
+ *    app actually serves.
+ * 3. **`isAdmin` is wired.** The old `App.tsx` passed only `isAuthenticated` and
+ *    `userEmail`, so `adminNavLinks` was defined but unreachable.
+ *
+ * The admin group is a client-side affordance only. The real enforcement is
+ * `require_role("admin")` on every `/api/admin/*` route.
+ */
+import * as React from "react";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import { Brain, ChevronDown, LogOut, Menu, Shield, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { 
-  GraduationCap, 
-  Menu, 
-  X, 
-  User, 
-  LogOut,
-  Settings,
-  BarChart3
-} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { cn } from "@/lib/utils";
 
-interface HeaderProps {
-  isAuthenticated?: boolean;
-  isAdmin?: boolean;
-  userEmail?: string;
-}
+/** Authenticated navigation. Every entry is a route that exists. */
+const userNavLinks = [
+  { href: "/dashboard", label: "Dashboard" },
+  { href: "/profile", label: "Profile" },
+  { href: "/skills", label: "Skills" },
+  { href: "/projects", label: "Projects" },
+  { href: "/education", label: "Education" },
+  { href: "/certifications", label: "Certifications" },
+  { href: "/resume", label: "Resume" },
+  { href: "/recommendations", label: "Recommendations" },
+  { href: "/skill-gap", label: "Skill Gap" },
+  { href: "/feedback", label: "Feedback" },
+] as const;
 
-export const Header = ({ isAuthenticated = false, isAdmin = false, userEmail }: HeaderProps) => {
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
+const adminNavLinks = [
+  { href: "/admin", label: "Overview" },
+  { href: "/admin/jobs", label: "Job Roles" },
+  { href: "/admin/evaluation", label: "Evaluation" },
+] as const;
 
-  const handleLogout = () => {
-    // clear stored auth and navigate to home
-    try { localStorage.removeItem('token'); localStorage.removeItem('user'); } catch(e) {}
-    navigate("/");
-  };
+const publicNavLinks = [
+  { href: "/features", label: "Features" },
+  { href: "/about", label: "About" },
+] as const;
 
-  const navLinks = [
-    { name: "Home", path: "/" },
-    { name: "About", path: "/about" },
-    { name: "Features", path: "/features" },
-  ];
+export function Header() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const { user, isAuthenticated, isAdmin, logout, isLoading } = useAuth();
+  const [mobileOpen, setMobileOpen] = React.useState(false);
 
-  const userNavLinks = [
-    { name: "Dashboard", path: "/dashboard" },
-    { name: "Quiz", path: "/quiz" },
-    { name: "Recommendations", path: "/recommendations" },
-    { name: "Feedback", path: "/feedback" },
-  ];
+  // Close the mobile menu on navigation; leaving it open hides the page the user
+  // just asked for.
+  React.useEffect(() => setMobileOpen(false), [pathname]);
 
-  const adminNavLinks = [
-    { name: "Admin Dashboard", path: "/admin" },
-    { name: "Analytics", path: "/admin/analytics" },
-    { name: "Manage Questions", path: "/admin/questions" },
-  ];
+  const isActive = (href: string) =>
+    href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(`${href}/`);
 
-  const currentNavLinks = isAuthenticated ? (isAdmin ? adminNavLinks : userNavLinks) : navLinks;
+  async function handleSignOut() {
+    await logout();
+    router.push("/login");
+  }
+
+  const links = isAuthenticated ? userNavLinks : publicNavLinks;
 
   return (
-    <header className="bg-card border-b border-border shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <div className="p-2 bg-gradient-to-r from-primary to-secondary rounded-lg group-hover:shadow-lg transition-all duration-300">
-              <GraduationCap className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              CareerGuide AI
-            </span>
-          </Link>
+    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
+        <Link href={isAuthenticated ? "/dashboard" : "/"} className="flex items-center gap-2 font-semibold">
+          <Brain className="h-6 w-6 text-primary" aria-hidden="true" />
+          <span>CareerLens <span className="text-primary">AI</span></span>
+        </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {currentNavLinks.map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  location.pathname === link.path
-                    ? "text-primary border-b-2 border-primary"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {link.name}
-              </Link>
-            ))}
-          </nav>
+        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+          {links.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              aria-current={isActive(link.href) ? "page" : undefined}
+              className={cn(
+                "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                isActive(link.href) && "bg-accent text-accent-foreground",
+              )}
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
 
-          {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-4">
-            {isAuthenticated ? (
+        <div className="flex items-center gap-2">
+          {isLoading ? (
+            <div className="h-9 w-24 animate-pulse rounded-md bg-muted" aria-hidden="true" />
+          ) : isAuthenticated && user ? (
+            <>
+              {isAdmin ? (
+                <Button asChild size="sm" variant="outline" className="hidden sm:inline-flex">
+                  <Link href="/admin">
+                    <Shield className="mr-2 h-3.5 w-3.5" aria-hidden="true" />
+                    Admin
+                  </Link>
+                </Button>
+              ) : null}
+
+              {isAdmin ? (
+                <nav className="hidden items-center gap-1 lg:flex" aria-label="Admin">
+                  {adminNavLinks.map((link) => (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      aria-current={isActive(link.href) ? "page" : undefined}
+                      className={cn(
+                        "rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
+                        isActive(link.href) && "bg-accent text-accent-foreground",
+                      )}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </nav>
+              ) : null}
+
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="flex items-center space-x-2">
-                    <User className="h-4 w-4" />
-                    <span className="max-w-32 truncate">{userEmail || "User"}</span>
+                  <Button variant="ghost" size="sm" className="gap-2">
+                    <span className="hidden max-w-32 truncate sm:inline">{user.name}</span>
+                    <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
+                      {user.name.trim().charAt(0).toUpperCase()}
+                    </span>
+                    <ChevronDown className="h-3.5 w-3.5" aria-hidden="true" />
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => navigate("/profile")}>
-                    <Settings className="mr-2 h-4 w-4" />
-                    Profile Settings
-                  </DropdownMenuItem>
-                  {isAdmin && (
-                    <DropdownMenuItem onClick={() => navigate("/admin")}>
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      Admin Dashboard
-                    </DropdownMenuItem>
-                  )}
+                  <DropdownMenuLabel>
+                    <span className="block truncate text-sm font-medium">{user.name}</span>
+                    <span className="block truncate text-xs font-normal text-muted-foreground">{user.email}</span>
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive">
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
+                  <DropdownMenuItem asChild>
+                    <Link href="/profile">Profile</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/skills">My skills</Link>
+                  </DropdownMenuItem>
+                  {isAdmin ? (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin">Admin panel</Link>
+                    </DropdownMenuItem>
+                  ) : null}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={() => void handleSignOut()} className="text-destructive focus:text-destructive">
+                    <LogOut className="mr-2 h-4 w-4" aria-hidden="true" />
+                    Sign out
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link to="/login">Sign In</Link>
-                </Button>
-                <Button variant="hero" asChild>
-                  <Link to="/register">Get Started</Link>
-                </Button>
-              </>
-            )}
-          </div>
+            </>
+          ) : (
+            <>
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/login">Log in</Link>
+              </Button>
+              <Button asChild size="sm">
+                <Link href="/register">Get started</Link>
+              </Button>
+            </>
+          )}
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-            >
-              {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </Button>
-          </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            aria-expanded={mobileOpen}
+            aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
+            onClick={() => setMobileOpen((open) => !open)}
+          >
+            {mobileOpen ? <X className="h-5 w-5" aria-hidden="true" /> : <Menu className="h-5 w-5" aria-hidden="true" />}
+          </Button>
         </div>
+      </div>
 
-        {/* Mobile Navigation */}
-        {isMenuOpen && (
-          <div className="md:hidden py-4 space-y-2 border-t border-border">
-            {currentNavLinks.map((link) => (
+      {mobileOpen ? (
+        <div className="border-t md:hidden">
+          <nav className="container mx-auto flex flex-col gap-1 px-4 py-3" aria-label="Mobile">
+            {links.map((link) => (
               <Link
-                key={link.path}
-                to={link.path}
-                className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${
-                  location.pathname === link.path
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                }`}
-                onClick={() => setIsMenuOpen(false)}
+                key={link.href}
+                href={link.href}
+                aria-current={isActive(link.href) ? "page" : undefined}
+                className={cn(
+                  "rounded-md px-3 py-2 text-sm font-medium hover:bg-accent",
+                  isActive(link.href) && "bg-accent",
+                )}
               >
-                {link.name}
+                {link.label}
               </Link>
             ))}
-            
-            <div className="pt-4 space-y-2 border-t border-border">
-              {isAuthenticated ? (
-                <>
-                  <div className="flex items-center space-x-2 py-2">
-                    <User className="h-4 w-4" />
-                    <span className="text-sm font-medium">{userEmail || "User"}</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => { navigate("/profile"); setIsMenuOpen(false); }}
+            {isAdmin ? (
+              <>
+                <p className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Admin
+                </p>
+                {adminNavLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    aria-current={isActive(link.href) ? "page" : undefined}
+                    className={cn(
+                      "rounded-md px-3 py-2 text-sm font-medium hover:bg-accent",
+                      isActive(link.href) && "bg-accent",
+                    )}
                   >
-                    <Settings className="mr-2 h-4 w-4" />
-                    Profile Settings
-                  </Button>
-                  {isAdmin && (
-                    <Button
-                      variant="ghost"
-                      className="w-full justify-start"
-                      onClick={() => { navigate("/admin"); setIsMenuOpen(false); }}
-                    >
-                      <BarChart3 className="mr-2 h-4 w-4" />
-                      Admin Dashboard
-                    </Button>
-                  )}
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start text-destructive"
-                    onClick={() => { handleLogout(); setIsMenuOpen(false); }}
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    asChild
-                  >
-                    <Link to="/login" onClick={() => setIsMenuOpen(false)}>
-                      Sign In
-                    </Link>
-                  </Button>
-                  <Button
-                    variant="hero"
-                    className="w-full"
-                    asChild
-                  >
-                    <Link to="/register" onClick={() => setIsMenuOpen(false)}>
-                      Get Started
-                    </Link>
-                  </Button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
-      </div>
+                    {link.label}
+                  </Link>
+                ))}
+              </>
+            ) : null}
+          </nav>
+        </div>
+      ) : null}
     </header>
   );
-};
+}
+
+export default Header;

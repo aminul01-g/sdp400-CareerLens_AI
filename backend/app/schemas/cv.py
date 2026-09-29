@@ -83,30 +83,20 @@ class FeedbackCreate(BaseModel):
 
 
 class FeedbackRead(BaseModel):
+    """A stored feedback entry.
+
+    Not one of the proposal's nine modules; retained because the UI for it already
+    existed in the predecessor app. ``user_id`` is not exposed in the read model,
+    since an admin listing has no need for it.
+    """
+
     model_config = ConfigDict(from_attributes=True)
 
     id: int
-    user_id: int
     category: str
     message: str
     rating: int | None = None
     created_at: datetime | None = None
-
-
-
-    """Real aggregates. Replaces the fabricated ``mockStats`` on the old dashboard."""
-
-    skills_count: int
-    projects_count: int
-    education_count: int
-    certifications_count: int
-    resume_uploads_count: int
-    total_recommendation_runs: int
-    latest_run_at: datetime | None = None
-    top_role_id: int | None = None
-    top_role_title: str | None = None
-    top_compatibility_pct: float | None = None
-    member_since: datetime | None = None
 
 
 class OnboardingStep(BaseModel):
