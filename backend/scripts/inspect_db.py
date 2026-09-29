@@ -1,6 +1,6 @@
+import json
 import os
 import sqlite3
-import json
 import sys
 
 # Ensure the backend folder is on sys.path so `import app` works when this
@@ -53,7 +53,7 @@ else:
 # Also try using SQLAlchemy models to show nicer output
 with app.app_context():
     try:
-        from models import User, Profile, Upload, GuidanceSession, Event
+        from models import Event, GuidanceSession, Profile, Upload, User
         print('\nSQLAlchemy counts:')
         print('Users:', User.query.count())
         print('Profiles:', Profile.query.count())

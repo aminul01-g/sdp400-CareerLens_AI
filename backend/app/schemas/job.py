@@ -97,9 +97,14 @@ class JobRoleUpdate(BaseModel):
 
     @model_validator(mode="after")
     def _description_not_emptied(self) -> JobRoleUpdate:
-        if "description" in self.model_fields_set and self.description is not None:
-            if not self.description.strip():
-                raise ValueError("A job role requires a description to be matchable.")
+        # Absent is fine (partial update); present-but-blank is not, because a role
+        # with no description cannot be TF-IDF-matched.
+        if (
+            self.description is not None
+            and "description" in self.model_fields_set
+            and not self.description.strip()
+        ):
+            raise ValueError("A job role requires a description to be matchable.")
         return self
 
 

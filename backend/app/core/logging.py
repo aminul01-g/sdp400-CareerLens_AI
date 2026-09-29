@@ -19,7 +19,12 @@ from typing import Any
 from app.core.config import get_settings
 
 request_id_var: ContextVar[str] = ContextVar("request_id", default="-")
-extra_context: ContextVar[dict[str, Any]] = ContextVar("extra_context", default={})
+# The default is an empty *tuple*, not an empty dict: a ContextVar default is
+# created once and shared by every request, so a mutable default would be a
+# process-wide data leak waiting to happen.
+extra_context: ContextVar[tuple[tuple[str, Any], ...]] = ContextVar(
+    "extra_context", default=()
+)
 
 
 class RequestIdFilter(logging.Filter):
@@ -34,7 +39,7 @@ class ContextFilter(logging.Filter):
     """Attach the ambient structured context to every record."""
 
     def filter(self, record: logging.LogRecord) -> bool:
-        for key, value in extra_context.get().items():
+        for key, value in extra_context.get():
             if not hasattr(record, key):
                 setattr(record, key, value)
         return True

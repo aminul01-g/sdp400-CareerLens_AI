@@ -117,10 +117,3 @@ class ProjectRead(BaseModel):
     updated_at: datetime | None = None
     # Entries the taxonomy could not canonicalise, surfaced for the UI badge.
     unrecognised_tech: list[str] = Field(default_factory=list)
-
-
-class ProjectPageResponse(BaseModel):
-    total: int
-    page: int
-    page_size: int
-    items: list[ProjectRead]

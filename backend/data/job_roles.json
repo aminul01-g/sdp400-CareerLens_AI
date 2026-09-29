@@ -1,0 +1,5409 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-09-30",
+  "description": "Curated AI/ML job-role knowledge base for CareerLens AI. Each role carries a description (the TF-IDF corpus document), responsibilities, and 8-18 required skills with per-(role,skill) importance weights in (0,1]. Weights decay down a fixed ladder from 1.00, so a role has a few genuinely critical requirements and a long tail of desirable ones.",
+  "roles": [
+    {
+      "title": "Machine Learning Engineer",
+      "slug": "machine-learning-engineer",
+      "family": "ML Engineer",
+      "seniority": "Mid",
+      "description": "Design, train, evaluate and deploy machine learning models. Work across the full lifecycle: exploratory analysis, feature engineering, model selection, cross-validated evaluation, and packaging the trained model behind an API. Strong Python and Scikit-learn fundamentals are expected, with deep-learning experience in PyTorch for larger problems.",
+      "responsibilities": [
+        "Design, train, evaluate and deploy machine learning models",
+        "Build reproducible training and evaluation pipelines",
+        "Collaborate with data engineering on feature pipelines",
+        "Monitor models in production and retrain as needed"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Senior Machine Learning Engineer",
+      "slug": "senior-machine-learning-engineer",
+      "family": "ML Engineer",
+      "seniority": "Senior",
+      "description": "Lead the design and delivery of machine learning systems. Owns evaluation methodology, model reliability and the technical direction of ML projects. Expected to mentor engineers, review model changes critically, and reason about failure modes rather than only headline accuracy.",
+      "responsibilities": [
+        "Set the technical direction for ML projects",
+        "Design evaluation methodology and guard against leakage",
+        "Mentor engineers and review model changes",
+        "Own model reliability in production"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "ensemble-methods",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "shap",
+          "weight": 0.52
+        }
+      ]
+    },
+    {
+      "title": "Machine Learning Scientist",
+      "slug": "machine-learning-scientist",
+      "family": "Research",
+      "seniority": "Principal",
+      "description": "Work on problems where the correct modelling approach is not yet known. Formulate the problem, design controlled experiments, and reason from first principles about optimisation, generalisation and statistical validity. Research output is expected, and negative results are treated as findings rather than failures.",
+      "responsibilities": [
+        "Formulate research problems from ambiguous goals",
+        "Design and run controlled experiments",
+        "Apply statistical rigour to model comparison",
+        "Publish or internalise novel findings"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "linear-algebra",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "calculus",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "bayesian-statistics",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "self-supervised-learning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "transfer-learning",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Deep Learning Engineer",
+      "slug": "deep-learning-engineer",
+      "family": "Deep Learning",
+      "seniority": "Mid",
+      "description": "Build and train deep neural networks with PyTorch, from computer vision architectures through to transformer-based sequence models. Expected to select and adapt pretrained checkpoints, implement efficient training loops, and diagnose optimisation instability rather than only tuning hyperparameters.",
+      "responsibilities": [
+        "Implement and train deep neural architectures",
+        "Select and adapt pretrained models",
+        "Build efficient training and inference pipelines",
+        "Diagnose instability in optimisation"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "neural-networks",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "convolutional-neural-networks",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "attention-mechanism",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "transfer-learning",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "embeddings",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "computer-vision",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "pytorch-lightning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "onnx",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "self-supervised-learning",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "AI Engineer",
+      "slug": "ai-engineer",
+      "family": "AI Engineer",
+      "seniority": "Mid",
+      "description": "Build end-to-end AI products: Python services that expose models behind clean REST APIs, containerised with Docker and deployed on cloud infrastructure. Comfortable across the modelling boundary - able to train a baseline model and equally able to productionise it with tests, CI/CD and observability.",
+      "responsibilities": [
+        "Build end-to-end AI features into production services",
+        "Expose models behind well-designed APIs",
+        "Instrument AI services for reliability",
+        "Work with data and platform engineers"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Generative AI Engineer",
+      "slug": "generative-ai-engineer",
+      "family": "LLM Engineer",
+      "seniority": "Mid",
+      "description": "Build applications on top of large language models. Combines prompt and retrieval design with engineering discipline: chunking strategies, vector search, evaluation harnesses, and cost control. Expected to measure output quality rather than judging by anecdote.",
+      "responsibilities": [
+        "Build retrieval-augmented and tool-using LLM applications",
+        "Select and fine-tune foundation models",
+        "Design and evaluate prompting and retrieval strategies",
+        "Guard against hallucination and cost blow-up"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "gpt",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "prompt-engineering",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "retrieval-augmented-generation",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "langchain",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hugging-face",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "llama",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "vector-databases",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "faiss",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "tokenization",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "LLM Engineer",
+      "slug": "llm-engineer",
+      "family": "LLM Engineer",
+      "seniority": "Senior",
+      "description": "Own the architecture of LLM-based systems. Takes a model from prompt baseline through retrieval, fine-tuning and serving, and is responsible for measured quality, latency and cost. Deep familiarity with tokenisation, attention, and inference-time trade-offs is expected.",
+      "responsibilities": [
+        "Own LLM application architecture end to end",
+        "Fine-tune and quantise models where retrieval is insufficient",
+        "Build offline and online evaluation suites",
+        "Optimise latency and cost per request"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "gpt",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "prompt-engineering",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "retrieval-augmented-generation",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "langchain",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hugging-face",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "llama",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "tokenization",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "vector-databases",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "NLP Engineer",
+      "slug": "nlp-engineer",
+      "family": "NLP",
+      "seniority": "Mid",
+      "description": "Build text-processing systems: normalisation, tokenisation, entity extraction and classification. Comfortable choosing between classical approaches such as regular expressions and CRF-style pipelines and transformer models, and able to justify the trade-off.",
+      "responsibilities": [
+        "Build and maintain text-processing pipelines",
+        "Train or fine-tune sequence models for NLP tasks",
+        "Design annotation schemes and labelling guidelines",
+        "Ship NLP services with latency budgets"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "spacy",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "nltk",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "bert",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "tokenization",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "named-entity-recognition",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "text-classification",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "embeddings",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Computer Vision Engineer",
+      "slug": "computer-vision-engineer",
+      "family": "Computer Vision",
+      "seniority": "Mid",
+      "description": "Build systems that interpret images and video. Trains and fine-tunes convolutional and transformer vision models, designs sensible augmentation, and cares about inference cost and latency rather than only offline accuracy.",
+      "responsibilities": [
+        "Build and train image and video models",
+        "Design data augmentation and labelling strategies",
+        "Optimise inference latency and memory",
+        "Evaluate model quality on held-out real-world data"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "convolutional-neural-networks",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "computer-vision",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "object-detection",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "image-segmentation",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "transfer-learning",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "pytorch-lightning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "onnx",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Reinforcement Learning Engineer",
+      "slug": "reinforcement-learning-engineer",
+      "family": "RL",
+      "seniority": "Senior",
+      "description": "Work on sequential decision-making: design reward functions that do not invite specification gaming, build realistic simulation environments, and analyse policy behaviour. Statistical rigour matters more here than in almost any other ML setting.",
+      "responsibilities": [
+        "Design reward functions and evaluation protocols",
+        "Build simulation environments and benchmarks",
+        "Analyse policy behaviour and failure modes",
+        "Ensure reproducible experimentation"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "reinforcement-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "bayesian-statistics",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "neural-networks",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.68
+        }
+      ]
+    },
+    {
+      "title": "Data Scientist",
+      "slug": "data-scientist",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Bridge statistics and business. Frames questions precisely, designs experiments that can actually detect the effect being looked for, builds validated predictive models, and communicates the result so that a decision can be made from it.",
+      "responsibilities": [
+        "Frame business questions as statistical questions",
+        "Design and analyse controlled experiments",
+        "Build and validate predictive models",
+        "Communicate findings to non-technical stakeholders"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Senior Data Scientist",
+      "slug": "senior-data-scientist",
+      "family": "Data Science",
+      "seniority": "Senior",
+      "description": "Lead statistical strategy for a product area. Owns experiment design and causal analysis, mentors analysts, and is trusted to communicate uncertainty honestly rather than overclaiming from a single metric.",
+      "responsibilities": [
+        "Own the statistical strategy for a product area",
+        "Design experiments and causal analyses others rely on",
+        "Mentor analysts and data scientists",
+        "Communicate uncertainty honestly"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "bayesian-statistics",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Applied Scientist",
+      "slug": "applied-scientist",
+      "family": "Data Science",
+      "seniority": "Senior",
+      "description": "Sits between research and product: takes a real product problem, builds a model that works on real data under real constraints, and ships it. Expected to make pragmatic trade-offs between model sophistication and measurable business value.",
+      "responsibilities": [
+        "Translate product problems into modelling problems",
+        "Build models that survive contact with production data",
+        "Balance model complexity against business value",
+        "Document methods for reproducibility"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.52
+        }
+      ]
+    },
+    {
+      "title": "Analytics Engineer",
+      "slug": "analytics-engineer",
+      "family": "Data Engineering",
+      "seniority": "Mid",
+      "description": "Build the modelled data layer that analytics depends on. Owns tested, documented transformations, data-quality contracts and lineage, so that analysts can trust the numbers without re-deriving them.",
+      "responsibilities": [
+        "Build and maintain trustworthy data models",
+        "Write tested, documented transformations",
+        "Define data-quality checks and lineage",
+        "Enable self-service analytics"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "dbt",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Data Analyst",
+      "slug": "data-analyst",
+      "family": "Data Science",
+      "seniority": "Junior",
+      "description": "Answer business questions using SQL and Python, and present the answer clearly. Expected to validate source data before trusting it and to communicate uncertainty rather than presenting a point estimate as if it were exact.",
+      "responsibilities": [
+        "Answer business questions with SQL and Python",
+        "Build clear, honest dashboards",
+        "Validate and clean source data",
+        "Present findings to stakeholders"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "tableau",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Business Intelligence Analyst",
+      "slug": "business-intelligence-analyst",
+      "family": "Data Science",
+      "seniority": "Junior",
+      "description": "Build the dashboards and reports that stakeholders use daily. A large part of the value is in getting metric definitions right and documenting them, so that two people reading the same dashboard agree on what the number means.",
+      "responsibilities": [
+        "Build dashboards and reports stakeholders rely on",
+        "Translate business questions into metric definitions",
+        "Maintain and validate report logic",
+        "Document metric definitions"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "tableau",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Data Engineer",
+      "slug": "data-engineer",
+      "family": "Data Engineering",
+      "seniority": "Mid",
+      "description": "Build and operate the pipelines the rest of the company depends on. Designs batch and streaming workloads, models data for analytical access, and treats data quality and pipeline cost as first-class concerns.",
+      "responsibilities": [
+        "Design and operate batch and streaming pipelines",
+        "Model data for analytical workloads",
+        "Ensure data quality and observability",
+        "Manage cost and reliability of the pipeline estate"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "apache-kafka",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "apache-parquet",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "spark-streaming",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "apache-hadoop",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Senior Data Engineer",
+      "slug": "senior-data-engineer",
+      "family": "Data Engineering",
+      "seniority": "Senior",
+      "description": "Set strategy for the data platform. Designs reliable observable pipelines, mentors engineers, and owns both platform cost and data governance so that the platform remains usable as it grows.",
+      "responsibilities": [
+        "Set the data platform strategy",
+        "Design reliable, observable pipelines",
+        "Mentor engineers on modelling and reliability",
+        "Own platform cost and governance"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "apache-kafka",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "spark-streaming",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "apache-parquet",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Database Administrator",
+      "slug": "database-administrator",
+      "family": "Data Engineering",
+      "seniority": "Mid",
+      "description": "Own the production database estate: provisioning, schema and index design, backup and restore, replication and incident response. Prioritises data integrity above availability when the two conflict.",
+      "responsibilities": [
+        "Provision and tune production databases",
+        "Design schemas and indexes for real access patterns",
+        "Own backup, restore and disaster recovery",
+        "Respond to incidents with data integrity first"
+      ],
+      "skills": [
+        {
+          "skill_slug": "postgresql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "mysql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.72
+        }
+      ]
+    },
+    {
+      "title": "Big Data Engineer",
+      "slug": "big-data-engineer",
+      "family": "Data Engineering",
+      "seniority": "Senior",
+      "description": "Build distributed data systems and make them fast and cheap. Comfortable reasoning about partitioning, shuffles, join strategies and storage formats, and able to quantify the cost impact of a design decision.",
+      "responsibilities": [
+        "Build distributed batch and streaming systems",
+        "Tune Spark workloads for cost and latency",
+        "Design partitioning and storage layouts",
+        "Ensure data correctness at scale"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "java",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "apache-hadoop",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "apache-kafka",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "apache-parquet",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "spark-streaming",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "MLOps Engineer",
+      "slug": "mlops-engineer",
+      "family": "MLOps",
+      "seniority": "Mid",
+      "description": "Own the operational half of machine learning: packaging models into services, automating retraining and promotion, instrumenting them, and managing the infrastructure they run on. The job is as much about reliability as about machine learning.",
+      "responsibilities": [
+        "Build and maintain model deployment pipelines",
+        "Automate training, evaluation and promotion",
+        "Instrument services for observability",
+        "Manage infrastructure as code"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "prometheus",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "grafana",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Machine Learning Infrastructure Engineer",
+      "slug": "machine-learning-infrastructure-engineer",
+      "family": "MLOps",
+      "seniority": "Senior",
+      "description": "Design the compute and storage substrate that machine learning runs on. Responsible for scaling training and serving, and for making cost per unit of work a first-class engineering metric rather than an afterthought.",
+      "responsibilities": [
+        "Design the compute and storage substrate for ML",
+        "Build scalable training and serving infrastructure",
+        "Optimise cost per unit of work",
+        "Establish reliability and observability standards"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "prometheus",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Data Engineering Manager",
+      "slug": "data-engineering-manager",
+      "family": "Data Engineering",
+      "seniority": "Lead",
+      "description": "Lead a data engineering team. Sets the roadmap, grows engineers, and keeps platform work tied to measurable business outcomes rather than to technical preference.",
+      "responsibilities": [
+        "Set the data platform roadmap",
+        "Grow and mentor a team of data engineers",
+        "Align platform work with business outcomes",
+        "Manage delivery and stakeholder expectations"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.68
+        }
+      ]
+    },
+    {
+      "title": "ML Engineering Manager",
+      "slug": "ml-engineering-manager",
+      "family": "ML Engineer",
+      "seniority": "Lead",
+      "description": "Lead a team delivering machine learning products. Balances exploratory work against delivery commitments, sets quality standards, and is accountable for outcomes rather than for models in isolation.",
+      "responsibilities": [
+        "Own a team delivering ML products",
+        "Set technical direction and quality standards",
+        "Balance research exploration against delivery",
+        "Represent the team's work to stakeholders"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Head of Data Science",
+      "slug": "head-of-data-science",
+      "family": "Data Science",
+      "seniority": "Lead",
+      "description": "Set data science strategy for the organisation: build the function, hold the experimentation bar across teams, and make sure analysis actually changes decisions rather than merely producing reports.",
+      "responsibilities": [
+        "Set the data science strategy for the organisation",
+        "Build and mentor the data science function",
+        "Ensure experimentation standards across teams",
+        "Translate analysis into business decisions"
+      ],
+      "skills": [
+        {
+          "skill_slug": "statistics",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.68
+        }
+      ]
+    },
+    {
+      "title": "Computer Vision Research Engineer",
+      "slug": "computer-vision-research-engineer",
+      "family": "Computer Vision",
+      "seniority": "Senior",
+      "description": "Advance the state of vision modelling on internal problems: design architectures and self-supervised objectives, run reproducible research, and convert findings into shipped capability.",
+      "responsibilities": [
+        "Advance vision model architectures",
+        "Design self-supervised objectives for unlabelled data",
+        "Build reproducible research pipelines",
+        "Publish and internalise results"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "convolutional-neural-networks",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "computer-vision",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "object-detection",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "image-segmentation",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "transfer-learning",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "self-supervised-learning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "linear-algebra",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "onnx",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Speech and Audio Engineer",
+      "slug": "speech-and-audio-engineer",
+      "family": "NLP",
+      "seniority": "Mid",
+      "description": "Build speech and audio systems, from low-latency streaming recognition to audio-conditioned language models. Evaluated on word error rate and behaviour on real, noisy audio rather than on clean benchmarks.",
+      "responsibilities": [
+        "Build speech recognition and audio understanding systems",
+        "Design streaming and low-latency decoding",
+        "Fine-tune pretrained audio and text models",
+        "Evaluate word error rate and robustness on real audio"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "speech-recognition",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "tokenization",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "self-supervised-learning",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Recommender Systems Engineer",
+      "slug": "recommender-systems-engineer",
+      "family": "ML Engineer",
+      "seniority": "Mid",
+      "description": "Build the models that decide what a user sees next. Works across retrieval and ranking, designs both offline and online evaluation, and runs controlled experiments on live traffic.",
+      "responsibilities": [
+        "Build and tune ranking and retrieval models",
+        "Design online and offline evaluation",
+        "Run controlled experiments on live traffic",
+        "Balance relevance, diversity and business constraints"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "embeddings",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Search Engineer",
+      "slug": "search-engineer",
+      "family": "ML Engineer",
+      "seniority": "Mid",
+      "description": "Improve the relevance of search: lexical and semantic retrieval, ranking, and a genuine offline relevance evaluation set that is not just click-through data.",
+      "responsibilities": [
+        "Improve ranking and relevance of search results",
+        "Build lexical and semantic retrieval",
+        "Design offline relevance evaluation",
+        "Run online experiments on search quality"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "vector-databases",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "embeddings",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "retrieval-augmented-generation",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "faiss",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Knowledge Graph Engineer",
+      "slug": "knowledge-graph-engineer",
+      "family": "NLP",
+      "seniority": "Mid",
+      "description": "Model entities and their relationships, build the extraction and reconciliation pipelines that populate the graph, and serve it. Provenance for every fact is a hard requirement, not a nice-to-have.",
+      "responsibilities": [
+        "Model entities and relationships",
+        "Build extraction and reconciliation pipelines",
+        "Serve graph queries to applications",
+        "Maintain provenance for facts"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "algorithms",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "retrieval-augmented-generation",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "embeddings",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Time Series Forecasting Specialist",
+      "slug": "time-series-forecasting-specialist",
+      "family": "Data Science",
+      "seniority": "Senior",
+      "description": "Build forecasting systems and defend them. The hard part is backtesting without leakage and communicating prediction intervals honestly to people who need a number for planning.",
+      "responsibilities": [
+        "Build and validate forecasting models",
+        "Design rigorous backtesting that avoids leakage",
+        "Quantify prediction intervals",
+        "Communicate uncertainty to planners"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Forecasting Platform Engineer",
+      "slug": "forecasting-platform-engineer",
+      "family": "MLOps",
+      "seniority": "Senior",
+      "description": "Operate the shared forecasting infrastructure. Point-in-time correctness of training features is the central concern: a pipeline that leaks future data will report accuracy that never materialises.",
+      "responsibilities": [
+        "Operate shared forecasting pipelines at scale",
+        "Guarantee point-in-time correctness of features",
+        "Monitor forecast accuracy in production",
+        "Manage compute cost of batch inference"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "apache-parquet",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.52
+        }
+      ]
+    },
+    {
+      "title": "Quantitative Researcher",
+      "slug": "quantitative-researcher",
+      "family": "Quantitative",
+      "seniority": "Senior",
+      "description": "Research systematic signals and test them rigorously. Look-ahead bias and overfitting are the two failure modes that matter, so evaluation design is the core skill rather than the modelling.",
+      "responsibilities": [
+        "Research and test systematic trading signals",
+        "Design backtests without look-ahead bias",
+        "Quantify risk and drawdown",
+        "Validate signals out of sample"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "linear-algebra",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "hyperparameter-tuning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "sampling",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "reinforcement-learning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "calculus",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Risk Analyst",
+      "slug": "risk-analyst",
+      "family": "Quantitative",
+      "seniority": "Mid",
+      "description": "Quantify and monitor risk. Builds scenario and stress analyses and reports them to people who will act on them, which makes clarity as important as the arithmetic.",
+      "responsibilities": [
+        "Quantify and monitor risk exposures",
+        "Build scenario and stress analyses",
+        "Report findings to risk committees",
+        "Maintain model documentation"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sampling",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "reinforcement-learning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "descriptive-statistics",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Cloud Engineer",
+      "slug": "cloud-engineer",
+      "family": "MLOps",
+      "seniority": "Mid",
+      "description": "Provision and operate cloud infrastructure. Everything is defined in code, security and cost are guardrails rather than afterthoughts, and hand-run configuration is treated as a defect.",
+      "responsibilities": [
+        "Provision and maintain cloud infrastructure",
+        "Automate provisioning with infrastructure as code",
+        "Operate container platforms and CI/CD",
+        "Enforce security and cost guardrails"
+      ],
+      "skills": [
+        {
+          "skill_slug": "aws",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "prometheus",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "grafana",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "gitlab",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "jenkins",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Site Reliability Engineer",
+      "slug": "site-reliability-engineer",
+      "family": "MLOps",
+      "seniority": "Senior",
+      "description": "Keep production systems available and improve the systems that make availability sustainable. Expected to lead incident response, write honest postmortems, and alert on symptoms rather than on causes.",
+      "responsibilities": [
+        "Keep production systems available",
+        "Lead incident response and postmortems",
+        "Build automation to remove toil",
+        "Define SLOs and alert on symptoms"
+      ],
+      "skills": [
+        {
+          "skill_slug": "linux",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "prometheus",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "grafana",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "DevOps Engineer",
+      "slug": "devops-engineer",
+      "family": "MLOps",
+      "seniority": "Mid",
+      "description": "Automate the path from commit to production. Improves deployment frequency and safety through pipelines, containers and infrastructure as code, and reduces manual steps deliberately.",
+      "responsibilities": [
+        "Automate build, test and deploy pipelines",
+        "Manage containerised workloads",
+        "Improve deployment frequency and safety",
+        "Maintain infrastructure as code"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "jenkins",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "github-actions",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "ansible",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "prometheus",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Kubernetes Administrator",
+      "slug": "kubernetes-administrator",
+      "family": "MLOps",
+      "seniority": "Mid",
+      "description": "Operate Kubernetes clusters: upgrades, networking and scheduling problems, security policy, and cluster provisioning. Much of the value is in knowing the failure modes well enough to diagnose them quickly.",
+      "responsibilities": [
+        "Operate and upgrade Kubernetes clusters",
+        "Troubleshoot networking and scheduling issues",
+        "Manage cluster security and policies",
+        "Automate cluster provisioning"
+      ],
+      "skills": [
+        {
+          "skill_slug": "kubernetes",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "helm",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "prometheus",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.68
+        }
+      ]
+    },
+    {
+      "title": "Platform Engineer",
+      "slug": "platform-engineer",
+      "family": "MLOps",
+      "seniority": "Senior",
+      "description": "Build internal platforms that make product teams faster. Success is measured by whether engineers choose the paved road, which makes developer experience the primary design constraint.",
+      "responsibilities": [
+        "Build internal platforms that make teams faster",
+        "Design paved roads and self-service tooling",
+        "Reduce developer friction and toil",
+        "Own platform reliability"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "go",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "helm",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Backend Engineer",
+      "slug": "backend-engineer",
+      "family": "Software Engineering",
+      "seniority": "Mid",
+      "description": "Build and maintain backend services. Designs APIs others can consume, models relational data carefully, and treats automated tests as part of the definition of done rather than as an extra step.",
+      "responsibilities": [
+        "Design and build backend services and APIs",
+        "Model relational data and manage migrations",
+        "Ensure correctness through automated tests",
+        "Operate services in production"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "redis",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Senior Backend Engineer",
+      "slug": "senior-backend-engineer",
+      "family": "Software Engineering",
+      "seniority": "Senior",
+      "description": "Set architecture direction for backend systems. Reviews designs, owns the reliability and performance of critical services, and is expected to mentor rather than only to contribute.",
+      "responsibilities": [
+        "Set backend architecture direction",
+        "Review design and code across the team",
+        "Own reliability and performance of critical services",
+        "Mentor engineers"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "redis",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Frontend Engineer",
+      "slug": "frontend-engineer",
+      "family": "Software Engineering",
+      "seniority": "Mid",
+      "description": "Build accessible, responsive user interfaces against real APIs, including the loading, empty and error states that most product surfaces forget. Design-system consistency is treated as a feature.",
+      "responsibilities": [
+        "Build accessible, responsive user interfaces",
+        "Consume REST APIs with proper loading and error states",
+        "Write component tests",
+        "Maintain design consistency across the product"
+      ],
+      "skills": [
+        {
+          "skill_slug": "javascript",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "typescript",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "data-structures",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "algorithms",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "object-oriented-programming",
+          "weight": 0.52
+        }
+      ]
+    },
+    {
+      "title": "Full Stack Engineer",
+      "slug": "full-stack-engineer",
+      "family": "Software Engineering",
+      "seniority": "Mid",
+      "description": "Ship features across the whole stack: interface, API and data model. The value is in keeping those three coherent, so the data model is designed with the interface in mind rather than after it.",
+      "responsibilities": [
+        "Ship features across the whole stack",
+        "Design APIs and the interfaces that consume them",
+        "Keep the data model coherent",
+        "Own features from prototype to production"
+      ],
+      "skills": [
+        {
+          "skill_slug": "javascript",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "typescript",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Software Engineer",
+      "slug": "software-engineer",
+      "family": "Software Engineering",
+      "seniority": "Mid",
+      "description": "Implement and maintain software features across a stack. Expected to write real tests, review others' code constructively, and debug systematically rather than by guesswork.",
+      "responsibilities": [
+        "Implement and maintain software features",
+        "Write and maintain automated tests",
+        "Review code and improve team practices",
+        "Debug production issues methodically"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "java",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-structures",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "algorithms",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "QA Automation Engineer",
+      "slug": "qa-automation-engineer",
+      "family": "Software Engineering",
+      "seniority": "Mid",
+      "description": "Design and maintain automated test suites that the team trusts. A test suite that is flaky gets ignored, so reliability is treated as the primary quality bar rather than coverage percentage.",
+      "responsibilities": [
+        "Design and maintain automated test suites",
+        "Integrate testing into CI/CD",
+        "Build reliable test data management",
+        "Report and triage defects accurately"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "javascript",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Product Analyst",
+      "slug": "product-analyst",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Instrument the product, analyse funnels, design and read experiments, and translate the result into a decision. Expected to say what the data does not show as well as what it does.",
+      "responsibilities": [
+        "Instrument and analyse product funnels",
+        "Design and read A/B tests",
+        "Build dashboards stakeholders use",
+        "Translate findings into product decisions"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Business Intelligence Developer",
+      "slug": "business-intelligence-developer",
+      "family": "Data Engineering",
+      "seniority": "Mid",
+      "description": "Build the semantic and reporting layers over modelled data. Metric definitions and documentation are treated as deliverables, not as overhead.",
+      "responsibilities": [
+        "Build semantic and reporting layers",
+        "Model data for BI consumption",
+        "Optimise report performance",
+        "Document metric definitions"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "dbt",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "tableau",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Research Scientist",
+      "slug": "research-scientist",
+      "family": "Research",
+      "seniority": "Senior",
+      "description": "Conduct primary research on problems where the answer is not known. Designs ablations that genuinely isolate a single variable, and keeps every experiment reproducible enough for someone else to re-run it.",
+      "responsibilities": [
+        "Conduct primary research and publish findings",
+        "Design ablations that isolate one variable",
+        "Keep experiments reproducible",
+        "Collaborate with engineers on transfer"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "linear-algebra",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "transformers",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "self-supervised-learning",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "transfer-learning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "AI Ethics and Governance Specialist",
+      "slug": "ai-ethics-and-governance-specialist",
+      "family": "Governance",
+      "seniority": "Mid",
+      "description": "Assess AI systems for fairness, harm and compliance, and turn the assessment into documentation and monitoring that a deployment team will actually follow.",
+      "responsibilities": [
+        "Assess AI systems for fairness and harm",
+        "Maintain model cards and documentation",
+        "Advise teams on acceptable use",
+        "Monitor deployed systems for drift in impact"
+      ],
+      "skills": [
+        {
+          "skill_slug": "responsible-ai",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.72
+        }
+      ]
+    },
+    {
+      "title": "Data Engineer for Analytics",
+      "slug": "data-engineer-for-analytics",
+      "family": "Data Engineering",
+      "seniority": "Mid",
+      "description": "Build pipelines optimised for analytical query patterns rather than for transaction processing. Data quality contracts matter because analysts cannot wait for a pipeline while investigating a question.",
+      "responsibilities": [
+        "Build pipelines that serve analytics specifically",
+        "Optimise for analyst query patterns",
+        "Maintain data quality contracts",
+        "Support ad-hoc analysis without breaking models"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "dbt",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "apache-parquet",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Analytics Engineer Manager",
+      "slug": "analytics-engineer-manager",
+      "family": "Data Engineering",
+      "seniority": "Lead",
+      "description": "Lead the analytics engineering function: set modelling standards, mentor engineers, and keep the modelled layer aligned with how the business actually asks questions.",
+      "responsibilities": [
+        "Lead the analytics engineering function",
+        "Set data modelling standards",
+        "Mentor engineers",
+        "Align the modelled layer with business needs"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "dbt",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Junior Data Analyst",
+      "slug": "junior-data-analyst",
+      "family": "Data Science",
+      "seniority": "Entry",
+      "description": "The entry-level analyst role: routine questions answered correctly, simple reports built and maintained, data validated before use, and learning the methods properly under mentorship.",
+      "responsibilities": [
+        "Answer routine analytical questions",
+        "Build and maintain simple reports",
+        "Clean and validate data",
+        "Learn analysis methods under mentorship"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.68
+        }
+      ]
+    },
+    {
+      "title": "Junior Software Developer",
+      "slug": "junior-software-developer",
+      "family": "Software Engineering",
+      "seniority": "Entry",
+      "description": "The entry-level developer role: implement well-scoped features under mentorship, test what you write, and learn the codebase's conventions well enough to follow them.",
+      "responsibilities": [
+        "Implement features under mentorship",
+        "Write unit tests for new code",
+        "Participate in code review",
+        "Learn the codebase and its conventions"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "javascript",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-structures",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "algorithms",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "AI Engineering Intern",
+      "slug": "ai-engineering-intern",
+      "family": "AI Engineer",
+      "seniority": "Entry",
+      "description": "Supports AI feature development: preparing data, running and documenting experiments, and assisting with evaluation. Work is supervised, and the emphasis is on writing things down so others can continue them.",
+      "responsibilities": [
+        "Support development of AI features",
+        "Run and document experiments",
+        "Build data preparation scripts",
+        "Assist with model evaluation"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "prompt-engineering",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Technical Program Manager",
+      "slug": "technical-program-manager",
+      "family": "Product",
+      "seniority": "Senior",
+      "description": "Coordinate delivery across teams: track dependencies, surface risks early, and keep stakeholders informed without drowning them in detail.",
+      "responsibilities": [
+        "Coordinate multi-team delivery",
+        "Manage dependencies and risks",
+        "Keep stakeholders informed",
+        "Drive process improvement"
+      ],
+      "skills": [
+        {
+          "skill_slug": "agile",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "algorithms",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.72
+        }
+      ]
+    },
+    {
+      "title": "Fraud Analyst",
+      "slug": "fraud-analyst",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Detect fraud: engineer features for anomalous behaviour, tune the false-positive/missed-fraud tradeoff against real operational cost, and explain individual decisions to investigators who must act on them.",
+      "responsibilities": [
+        "Build and tune fraud detection models",
+        "Engineer features for anomalous behaviour",
+        "Balance false positives against missed fraud",
+        "Explain model decisions to investigators"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "outlier-detection",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "sampling",
+          "weight": 0.52
+        }
+      ]
+    },
+    {
+      "title": "Marketing Data Scientist",
+      "slug": "marketing-data-scientist",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Support marketing with rigorous experimentation and honest attribution. Segmentation and lifetime-value modelling are the core deliverables.",
+      "responsibilities": [
+        "Design and read marketing experiments",
+        "Model customer segmentation and lifetime value",
+        "Attribute outcomes to campaigns honestly",
+        "Communicate findings to marketing stakeholders"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Healthcare Data Scientist",
+      "slug": "healthcare-data-scientist",
+      "family": "Data Science",
+      "seniority": "Senior",
+      "description": "Build predictive models on health data under strict governance. Evaluation metrics must be clinically meaningful, and every model must be documented for clinical review rather than judged on accuracy alone.",
+      "responsibilities": [
+        "Build predictive models on sensitive health data",
+        "Work within strict governance and consent constraints",
+        "Evaluate with clinically meaningful metrics",
+        "Document for clinical review"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Fintech Machine Learning Engineer",
+      "slug": "fintech-machine-learning-engineer",
+      "family": "ML Engineer",
+      "seniority": "Senior",
+      "description": "Build real-time decision models in a regulated setting. Features must remain valid under drift, models are monitored for performance *and* fairness, and every model is documented for regulatory review.",
+      "responsibilities": [
+        "Build real-time decision models in regulated settings",
+        "Design features that remain valid under drift",
+        "Monitor models for both performance and fairness",
+        "Document models for regulatory review"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "outlier-detection",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "shap",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.52
+        }
+      ]
+    },
+    {
+      "title": "Retail Forecasting Data Scientist",
+      "slug": "retail-forecasting-data-scientist",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Forecast demand at product and location granularity for supply-chain planning. Intervals matter more than point estimates, because planners act on the range.",
+      "responsibilities": [
+        "Forecast demand at product and location granularity",
+        "Build reliable backtests",
+        "Quantify prediction intervals",
+        "Partner with supply-chain planners"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "cross-validation",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Manufacturing Quality Engineer",
+      "slug": "manufacturing-quality-engineer",
+      "family": "Data Engineering",
+      "seniority": "Mid",
+      "description": "Detect process anomalies and predict equipment failure in a plant. Work is collaborative with plant engineers, and models are deployed close to the equipment.",
+      "responsibilities": [
+        "Detect process anomalies and predict equipment failure",
+        "Design statistical process control",
+        "Work with plant engineers on root cause",
+        "Deploy models on edge and cloud"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "outlier-detection",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "computer-vision",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "correlation",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Autonomous Systems Engineer",
+      "slug": "autonomous-systems-engineer",
+      "family": "Robotics",
+      "seniority": "Senior",
+      "description": "Perceive and plan in dynamic environments. Integrates perception, localisation and control, and is evaluated against both simulation and real hardware because simulation alone hides failure modes.",
+      "responsibilities": [
+        "Perceive and plan in dynamic environments",
+        "Integrate perception, localisation and control",
+        "Validate against simulation and hardware",
+        "Handle sensor noise and failure modes"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "deep-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "reinforcement-learning",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "computer-vision",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "convolutional-neural-networks",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "object-detection",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "c-plus-plus",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "linear-algebra",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "pytorch-lightning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Edge AI Engineer",
+      "slug": "edge-ai-engineer",
+      "family": "MLOps",
+      "seniority": "Senior",
+      "description": "Deploy models onto constrained hardware. Quantisation and compression accuracy loss is measured rather than assumed, and latency and power budgets are treated as hard requirements.",
+      "responsibilities": [
+        "Optimise and quantise models for constrained hardware",
+        "Build edge deployment pipelines",
+        "Meet latency and power budgets",
+        "Validate accuracy loss from compression"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "onnx",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "c-plus-plus",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "computer-vision",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "tensorflow",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Game AI Engineer",
+      "slug": "game-ai-engineer",
+      "family": "Robotics",
+      "seniority": "Mid",
+      "description": "Design non-player character behaviour, from authored behaviour trees to trained policies, under a hard frame-time budget. Behaviour is judged on how the game plays, not only on a benchmark.",
+      "responsibilities": [
+        "Design non-player character behaviour",
+        "Train agents in game-like environments",
+        "Balance behaviour against fun and fairness",
+        "Meet frame-time budgets"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "c-plus-plus",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "reinforcement-learning",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "neural-networks",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hyperparameter-tuning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "linear-algebra",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "sampling",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Quantum Machine Learning Researcher",
+      "slug": "quantum-machine-learning-researcher",
+      "family": "Research",
+      "seniority": "Principal",
+      "description": "Explore quantum approaches to machine learning problems, with the specific discipline of assessing honestly where classical methods remain superior. Negative results are the expected output as often as positive ones.",
+      "responsibilities": [
+        "Explore quantum approaches to ML problems",
+        "Design and test variational algorithms",
+        "Assess where classical methods remain superior",
+        "Publish reproducible results"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "linear-algebra",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "hyperparameter-tuning",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "reinforcement-learning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "sampling",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Conversational AI Designer",
+      "slug": "conversational-ai-designer",
+      "family": "Product",
+      "seniority": "Mid",
+      "description": "Design multi-turn conversations: the flow, the system prompt, and the success criteria by which the dialogue is judged. Works directly with engineers on retrieval and grounding.",
+      "responsibilities": [
+        "Design multi-turn conversational flows",
+        "Write and test system prompts",
+        "Define success criteria for dialogue quality",
+        "Work with engineers on retrieval and grounding"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "prompt-engineering",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "gpt",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "retrieval-augmented-generation",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "langchain",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Responsible AI Auditor",
+      "slug": "responsible-ai-auditor",
+      "family": "Governance",
+      "seniority": "Mid",
+      "description": "Audit deployed models and track remediation to completion. Produces assessment reports that stand up to external scrutiny rather than internal reassurance.",
+      "responsibilities": [
+        "Audit deployed models for fairness and transparency",
+        "Produce assessment reports",
+        "Track remediation to completion",
+        "Advise on acceptable deployment"
+      ],
+      "skills": [
+        {
+          "skill_slug": "responsible-ai",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "model-selection",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "shap",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Developer Advocate",
+      "slug": "developer-advocate",
+      "family": "Product",
+      "seniority": "Mid",
+      "description": "Build demos, tutorials and reference applications, and carry developer feedback back to the team. Success is measured by whether developers can succeed using the documentation unaided.",
+      "responsibilities": [
+        "Build demos and reference applications",
+        "Write tutorials developers follow",
+        "Represent developer feedback to the team",
+        "Speak to technical audiences"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "javascript",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "go",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.7
+        }
+      ]
+    },
+    {
+      "title": "Operations Analyst",
+      "slug": "operations-analyst",
+      "family": "Data Science",
+      "seniority": "Junior",
+      "description": "Support operational decisions with data and build the recurring reports the team runs on. Anomalies are surfaced for someone else to act on, so precision about uncertainty matters.",
+      "responsibilities": [
+        "Support operational decisions with data",
+        "Build recurring reports",
+        "Track process metrics",
+        "Flag anomalies for the operations team"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "tableau",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Supply Chain Analyst",
+      "slug": "supply-chain-analyst",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Forecast demand and optimise inventory, balancing service level against holding cost. The deliverable is usually a set of trade-offs, so the analysis must be presentable to planners.",
+      "responsibilities": [
+        "Forecast demand and optimise inventory",
+        "Run what-if scenarios for supply decisions",
+        "Balance service level against holding cost",
+        "Present tradeoffs to planners"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "hyperparameter-tuning",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Pricing Analyst",
+      "slug": "pricing-analyst",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Estimate price elasticity and design pricing experiments. The value is in quantifying the revenue impact of a price change and being honest about the uncertainty in that number.",
+      "responsibilities": [
+        "Estimate price elasticity",
+        "Design pricing experiments",
+        "Model the revenue impact of price changes",
+        "Monitor competitor and market movement"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Credit Risk Analyst",
+      "slug": "credit-risk-analyst",
+      "family": "Quantitative",
+      "seniority": "Mid",
+      "description": "Build credit scoring models and validate them against realised outcomes. Fairness monitoring and regulatory documentation are requirements, not enhancements.",
+      "responsibilities": [
+        "Build credit scoring models",
+        "Validate against outcome data",
+        "Monitor models for drift and fairness",
+        "Document models for regulatory review"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "shap",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.52
+        }
+      ]
+    },
+    {
+      "title": "Customer Analytics Manager",
+      "slug": "customer-analytics-manager",
+      "family": "Data Science",
+      "seniority": "Lead",
+      "description": "Own the customer analytics roadmap: lead experiment design across teams, mentor analysts, and turn analysis into commercial decisions.",
+      "responsibilities": [
+        "Own the customer analytics roadmap",
+        "Lead experiment design across teams",
+        "Mentor analysts",
+        "Turn analysis into commercial action"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.62
+        }
+      ]
+    },
+    {
+      "title": "Data Governance Manager",
+      "slug": "data-governance-manager",
+      "family": "Governance",
+      "seniority": "Lead",
+      "description": "Own data policy and standards, and run the quality and lineage programmes that make them real. Coordination across teams is the hard part; policy nobody adopts is worthless.",
+      "responsibilities": [
+        "Own data policy and standards",
+        "Run data-quality and lineage programmes",
+        "Coordinate across teams",
+        "Represent governance to stakeholders"
+      ],
+      "skills": [
+        {
+          "skill_slug": "data-governance",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "probability",
+          "weight": 0.72
+        }
+      ]
+    },
+    {
+      "title": "Sports Data Analyst",
+      "slug": "sports-data-analyst",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Model player and team performance and build predictive models for outcomes. The audience is coaches, so the presentation carries as much weight as the model.",
+      "responsibilities": [
+        "Model player and team performance",
+        "Build predictive models for outcomes",
+        "Evaluate strategies against opponents",
+        "Communicate findings to coaches and analysts"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "time-series-analysis",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "regression-analysis",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-cleaning",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Content Data Scientist",
+      "slug": "content-data-scientist",
+      "family": "Data Science",
+      "seniority": "Mid",
+      "description": "Measure content performance, build recommendation and classification models, and run content experiments. The output must be actionable for editorial teams, not just accurate.",
+      "responsibilities": [
+        "Measure content performance and engagement",
+        "Build recommendation and classification models",
+        "Design and read content experiments",
+        "Translate findings to editorial teams"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pandas",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "natural-language-processing",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "embeddings",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "text-classification",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Research Data Engineer",
+      "slug": "research-data-engineer",
+      "family": "Research",
+      "seniority": "Mid",
+      "description": "Build the data infrastructure research depends on, where dataset provenance and reproducibility are the central requirements rather than nice-to-haves.",
+      "responsibilities": [
+        "Build research data infrastructure",
+        "Guarantee reproducibility of datasets",
+        "Manage versioning and provenance",
+        "Support analysts and scientists"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "apache-spark",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "apache-parquet",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "bash",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.58
+        },
+        {
+          "skill_slug": "java",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Analytics Engineer for Experimentation",
+      "slug": "analytics-engineer-for-experimentation",
+      "family": "Data Engineering",
+      "seniority": "Mid",
+      "description": "Build the assignment and exposure tables that experiments depend on. A subtle error here silently biases every experiment result, so point-in-time correctness is the whole job.",
+      "responsibilities": [
+        "Build assignment and exposure tables for experiments",
+        "Guarantee point-in-time correctness",
+        "Maintain metric definitions used by experiments",
+        "Support analysts reading experiment results"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "dbt",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "data-warehousing",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-governance",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "apache-airflow",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "etl",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.58
+        }
+      ]
+    },
+    {
+      "title": "Machine Learning Product Manager",
+      "slug": "machine-learning-product-manager",
+      "family": "Product",
+      "seniority": "Senior",
+      "description": "Define ML product requirements and, importantly, decide where machine learning is *not* the right answer. Manages model quality as a product concern rather than a research concern.",
+      "responsibilities": [
+        "Define ML product requirements and success metrics",
+        "Decide where ML is genuinely appropriate",
+        "Coordinate between research and engineering",
+        "Manage model quality as a product concern"
+      ],
+      "skills": [
+        {
+          "skill_slug": "machine-learning",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "scikit-learn",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.68
+        }
+      ]
+    },
+    {
+      "title": "ML Solutions Architect",
+      "slug": "ml-solutions-architect",
+      "family": "AI Engineer",
+      "seniority": "Senior",
+      "description": "Design end-to-end ML system architectures and advise on approach. Balances cost, latency and accuracy explicitly, and prototypes reference implementations so the design is grounded in something that ran.",
+      "responsibilities": [
+        "Design end-to-end ML system architectures",
+        "Advise customers on the right approach",
+        "Balance cost, latency and accuracy",
+        "Prototype reference implementations"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-modeling",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "postgresql",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Machine Learning Infrastructure Lead",
+      "slug": "machine-learning-infrastructure-lead",
+      "family": "MLOps",
+      "seniority": "Lead",
+      "description": "Lead the ML infrastructure team, owning both reliability and cost at scale. Sets standards the team can apply without asking for approval each time.",
+      "responsibilities": [
+        "Lead the ML infrastructure team",
+        "Set platform standards",
+        "Own reliability and cost at scale",
+        "Mentor infrastructure engineers"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "regularization",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.65
+        }
+      ]
+    },
+    {
+      "title": "Data Scientist Manager",
+      "slug": "data-scientist-manager",
+      "family": "Data Science",
+      "seniority": "Lead",
+      "description": "Manage and grow a data science team: allocate work across the portfolio, hold the experimentation bar, and represent the team honestly to leadership.",
+      "responsibilities": [
+        "Manage and grow a data science team",
+        "Set the experimentation bar",
+        "Allocate work across the portfolio",
+        "Represent the team to leadership"
+      ],
+      "skills": [
+        {
+          "skill_slug": "statistics",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "hypothesis-testing",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "a-b-testing",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "agile",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.7
+        }
+      ]
+    }
+  ]
+}

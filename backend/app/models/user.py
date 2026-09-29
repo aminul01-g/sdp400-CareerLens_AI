@@ -10,11 +10,13 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     DateTime,
-    Enum as SAEnum,
     Index,
     Integer,
     String,
     func,
+)
+from sqlalchemy import (
+    Enum as SAEnum,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -22,7 +24,6 @@ from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:  # pragma: no cover
     from app.models.education import Certification, EducationRecord
-    from app.models.job import JobRole
     from app.models.profile import Profile
     from app.models.project import Project
     from app.models.recommendation import RecommendationRun

@@ -21,8 +21,8 @@ from app.models.user import User, UserRole
 from app.models.user_skill import SkillSource, UserSkill
 
 __all__ = [
-    "Base",
     "SKILL_CATEGORIES",
+    "Base",
     "Certification",
     "EducationRecord",
     "Feedback",

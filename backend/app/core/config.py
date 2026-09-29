@@ -82,6 +82,13 @@ class Settings(BaseSettings):
     llm_base_url: str = "https://api.openai.com/v1"
     llm_timeout_seconds: int = 20
 
+    # ---- Seed admin account ------------------------------------------
+    # Read ONLY by backend/scripts/seed_admin.py. The running application never
+    # uses these, which is why they are grouped and documented here rather than
+    # being read ad hoc from os.environ (which does not contain .env values).
+    admin_email: str = ""
+    admin_password: str = ""
+
     # ---- Logging -----------------------------------------------------
     log_level: str = "INFO"
     log_json: bool = False

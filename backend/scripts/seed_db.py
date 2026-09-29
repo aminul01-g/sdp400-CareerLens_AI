@@ -1,6 +1,6 @@
+import json
 import os
 import sys
-import json
 
 # ensure backend package on path
 basedir = os.path.dirname(os.path.dirname(__file__))
@@ -14,7 +14,7 @@ with app.app_context():
     print('Creating tables (if not present)')
     db.create_all()
 
-    from models import User, Profile, Event
+    from models import Event, Profile, User
 
     def ensure_user(email, name, password, role='user'):
         u = User.query.filter_by(email=email).first()

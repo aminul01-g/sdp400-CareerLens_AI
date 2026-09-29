@@ -12,7 +12,6 @@ from __future__ import annotations
 
 import logging
 from datetime import UTC, datetime
-from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
@@ -118,11 +117,11 @@ def build_token_response(user: User) -> TokenResponse:
 
 def update_me(db: Session, user: User, payload: UserUpdateRequest) -> User:
     """Update name and/or password for the authenticated user."""
-    changes: dict[str, Any] = payload.model_fields_set - {"current_password"}
-    if not changes:
+    fields = payload.model_fields_set - {"current_password"}
+    if not fields:
         return user
 
-    if "password" in changes:
+    if "password" in fields:
         if not payload.current_password:
             raise ForbiddenError(
                 "Current password is required to set a new password.", code="current_password_required"
@@ -133,12 +132,12 @@ def update_me(db: Session, user: User, payload: UserUpdateRequest) -> User:
             )
         user.password_hash = hash_password(payload.password or "")
 
-    if "name" in changes and payload.name:
+    if "name" in fields and payload.name:
         user.name = payload.name
 
     db.commit()
     db.refresh(user)
-    logger.info("Updated user id=%s fields=%s", user.id, sorted(changes), extra={"kind": "update_me"})
+    logger.info("Updated user id=%s fields=%s", user.id, sorted(fields), extra={"kind": "update_me"})
     return user
 
 

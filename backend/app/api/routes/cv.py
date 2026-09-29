@@ -12,7 +12,7 @@ from fastapi import APIRouter, File, Response, UploadFile, status
 
 from app.api.deps import CurrentUser, DbSession
 from app.schemas.cv import ExtractedTextResponse, ResumeUploadRead, UploadResponse
-from app.schemas.pagination import PageParamsDep
+from app.schemas.pagination import PageParamsDep, build_page
 from app.services import cv_service
 
 router = APIRouter(prefix="/cv", tags=["cv"])
@@ -51,10 +51,10 @@ async def upload_cv(
     )
 
 
-@router.get("", response_model=list[ResumeUploadRead], summary="The caller's uploads")
-def list_uploads(params: PageParamsDep, db: DbSession, user: CurrentUser) -> object:
+@router.get("", summary="The caller's uploads")
+def list_uploads(params: PageParamsDep, db: DbSession, user: CurrentUser):
     total, items = cv_service.list_uploads(db, user, limit=params.limit, offset=params.offset)
-    return {"total": total, "page": params.page, "page_size": params.page_size, "items": items}
+    return build_page(items, total, params)
 
 
 @router.get(

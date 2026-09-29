@@ -275,7 +275,7 @@ def generate(
     )
 
 
-def _to_recommendation(score, settings) -> RoleRecommendation:  # noqa: ANN001
+def _to_recommendation(score, settings) -> RoleRecommendation:
     return RoleRecommendation(
         rank=score.rank,
         job_role_id=score.job_role_id,

@@ -36,13 +36,12 @@ if str(BACKEND_ROOT) not in sys.path:
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-that-is-definitely-long-enough-123456")
 
-from app.core.config import get_settings  # noqa: E402
-from app.core.security import hash_password  # noqa: E402
-from app.db.base import Base  # noqa: E402
-from app.models import *  # noqa: E402,F401,F403  (register every mapper)
-import logging  # noqa: E402
+import logging
 
-from app.models.user import User, UserRole  # noqa: E402
+from app.core.config import get_settings
+from app.core.security import hash_password
+from app.models import *  # noqa: F403  (register every mapper)
+from app.models.user import User, UserRole
 
 logger = logging.getLogger("tests.conftest")
 

@@ -8,19 +8,24 @@ intention:
 ============================  ==========================================
 Constraint                    Enforcement
 ============================  ==========================================
-Default off                   ``Settings.llm_enabled = False``; the
-                              module is imported by exactly one route
+Default off                   ``Settings.llm_enabled = False``; the flag is
+                              checked in the route, not here
 Not on any core path           Reachable only through
                               ``POST /api/skill-gap/{id}/learning-path``
-No key needed to boot          The key is not validated at startup
+No key needed to boot          Nothing here reads configuration at import
 Cannot influence a score      It receives an already-computed ``GapReport``
                               and computes nothing
-Distinct failure signal        ``503 feature_disabled`` when off, ``502`` on
-                              a provider error — never a silent empty result
-P2 in the plan                 If this is not built, nothing else changes
-                              and the compliance matrix records it as
-                              "not built - declared optional", which is
-                              compliant
+Pure module                    Imports only ``app.ml.types`` and the standard
+                              library, so it inherits the ML layer's
+                              no-ORM / no-framework guarantee. Provider
+                              credentials arrive as plain arguments, and the
+                              Pydantic response model is built by the route
+Distinct failure signal        ``503 feature_disabled`` when off, and a
+                              logged fallback on provider failure — never a
+                              silent empty result
+P2 in the plan                 Not building this is compliant; the matrix
+                              would record it as "not built - declared
+                              optional"
 ============================  ==========================================
 """
 
@@ -30,25 +35,33 @@ import json
 import logging
 import urllib.error
 import urllib.request
+from collections.abc import Sequence
 
-from app.core.config import Settings
 from app.ml.types import GapReport, RoleSpec
 
 logger = logging.getLogger("app.ml.learning_path")
 
-#: Guidance copy is local, deterministic, and used whenever the LLM is off or
-#: fails, so the endpoint always has something useful to return.
-_TIER_FOCUS: dict[str, str] = {
-    "critical": "This is required by the role. Start here.",
+#: Guidance copy is local, deterministic, and used whenever the LLM is unavailable,
+#: so the endpoint always returns something useful.
+TIER_FOCUS: dict[str, str] = {
+    "critical": "Required by the role. Start here.",
     "important": "Strongly expected; learn it after the critical items.",
     "desirable": "Useful but not blocking. Learn it once the essentials are solid.",
 }
 
+MAX_STEPS = 10
+MAX_GUIDANCE_CHARS = 300
+
 
 def build_fallback_steps(report: GapReport) -> list[dict[str, object]]:
-    """Deterministic, offline learning steps derived purely from the gap report."""
+    """Deterministic, offline learning steps derived purely from the gap report.
+
+    The gap is already sorted by descending importance weight, so the first step is
+    the single most valuable thing to learn next. This function computes nothing
+    new; it only renders what the gap analysis already decided.
+    """
     steps: list[dict[str, object]] = []
-    for order, missing in enumerate(report.missing[:10], start=1):
+    for order, missing in enumerate(report.missing[:MAX_STEPS], start=1):
         steps.append(
             {
                 "order": order,
@@ -56,14 +69,15 @@ def build_fallback_steps(report: GapReport) -> list[dict[str, object]]:
                 "skill_name": missing.name,
                 "weight": round(missing.weight, 4),
                 "tier": missing.tier,
-                "guidance": _TIER_FOCUS.get(missing.tier, ""),
+                "guidance": TIER_FOCUS.get(missing.tier, ""),
             }
         )
     return steps
 
 
-def _build_prompt(spec: RoleSpec, report: GapReport) -> str:
-    missing = ", ".join(f"{m.name} (importance {m.weight:.2f})" for m in report.missing[:10])
+def build_prompt(spec: RoleSpec, report: GapReport) -> str:
+    """The instruction sent to the provider. Deterministic; no user text is echoed."""
+    missing = ", ".join(f"{m.name} (importance {m.weight:.2f})" for m in report.missing[:MAX_STEPS])
     return (
         f"You are advising someone preparing for the role '{spec.title}'.\n"
         f"Their current weighted skill coverage is {report.coverage:.0%}.\n"
@@ -75,76 +89,108 @@ def _build_prompt(spec: RoleSpec, report: GapReport) -> str:
     )
 
 
-def _call_llm(prompt: str, settings: Settings) -> str:
-    """One HTTPS POST to the configured provider. Raises on any failure."""
+def _call_provider(
+    prompt: str, *, api_key: str, model: str, base_url: str, timeout: int
+) -> str:
+    """One HTTPS POST. Raises on any failure; the caller degrades."""
     payload = json.dumps(
         {
-            "model": settings.llm_model,
+            "model": model,
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.3,
             "max_tokens": 800,
         }
     ).encode("utf-8")
     request = urllib.request.Request(
-        f"{settings.llm_base_url.rstrip('/')}/chat/completions",
+        f"{base_url.rstrip('/')}/chat/completions",
         data=payload,
-        headers={
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {settings.llm_api_key}",
-        },
+        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=settings.llm_timeout_seconds) as response:
+    with urllib.request.urlopen(request, timeout=timeout) as response:
         body = json.loads(response.read().decode("utf-8"))
-    return body["choices"][0]["message"]["content"]
+    return str(body["choices"][0]["message"]["content"])
 
 
-def build_learning_path(spec: RoleSpec, report: GapReport, settings: Settings):
-    """Return a ``LearningPathResponse``.
+def _parse_provider_output(raw: str, report: GapReport) -> list[dict[str, object]]:
+    """Map provider prose onto the already-computed gap.
 
-    Degrades gracefully: if the provider is unreachable or returns something
-    unparseable, the deterministic fallback steps are returned and the failure is
-    logged server-side. Provider error text is **never** surfaced to the client —
-    that is the fix for the legacy behaviour at ``guidance.py:59``.
+    The weight, tier and skill id are taken from ``report``, never from the model's
+    text, so a hallucinated weight or a reordered list cannot corrupt the output.
     """
-    from app.schemas.recommendation import LearningPathResponse, LearningPathStep
+    start, end = raw.find("["), raw.rfind("]")
+    if start == -1 or end == -1:
+        return []
+    try:
+        parsed = json.loads(raw[start : end + 1])
+    except json.JSONDecodeError:
+        return []
+    if not isinstance(parsed, list):
+        return []
 
-    steps = build_fallback_steps(report)
-    generated_by = "careerlens-rules"
+    by_name = {skill.name.strip().lower(): skill for skill in report.missing}
+    steps: list[dict[str, object]] = []
+    for item in parsed[:MAX_STEPS]:
+        if not isinstance(item, dict):
+            continue
+        target = by_name.get(str(item.get("skill_name", "")).strip().lower())
+        if target is None:
+            # A skill we did not identify as missing is discarded rather than
+            # invented into the result.
+            continue
+        guidance = str(item.get("guidance", "")).strip()[:MAX_GUIDANCE_CHARS]
+        steps.append(
+            {
+                "order": len(steps) + 1,
+                "skill_id": target.skill_id,
+                "skill_name": target.name,
+                "weight": round(target.weight, 4),
+                "tier": target.tier,
+                "guidance": guidance or TIER_FOCUS.get(target.tier, ""),
+            }
+        )
+    return steps
 
-    if settings.llm_enabled and settings.llm_api_key:
-        try:
-            raw = _call_llm(_build_prompt(spec, report), settings)
-            start, end = raw.find("["), raw.rfind("]")
-            parsed = json.loads(raw[start : end + 1]) if start != -1 else []
-            by_name = {str(skill.name).lower(): skill for skill in report.missing}
-            enriched: list[dict[str, object]] = []
-            for index, item in enumerate(parsed[: len(steps)]):
-                name = str(item.get("skill_name", "")).strip()
-                target = by_name.get(name.lower())
-                if target is None:
-                    continue
-                enriched.append(
-                    {
-                        "order": index + 1,
-                        "skill_id": target.skill_id,
-                        "skill_name": target.name,
-                        "weight": round(target.weight, 4),
-                        "tier": target.tier,
-                        "guidance": str(item.get("guidance", "")).strip()[:300]
-                        or _TIER_FOCUS.get(target.tier, ""),
-                    }
-                )
-            if enriched:
-                steps = enriched
-                generated_by = f"llm:{settings.llm_model}"
-        except (urllib.error.URLError, KeyError, ValueError, TimeoutError) as exc:
-            # Logged, not returned. The core gap report is unaffected either way.
-            logger.warning("LLM learning path unavailable, using rules: %s", exc)
 
-    return LearningPathResponse(
-        job_role_id=spec.job_role_id,
-        job_role_title=spec.title,
-        generated_by=generated_by,
-        steps=[LearningPathStep(**step) for step in steps],
-    )
+def build_learning_path(
+    spec: RoleSpec,
+    report: GapReport,
+    *,
+    api_key: str = "",
+    model: str = "gpt-4o-mini",
+    base_url: str = "https://api.openai.com/v1",
+    timeout: int = 20,
+) -> tuple[list[dict[str, object]], str]:
+    """Return ``(steps, generated_by)``.
+
+    Degrades gracefully. If the provider is unreachable, slow, or returns something
+    unparseable, the deterministic fallback steps are returned and the failure is
+    logged **server-side only** — provider error text never reaches the client,
+    which is the fix for the legacy behaviour at ``guidance.py:59``.
+
+    With no API key the LLM branch is skipped entirely, so the core system never
+    depends on one.
+    """
+    fallback = build_fallback_steps(report)
+    if not api_key or not fallback:
+        return fallback, "careerlens-rules"
+
+    try:
+        raw = _call_provider(
+            build_prompt(spec, report),
+            api_key=api_key, model=model, base_url=base_url, timeout=timeout,
+        )
+    except (urllib.error.URLError, TimeoutError, KeyError, ValueError, OSError) as exc:
+        logger.warning("LLM learning path unavailable; using the deterministic steps: %s", exc)
+        return fallback, "careerlens-rules"
+
+    enriched = _parse_provider_output(raw, report)
+    if enriched:
+        return enriched, f"llm:{model}"
+    logger.warning("LLM returned no usable learning steps; using the deterministic ones")
+    return fallback, "careerlens-rules"
+
+
+def steps_for_roles(reports: Sequence[GapReport]) -> list[dict[str, object]]:  # pragma: no cover
+    """Convenience helper kept intentionally small."""
+    return [step for report in reports for step in build_fallback_steps(report)]

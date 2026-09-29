@@ -36,7 +36,7 @@ DEFAULT_TAXONOMY_PATH = (
 )
 
 # Word characters plus the internal punctuation a skill name may legitimately use.
-_SURFACE_STRIP = ".,;:!?()[]{}\"'`’‘“”"
+_SURFACE_STRIP = "\".,;:!?()[]{}\'`\u2019\u2018\u201c\u201d\""
 _TOKEN_SPLIT = re.compile(r"[-_.\s]+")
 _WHITESPACE = re.compile(r"\s+")
 

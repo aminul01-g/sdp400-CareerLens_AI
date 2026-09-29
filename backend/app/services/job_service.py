@@ -15,6 +15,7 @@ from decimal import Decimal
 from sqlalchemy import delete, func, or_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+from sqlalchemy.sql.elements import ColumnElement
 
 from app.core.exceptions import ConflictError, NotFoundError, UnprocessableError
 from app.ml.taxonomy import normalise_surface
@@ -77,7 +78,7 @@ def list_roles(
     limit: int = 20,
     offset: int = 0,
 ) -> tuple[int, list[JobRoleSummary]]:
-    conditions = []
+    conditions: list[ColumnElement[bool]] = []
     if not include_inactive:
         conditions.append(JobRole.is_active.is_(True))
     if family and family.strip():
@@ -315,7 +316,7 @@ def list_roles_admin(
     is_active: bool | None = None, limit: int = 20, offset: int = 0,
 ) -> tuple[int, list[JobRoleAdminSummary]]:
     """Admin list — includes inactive roles and shows the numbers a table needs."""
-    conditions = []
+    conditions: list[ColumnElement[bool]] = []
     if family and family.strip():
         conditions.append(JobRole.family == family.strip())
     if is_active is not None:
@@ -379,9 +380,8 @@ def list_taxonomy(
     db: Session, *, q: str | None = None, category: str | None = None,
     limit: int = 50, offset: int = 0,
 ) -> tuple[int, list[tuple[Skill, list[str]]]]:
-    from app.schemas.skill import SkillRead
 
-    conditions = []
+    conditions: list[ColumnElement[bool]] = []
     if q and q.strip():
         needle = f"%{q.strip().lower()}%"
         alias_ids = select(SkillAlias.skill_id).where(SkillAlias.alias.like(needle))

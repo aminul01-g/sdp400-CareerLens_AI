@@ -22,7 +22,7 @@ from sqlalchemy import func, select
 from app.api.deps import DbSession, RequireAdmin
 from app.core.exceptions import ConflictError, NotFoundError
 from app.models.project import Project
-from app.models.user import User
+from app.models.user import User, UserRole
 from app.models.user_skill import UserSkill
 from app.schemas.dashboard import (
     AdminOverview,
@@ -30,6 +30,7 @@ from app.schemas.dashboard import (
     RoleUpdateRequest,
 )
 from app.schemas.job import (
+    JobRoleRead,
     JobRoleSkillReplace,
     TaxonomyCreate,
     TaxonomyUpdate,
@@ -67,16 +68,18 @@ def list_users(
             .offset(params.offset)
         ).all()
     )
-    skill_counts = dict(
-        db.execute(
+    skill_counts: dict[int, int] = {
+        user_id: int(count)
+        for user_id, count in db.execute(
             select(UserSkill.user_id, func.count()).group_by(UserSkill.user_id)
         ).all()
-    )
-    project_counts = dict(
-        db.execute(
+    }
+    project_counts: dict[int, int] = {
+        user_id: int(count)
+        for user_id, count in db.execute(
             select(Project.user_id, func.count()).group_by(Project.user_id)
         ).all()
-    )
+    }
     return build_page(
         [
             AdminUserRead(
@@ -115,7 +118,7 @@ def update_user_role(
             code="cannot_demote_self",
         )
 
-    target.role = payload.role
+    target.role = UserRole(payload.role)
     db.commit()
     db.refresh(target)
     logger.info("Admin %s set user %s role to %s", admin.id, target.id, payload.role)
@@ -127,13 +130,13 @@ def update_user_role(
 # ---------------------------------------------------------------------------
 @router.put(
     "/jobs/{role_id}/skills",
-    response_model=Any,
+    response_model=JobRoleRead,
     summary="Atomically replace a role's weighted skill set",
 )
 def replace_skills_admin(
     role_id: int, payload: JobRoleSkillReplace, db: DbSession, _: RequireAdmin
-) -> Any:
-    return job_service.to_read(db, job_service.replace_skills(db, role_id, payload))
+) -> JobRoleRead:
+    return job_service.replace_skills(db, role_id, payload)
 
 
 # ---------------------------------------------------------------------------

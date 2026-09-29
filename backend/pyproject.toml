@@ -1,0 +1,66 @@
+[project]
+name = "careerlens-api"
+version = "1.0.0"
+description = "CareerLens AI — an AI-powered job and career recommendation system (SDP400, BUBT)"
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+
+# Dependencies live in requirements.txt, which is what the Dockerfile installs.
+# This table exists so the quality tooling below has a project root to resolve
+# against, and so the package is discoverable by editors and by `mypy -p app`.
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+extend-exclude = [".venv", "alembic/versions", "__pycache__"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "UP",   # pyupgrade
+    "C4",   # comprehensions
+    "SIM",  # flake8-simplify
+    "RUF",  # ruff-specific
+]
+ignore = [
+    "E501",    # line length is handled by the formatter, not the linter
+    "B008",    # FastAPI's Depends()/File() in defaults is the documented pattern
+    "SIM117",  # nested `with` is clearer than a combined one for readability
+    "RUF012",  # ClassVar annotations on Pydantic-adjacent constants
+    "UP038",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011", "S101", "E402"]
+"alembic/env.py" = ["E402"]
+"scripts/*" = ["E402"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["app", "scripts", "tests"]
+
+[tool.mypy]
+python_version = "3.12"
+plugins = ["pydantic.mypy"]
+warn_unused_configs = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+no_implicit_optional = true
+strict_equality = true
+check_untyped_defs = true
+disallow_untyped_defs = false     # route handlers are thin; the typing tax is not worth it
+exclude = ['^alembic/', '^\.venv/', '^tests/']
+
+[[tool.mypy.overrides]]
+module = [
+    "pdfplumber.*", "docx.*", "sklearn.*", "scipy.*", "spacy.*", "alembic.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+# Authoritative config lives in pytest.ini; this table exists for tools that only
+# read pyproject.toml.
+testpaths = ["tests"]

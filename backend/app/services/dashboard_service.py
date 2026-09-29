@@ -9,7 +9,6 @@ anything.
 from __future__ import annotations
 
 import logging
-from datetime import UTC, datetime
 
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
@@ -23,13 +22,13 @@ from app.models.recommendation import RecommendationResult, RecommendationRun
 from app.models.resume import ResumeUpload
 from app.models.user import User
 from app.models.user_skill import UserSkill
+from app.schemas.cv import FeedbackCreate, FeedbackRead
 from app.schemas.dashboard import (
     AdminOverview,
     DashboardSummary,
     OnboardingStep,
     ProfileCompleteness,
 )
-from app.schemas.cv import FeedbackCreate, FeedbackRead
 
 logger = logging.getLogger("app.services.dashboard")
 
@@ -37,7 +36,7 @@ logger = logging.getLogger("app.services.dashboard")
 COMPLETENESS_FIELDS = 8
 
 
-def _count(db: Session, model, *conditions) -> int:  # noqa: ANN001
+def _count(db: Session, model, *conditions) -> int:
     return int(db.scalar(select(func.count()).select_from(model).where(*conditions)) or 0)
 
 

@@ -5,15 +5,17 @@ from __future__ import annotations
 from fastapi import APIRouter, Response, status
 
 from app.api.deps import CurrentUser, DbSession
-from app.schemas.pagination import PageParamsDep, build_page
-from app.schemas.project import ProjectCreate, ProjectPageResponse, ProjectRead, ProjectUpdate
+from app.schemas.pagination import Page, PageParamsDep, build_page
+from app.schemas.project import ProjectCreate, ProjectRead, ProjectUpdate
 from app.services import project_service
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
 
-@router.get("", response_model=ProjectPageResponse, summary="The caller's projects")
-def list_projects(params: PageParamsDep, db: DbSession, user: CurrentUser) -> ProjectPageResponse:
+@router.get("", response_model=Page[ProjectRead], summary="The caller's projects")
+def list_projects(params: PageParamsDep, db: DbSession, user: CurrentUser) -> Page[ProjectRead]:
+    """Paged. The generic Page[ProjectRead] is the response model, so the
+    OpenAPI schema is the same shape every other list endpoint uses."""
     total, items = project_service.list_projects(db, user, limit=params.limit, offset=params.offset)
     return build_page(items, total, params)
 

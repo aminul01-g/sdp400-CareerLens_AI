@@ -7,6 +7,11 @@ pytest==8.3.4
 pytest-cov==6.0.0
 httpx==0.28.1                     # required by fastapi.testclient
 
+# reportlab builds a real PDF in-process so the CV tests need no committed
+# binary fixture and cannot silently drift from the text they assert on.
+reportlab==4.2.5
+
 # ---- Static analysis ----
 ruff==0.8.6
 mypy==1.14.1
+types-passlib==1.7.7.20241221   # stubs so mypy can check core/security.py

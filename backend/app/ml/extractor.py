@@ -18,6 +18,7 @@ from __future__ import annotations
 import logging
 import re
 from functools import lru_cache
+from typing import TYPE_CHECKING
 
 from app.ml.taxonomy import Taxonomy, load, normalise_surface
 from app.ml.types import DetectedSkill
@@ -66,7 +67,7 @@ _LIST_CUE_TOKENS: frozenset[str] = frozenset(
 )
 
 # "R" / "C" in a two-letter language name is legitimate; "&" and "x" are not.
-_AMBIGUOUS_NEIGHBOURS: frozenset[str] = frozenset({"&", "×", "x"})
+_AMBIGUOUS_NEIGHBOURS: frozenset[str] = frozenset({"&", "x"})
 
 
 def _blank_pipeline():
@@ -96,7 +97,7 @@ def get_nlp():
 
 
 @lru_cache(maxsize=1)
-def get_matcher() -> tuple[object, Taxonomy]:
+def get_matcher() -> tuple[PhraseMatcher, Taxonomy]:
     """Build the ``PhraseMatcher`` once per process.
 
     The 9.9 performance budget allows 500 ms for this; at 671 patterns it costs a
@@ -141,6 +142,12 @@ def _has_list_context(doc, start: int, end: int) -> bool:
     return False
 
 
+if TYPE_CHECKING:  # pragma: no cover - typing only
+    from spacy.matcher import PhraseMatcher
+
+    from app.ml.taxonomy import SkillEntry
+
+
 def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[DetectedSkill]:
     """Find every taxonomy skill mentioned in ``text``.
 
@@ -165,7 +172,7 @@ def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[Detec
         return []
 
     # Resolve each match to (start_char, end_char, entry, surface).
-    resolved: list[tuple[int, int, object, str]] = []
+    resolved: list[tuple[int, int, SkillEntry, str]] = []
     for _match_id, start, end in matches:
         span = doc[start:end]
         surface = _clean_surface(span.text)
@@ -187,18 +194,20 @@ def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[Detec
     # Prefer longer spans, then earlier spans, so "scikit learn" beats "scikit".
     resolved.sort(key=lambda item: (-(item[1] - item[0]), item[0], item[3]))
 
-    kept: list[tuple[int, int, object, str]] = []
+    kept: list[tuple[int, int, SkillEntry, str]] = []
     for candidate in resolved:
-        start, end, entry, _surface = candidate
+        start, end, _entry, _surface = candidate
         # Discard a match contained inside one we already kept.
-        if any(start >= k_start and end <= k_end and (end - start) < (k_end - k_start)
-               for k_start, k_end, _, _ in kept):
+        if any(
+            start >= k_start and end <= k_end and (end - start) < (k_end - k_start)
+            for k_start, k_end, _, _ in kept
+        ):
             continue
         kept.append(candidate)
 
     # Aggregate by skill id.
     aggregated: dict[int, dict] = {}
-    for start, end, entry, surface in kept:  # type: ignore[union-attr]
+    for start, end, entry, surface in kept:
         record = aggregated.get(entry.skill_id)
         if record is None:
             aggregated[entry.skill_id] = {
@@ -241,8 +250,8 @@ def extract_skill_slugs(text: str) -> list[str]:
 
 __all__ = [
     "DetectedSkill",
-    "extract_skills",
     "extract_skill_slugs",
+    "extract_skills",
     "get_matcher",
     "get_nlp",
     "normalise_surface",

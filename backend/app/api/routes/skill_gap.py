@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter
 
 from app.api.deps import CurrentUser, DbSession
 from app.core.config import get_settings
@@ -15,7 +15,7 @@ from app.schemas.gap import (
     SkillGapResponse,
     TierCounts,
 )
-from app.schemas.recommendation import LearningPathResponse
+from app.schemas.recommendation import LearningPathResponse, LearningPathStep
 from app.services import recommendation_service
 
 router = APIRouter(prefix="/skill-gap", tags=["skill-gap"])
@@ -116,4 +116,19 @@ def learning_path(job_role_id: int, db: DbSession, user: CurrentUser) -> Learnin
         required_skills={m.skill_id: m.weight for m in report.matched}
         | {m.skill_id: m.weight for m in report.missing},
     )
-    return build_learning_path(spec, report, settings)
+    # Credentials are passed in as plain arguments so app/ml stays free of any
+    # application-configuration import.
+    steps, generated_by = build_learning_path(
+        spec,
+        report,
+        api_key=settings.llm_api_key,
+        model=settings.llm_model,
+        base_url=settings.llm_base_url,
+        timeout=settings.llm_timeout_seconds,
+    )
+    return LearningPathResponse(
+        job_role_id=role.id,
+        job_role_title=role.title,
+        generated_by=generated_by,
+        steps=[LearningPathStep(**step) for step in steps],
+    )

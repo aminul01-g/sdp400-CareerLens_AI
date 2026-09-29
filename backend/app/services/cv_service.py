@@ -26,10 +26,10 @@ from app.ml.extractor import extract_skills
 from app.ml.text_loader import (
     ExtractionFailedError,
     ScannedDocumentError,
+    UnsupportedDocumentError,
     extract_text,
     page_count,
 )
-from app.ml.taxonomy import load as load_taxonomy
 from app.models.resume import ResumeDetectedSkill, ResumeStatus, ResumeUpload
 from app.models.skill import Skill
 from app.models.user import User
@@ -173,8 +173,8 @@ def upload_and_extract(
 
     detected = extract_skills(text)
 
-    # Map the taxonomy's synthetic ids onto the database's real ids.
-    taxonomy = load_taxonomy()
+    # The extractor returns the taxonomy's synthetic skill ids; they must be
+    # remapped onto the database's real ids before anything is persisted.
     skill_by_slug = {
         skill.slug: skill for skill in db.scalars(select(Skill)).all()
     }
