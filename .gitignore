@@ -1,0 +1,60 @@
+# ---- Secrets & environment (fixes security finding S6) ----
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+!*.pub
+
+# ---- Local databases (legacy SQLite + any stray files) ----
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.venv/
+venv/
+env/
+ENV/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+*.egg-info/
+build/
+dist/
+
+# ---- Node / Next.js ----
+node_modules/
+.next/
+out/
+.turbo/
+*.tsbuildinfo
+next-env.d.ts
+
+# ---- Uploads (user CVs must never be committed) ----
+uploads/
+backend/uploads/
+
+# ---- Editors / OS ----
+.idea/
+.vscode/
+*.swp
+.DS_Store
+Thumbs.db
+
+# ---- Test & coverage artefacts ----
+playwright-report/
+test-results/
+.pytest_cache/
+
+# ---- pgAdmin server config ----
+pgadmin/

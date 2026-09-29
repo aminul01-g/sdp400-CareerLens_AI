@@ -1,0 +1,27 @@
+# Backend-specific ignores. The root .gitignore covers the repository, but the
+# legacy backend had NO ignore file at all (security finding S6): a 162 MB venv/,
+# a 32 KB SQLite database and a .env file were all sitting in the tree.
+.env
+.env.*
+!.env.example
+
+*.db
+*.sqlite
+*.sqlite3
+
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+uploads/
+data/*.upload
+
+# Legacy artefacts frozen before cutover (see docs/legacy-freeze.md)
+instance/
+pathfinder.db
