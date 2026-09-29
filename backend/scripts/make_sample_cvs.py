@@ -140,10 +140,7 @@ def write_pdf(name: str, title: str, body: str) -> None:
     story = []
     for raw in body.strip().splitlines():
         line = raw.rstrip()
-        if line.isupper() and len(line) < 40:
-            style = styles["Heading2"]
-        else:
-            style = styles["BodyText"]
+        style = styles["Heading2"] if line.isupper() and len(line) < 40 else styles["BodyText"]
         text = (
             line.replace("&", "&amp;")
             .replace("<", "&lt;")
