@@ -13,6 +13,9 @@ caught before it serves a single request.
 
 from __future__ import annotations
 
+import difflib
+import logging
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -23,6 +26,17 @@ BACKEND_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = BACKEND_ROOT / "data"
 
 MIN_SECRET_LENGTH = 32
+
+logger = logging.getLogger("app.core.config")
+
+#: A process environment carries plenty of variables that are none of this app's
+#: business -- PATH, RENDER, RAILWAY_ENVIRONMENT, PORT, HOSTNAME and so on. So
+#: unknown names are ignored rather than rejected, which is what ``extra="ignore"``
+#: is for. The cost of that leniency is that a typo in a variable this app *does*
+#: read is silently swallowed and the default is used instead: set
+#: ``JWT_EXPIRE_MINUTES`` and the token lifetime quietly stays at its default.
+#: These prefixes narrow the search to names plausibly aimed at us.
+_APP_ENV_PREFIXES = ("CAREERLENS_", "JWT_", "LLM_", "DATABASE_", "ADMIN_", "ALLOWED_", "CORS_")
 
 
 class Settings(BaseSettings):
@@ -101,6 +115,34 @@ class Settings(BaseSettings):
     def _resolve_upload_dir(cls, value: str) -> str:
         path = Path(value)
         return str(path if path.is_absolute() else (BACKEND_ROOT / path).resolve())
+
+    @model_validator(mode="after")
+    def _warn_on_misspelt_env_vars(self) -> Settings:
+        """Warn when an environment variable looks like a typo of a real setting.
+
+        ``extra="ignore"`` is the right call for a platform that injects its own
+        variables, but it makes a misspelt setting name indistinguishable from an
+        unset one. That is a real deployment hazard: a typo in a CORS origin or a
+        token lifetime is not a crash, it is a silent fallback to the default.
+
+        This warns rather than raises, because the whole point of ignoring unknown
+        names is to tolerate variables that are not ours. A warning in the boot log
+        is enough to catch it, and a hard failure would break every platform that
+        injects extras.
+        """
+        known = {name.upper() for name in type(self).model_fields}
+        for name in sorted(os.environ):
+            upper = name.upper()
+            if upper in known or not upper.startswith(_APP_ENV_PREFIXES):
+                continue
+            match = difflib.get_close_matches(upper, known, n=1, cutoff=0.8)
+            suggestion = match[0] if match else None
+            logger.warning(
+                "Environment variable %s is not read by this application%s.",
+                upper,
+                f"; did you mean {suggestion}?" if suggestion else "",
+            )
+        return self
 
     @model_validator(mode="after")
     def _validate_security(self) -> Settings:

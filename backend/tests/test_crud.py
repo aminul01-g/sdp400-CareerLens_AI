@@ -619,3 +619,50 @@ def test_admin_overview_is_real(admin_client: TestClient, role_seed, taxonomy_se
     assert overview["user_count"] >= 1
     assert overview["families"]
     assert overview["top_skills"]
+
+
+# ---------------------------------------------------------------------------
+# The committed evaluation report
+#
+# These exist because the endpoint 404'd for an admin in the container and no
+# test noticed: every admin-401 assertion stops before the file is read, so the
+# path itself was never exercised. The tests below get all the way through.
+# ---------------------------------------------------------------------------
+
+
+def test_committed_evaluation_report_exists_on_disk() -> None:
+    """The artefact the admin chart reads must be committed, not generated on demand.
+
+    Serving a freshly computed report would let the numbers disagree with the
+    document in the repository, which is the opposite of the point of publishing
+    them as an artefact.
+    """
+    from app.api.routes.admin import EVALUATION_REPORT_PATH
+
+    assert EVALUATION_REPORT_PATH.exists(), (
+        f"the committed report is missing at {EVALUATION_REPORT_PATH}; "
+        "regenerate it with: python -m app.ml.evaluation"
+    )
+
+
+def test_admin_can_read_the_committed_evaluation_report(admin_client: TestClient) -> None:
+    """An admin gets the real numbers, not a 404 and not an empty object."""
+    response = admin_client.get("/api/admin/evaluation")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    # The shape the admin evaluation page charts.
+    assert "metrics" in body
+    assert body["metrics"]["top3_hit_rate"] >= 0.75
+    assert body["weights"] == {"coverage": 0.6, "tfidf": 0.4}
+    assert len(body["outcomes"]) >= 24
+    assert body["meets_target"] is True
+    assert body["sweep"], "the sweep table must be served alongside the headline numbers"
+
+
+def test_non_admin_cannot_read_the_evaluation_report(user_client: TestClient) -> None:
+    """The chart is admin-only, and a normal user gets 403 rather than 404.
+
+    403 rather than 404 matters: a 404 would confirm nothing about authorisation
+    and would tell an anonymous prober that the report exists at all.
+    """
+    assert user_client.get("/api/admin/evaluation").status_code == 403

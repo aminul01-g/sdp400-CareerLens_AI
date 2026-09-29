@@ -47,5 +47,8 @@ scipy==1.14.1                     # pinned: scikit-learn 1.5 needs <1.15 on cp31
 pdfplumber==0.11.4
 python-docx==1.1.2
 
-# ---- Production WSGI/ASGI server (used by render.yaml / Dockerfile) ----
-gunicorn==23.0.0
+# ---- Production server ----
+# uvicorn[standard] above is the server, in both the Dockerfile CMD and
+# render.yaml. gunicorn was here for the predecessor's Flask image and is now
+# unused: Render runs one instance per web service, so a process manager in
+# front of uvicorn would add a moving part without adding resilience.

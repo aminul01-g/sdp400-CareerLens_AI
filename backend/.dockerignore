@@ -1,0 +1,58 @@
+# Keep the build context small and keep secrets and local state out of the image.
+#
+# Anything matched here is invisible to `COPY . .`, which is the point: a stray
+# `COPY . /app` in a future edit would otherwise bake .env into a published
+# layer, where it stays in the image history even if a later layer deletes it.
+
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Virtual environments — never bake a host venv into a Linux image
+.venv
+venv
+env
+
+# Caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+coverage.xml
+
+# Version control and editor noise
+.git
+.gitignore
+.github
+.vscode
+.idea
+*.swp
+.DS_Store
+
+# Tests are not shipped. The image serves the API; CI runs the suite.
+tests/
+
+# The frozen legacy Flask tree, deleted at the Phase 11 cutover. Excluded now
+# so a mid-cutover build cannot resurrect it through the context.
+app.py
+auth.py
+admin.py
+models.py
+extensions.py
+utils.py
+tasks.py
+guidance.py
+instance/
+
+# Local artefacts
+*.db
+*.sqlite
+*.sqlite3
+*.log

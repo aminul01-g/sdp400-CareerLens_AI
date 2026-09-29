@@ -3,12 +3,24 @@
 # Phase 0 task T007. Provides the PostgreSQL 16 instance the whole system depends
 # on, plus pgAdmin as the database GUI.
 #
-# The `api` service is added in Phase 10 (T162); the database services below are
-# unchanged since Phase 0.
+# This is also the offline demo fallback required by proposal section 6.4: the
+# whole stack runs from this file with no external account, which matters when the
+# deployed instance is unavailable on the day.
 #
 # Usage:
-#   docker compose up -d postgres pgadmin
+#   docker compose up -d                          # database + API
+#   docker compose up -d postgres pgadmin api      # ...and the database GUI
+#   docker compose run --rm api alembic upgrade head
+#   docker compose run --rm api python -m scripts.seed_taxonomy
+#   docker compose run --rm api python -m scripts.seed_job_roles
+#   docker compose run --rm api python -m scripts.seed_admin
 #   docker compose exec postgres psql -U careerlens -d careerlens -c '\conninfo'
+#
+# Migrations are a separate `run --rm` step rather than part of the API's start
+# command. A bind-mounted source tree means every reload is a new container
+# process, and a migration on every reload would run alembic dozens of times a
+# minute. `alembic upgrade head` is idempotent, but paying for it on each reload
+# would hide the failure mode where a migration is not.
 #
 # Connection string used by the API (see backend/.env.example):
 #   postgresql+psycopg://careerlens:careerlens_dev_password@localhost:5432/careerlens
@@ -64,6 +76,51 @@ services:
     volumes:
       - careerlens_pgadmin:/var/lib/pgadmin
 
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: careerlens-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Points at the service name, not localhost: inside the compose network the
+      # database is reachable by DNS, and localhost would mean this container.
+      DATABASE_URL: postgresql+psycopg://careerlens:careerlens_dev_password@postgres:5432/careerlens
+      TEST_DATABASE_URL: postgresql+psycopg://careerlens:careerlens_dev_password@postgres:5432/careerlens_test
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-careerlens_dev_only_secret_key_change_me_32chars}
+      ENVIRONMENT: development
+      DEBUG: "true"
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      LLM_ENABLED: "false"
+      # The frontend dev server's origin. Empty would be the safe production
+      # default, but this stack exists to be used locally, where blocking the
+      # browser would just be annoying.
+      ALLOWED_ORIGINS: http://localhost:3000,http://127.0.0.1:3000
+    ports:
+      - "8000:8000"
+    volumes:
+      # Code and knowledge base are bind-mounted for hot reload. The named
+      # dependency install is NOT mounted, so a host venv cannot shadow the
+      # image's own site-packages.
+      - ./backend/app:/srv/careerlens/app
+      - ./backend/data:/srv/careerlens/data
+      - ./backend/scripts:/srv/careerlens/scripts
+      - careerlens_uploads:/srv/careerlens/uploads
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+      - --reload-dir
+      - /srv/careerlens/app
+
 volumes:
   careerlens_pgdata:
   careerlens_pgadmin:
+  careerlens_uploads:

@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import json
 import logging
-from pathlib import Path
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Query, Response, status
@@ -21,6 +20,7 @@ from sqlalchemy import func, select
 
 from app.api.deps import DbSession, RequireAdmin
 from app.core.exceptions import ConflictError, NotFoundError
+from app.ml.evaluation.harness import DEFAULT_JSON_REPORT
 from app.models.project import Project
 from app.models.user import User, UserRole
 from app.models.user_skill import UserSkill
@@ -44,7 +44,18 @@ logger = logging.getLogger("app.routes.admin")
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 #: The committed evaluation report, charted in the admin UI.
-EVALUATION_REPORT_PATH = Path(__file__).resolve().parents[4] / "docs" / "evaluation_report.json"
+#:
+#: Imported rather than recomputed, because a second path expression for the same
+#: artefact is how it ends up pointing at a file that does not exist -- which is
+#: exactly what happened: this used to resolve to docs/evaluation_report.json,
+#: while the harness writes JSON to app/ml/evaluation/report.json and Markdown to
+#: docs/evaluation_report.md. The endpoint 404'd for an admin in a container, and
+#: no test caught it because every test here stopped at the 401, before the file
+#: check was ever reached.
+#:
+#: Living inside app/ also means the Dockerfile already ships it: there is no
+#: separate COPY of docs/ to forget.
+EVALUATION_REPORT_PATH = DEFAULT_JSON_REPORT
 
 
 # ---------------------------------------------------------------------------

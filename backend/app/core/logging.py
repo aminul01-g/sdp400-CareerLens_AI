@@ -106,27 +106,68 @@ _LOGGING_CONFIG: dict[str, Any] = {
 }
 
 
+_configured = False
+
+
 def configure_logging() -> None:
-    """Install the logging configuration. Idempotent."""
+    """Install the logging configuration. Idempotent.
+
+    Idempotence is a correctness requirement, not an optimisation. ``dictConfig``
+    is a *global, destructive* operation: it re-applies itself to every logger in
+    the process and rewrites state for all of them. Applying it once per request
+    or once per test does not merely waste time, it corrupts the logger tree --
+    module loggers such as ``app.core.config`` were left with ``disabled = True``
+    after a repeat call, which silently swallowed the startup warnings this
+    project relies on to surface a misspelt environment variable.
+
+    The second half of the function re-enables the ``app`` tree for the same
+    reason. Our module loggers are children of the named ``app`` logger, so
+    whether stdlib's bookkeeping treats them as in-scope depends on the exact set
+    of loggers that happened to exist at the time. Our own diagnostics must not
+    depend on that, so they are asserted explicitly.
+    """
+    global _configured
     settings = get_settings()
-    config = dict(_LOGGING_CONFIG)
-    if settings.log_json:
-        config["handlers"] = {
-            **config["handlers"],
-            "console": {
-                **config["handlers"]["console"],
-                "formatter": "json",
-                "stream": sys.stdout,
-            },
+
+    if not _configured:
+        config = dict(_LOGGING_CONFIG)
+        # Deep-copy the nested mapping. The previous shallow copy meant
+        # `config["loggers"]["app"] = ...` mutated the module-level constant, so a
+        # second call saw the first call's result as its own starting point.
+        config["loggers"] = {k: dict(v) for k, v in _LOGGING_CONFIG["loggers"].items()}
+        if settings.log_json:
+            config["handlers"] = {
+                **config["handlers"],
+                "console": {
+                    **config["handlers"]["console"],
+                    "formatter": "json",
+                    "stream": sys.stdout,
+                },
+            }
+        config["root"] = {"level": settings.log_level.upper(), "handlers": ["console"]}
+        config["loggers"]["app"] = {
+            "level": settings.log_level.upper(),
+            "handlers": ["console"],
+            "propagate": False,
         }
-    config["root"] = {"level": settings.log_level.upper(), "handlers": ["console"]}
-    config["loggers"]["app"] = {
-        "level": settings.log_level.upper(),
-        "handlers": ["console"],
-        "propagate": False,
-    }
-    logging.config.dictConfig(config)
-    logging.getLogger("app").debug("Logging configured (level=%s)", settings.log_level)
+        logging.config.dictConfig(config)
+        _configured = True
+
+    # Idempotent, so a level change between calls is still honoured.
+    app_logger = logging.getLogger("app")
+    app_logger.setLevel(settings.log_level.upper())
+    for name in list(logging.root.manager.loggerDict):
+        if name == "app" or name.startswith("app."):
+            candidate = logging.root.manager.loggerDict[name]
+            if isinstance(candidate, logging.Logger):
+                candidate.disabled = False
+    app_logger.debug("Logging configured (level=%s)", settings.log_level)
+
+
+def reset_logging_for_tests() -> None:
+    """Forget that logging was configured, so the next call re-applies it."""
+    global _configured
+    _configured = False
 
 
 def get_logger(name: str) -> logging.Logger:

@@ -1,0 +1,98 @@
+# Render blueprint for the CareerLens AI API.
+#
+# Provisioning is a two-step affair, because the database has to exist before the
+# web service can point at it:
+#
+#   1. `render blueprint launch` creates the Postgres instance and this service.
+#   2. Copy the internal DATABASE_URL Render prints into this service's
+#      environment, alongside a generated JWT_SECRET_KEY, then deploy.
+#
+# The internal URL is used deliberately. The database is not reachable from the
+# internet, so a leaked connection string is not a leaked database.
+#
+# Exact steps, including the secret generation and the seed commands, are in
+# docs/deployment.md.
+
+databases:
+  - name: careerlens-db
+    databaseName: careerlens
+    user: careerlens
+    # Render generates this and never displays it again. Override only to pin a
+    # known value; leaving it out is the safer default.
+    plan: free
+    postgresMajorVersion: "16"
+    ipAllowList: []          # private network only; no public access
+
+services:
+  - type: web
+    name: careerlens-api
+    runtime: python
+    plan: free
+    region: oregon
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    # Migrations run on boot. Safe here specifically because Render gives one
+    # instance per web service, so there is no second replica to race. The
+    # Dockerfile deliberately does not do this, since a scaled container would.
+    # The && is the point: if the migration fails, the service must not start
+    # serving against a schema it does not understand.
+    startCommand: >
+      alembic upgrade head &&
+      python -m scripts.seed_taxonomy &&
+      python -m scripts.seed_job_roles &&
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    # /health returns non-200 when the database is unreachable, so this is a real
+    # readiness check rather than a liveness ping.
+    autoDeploy: false
+    envVars:
+      # Internal database URL. Replace the whole value with the one Render shows
+      # for careerlens-db; the placeholder keeps `render blueprint launch` from
+      # failing on a missing required variable.
+      - key: DATABASE_URL
+        fromDatabase:
+          name: careerlens-db
+          property: connectionString
+      # Generate with: python -c "import secrets; print(secrets.token_urlsafe(48))"
+      # Never reuse the development value, and never commit the real one.
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 10080          # 7 days
+      - key: ENVIRONMENT
+        value: production
+      - key: DEBUG
+        value: "false"
+      # Set this to the deployed frontend origin only, after the frontend exists.
+      # Left empty the API rejects browser traffic, which is the safe default.
+      - key: ALLOWED_ORIGINS
+        sync: false
+      # Proposal section 4.2: the LLM learning path stays off. The core product
+      # must not depend on a third-party provider.
+      - key: LLM_ENABLED
+        value: "false"
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_MODEL
+        value: gpt-4o-mini
+      # Consumed by scripts/seed_admin.py, which creates the single admin
+      # account. Not read by the API itself, so a missing value is not a boot
+      # failure -- it just means no admin exists yet.
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        generateValue: true
+      # Surface the engine's own tunables explicitly rather than inheriting
+      # defaults, so the production split is a decision on the dashboard rather
+      # than an accident. 0.6/0.4 is the evaluated default; see
+      # docs/evaluation_report.md for the sweep that chose it.
+      - key: SKILL_COVERAGE_WEIGHT
+        value: "0.6"
+      - key: TFIDF_WEIGHT
+        value: "0.4"
+      - key: LOG_LEVEL
+        value: INFO
+      - key: LOG_JSON
+        value: "true"
