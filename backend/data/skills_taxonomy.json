@@ -1,0 +1,1770 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-09-30",
+  "description": "Curated AI/ML and supporting software skill taxonomy for CareerLens AI. Each entry carries a canonical name, a stable slug, a category, a one-line description, and the surface forms a CV actually contains.",
+  "skills": [
+    {
+      "name": "Python",
+      "slug": "python",
+      "category": "Programming & Core",
+      "description": "Primary language for data science and machine learning; the default language of this system.",
+      "aliases": [
+        "py3",
+        "python 3",
+        "python3"
+      ]
+    },
+    {
+      "name": "JavaScript",
+      "slug": "javascript",
+      "category": "Programming & Core",
+      "description": "Primary language of the browser and the Node.js ecosystem.",
+      "aliases": [
+        "ecmascript",
+        "js",
+        "node js",
+        "node.js",
+        "nodejs"
+      ]
+    },
+    {
+      "name": "TypeScript",
+      "slug": "typescript",
+      "category": "Programming & Core",
+      "description": "Typed superset of JavaScript compiled away at build time.",
+      "aliases": [
+        "ts",
+        "type script"
+      ]
+    },
+    {
+      "name": "Java",
+      "slug": "java",
+      "category": "Programming & Core",
+      "description": "General-purpose, class-based, object-oriented language running on the JVM.",
+      "aliases": [
+        "java 11",
+        "java 8",
+        "java11",
+        "java8",
+        "jvm language"
+      ]
+    },
+    {
+      "name": "C++",
+      "slug": "c-plus-plus",
+      "category": "Programming & Core",
+      "description": "Compiled, statically typed language with performance-oriented features.",
+      "aliases": [
+        "c plus plus",
+        "cplusplus",
+        "cpp"
+      ]
+    },
+    {
+      "name": "C",
+      "slug": "c",
+      "category": "Programming & Core",
+      "description": "Low-level compiled language foundational to systems and embedded work.",
+      "aliases": [
+        "ansi c",
+        "c language"
+      ]
+    },
+    {
+      "name": "C#",
+      "slug": "c-sharp",
+      "category": "Programming & Core",
+      "description": "Managed, object-oriented language targeting the .NET runtime.",
+      "aliases": [
+        "c sharp",
+        "csharp",
+        "dotnet c#"
+      ]
+    },
+    {
+      "name": "Go",
+      "slug": "go",
+      "category": "Programming & Core",
+      "description": "Statically typed, compiled language designed for simple concurrent services.",
+      "aliases": [
+        "go language",
+        "go-lang",
+        "golang"
+      ]
+    },
+    {
+      "name": "Rust",
+      "slug": "rust",
+      "category": "Programming & Core",
+      "description": "Memory-safe systems language with no garbage collector.",
+      "aliases": [
+        "rust-lang",
+        "rustlang"
+      ]
+    },
+    {
+      "name": "R",
+      "slug": "r",
+      "category": "Programming & Core",
+      "description": "Statistical computing language and the core of the Bioconductor ecosystem.",
+      "aliases": [
+        "r language",
+        "r markdown",
+        "r-project",
+        "rlang",
+        "rmarkdown",
+        "rstats",
+        "rstudio"
+      ]
+    },
+    {
+      "name": "Bash",
+      "slug": "bash",
+      "category": "Programming & Core",
+      "description": "POSIX shell used for scripting, automation, and data-pipeline orchestration.",
+      "aliases": [
+        "bash script",
+        "gnu bash",
+        "sh",
+        "shell scripting"
+      ]
+    },
+    {
+      "name": "Git",
+      "slug": "git",
+      "category": "Programming & Core",
+      "description": "Distributed version control system; the substrate of reproducible ML work.",
+      "aliases": [
+        "git vcs",
+        "vcs",
+        "version control"
+      ]
+    },
+    {
+      "name": "GitHub",
+      "slug": "github",
+      "category": "Programming & Core",
+      "description": "Git hosting platform and source of most public ML code.",
+      "aliases": [
+        "gh",
+        "github.com"
+      ]
+    },
+    {
+      "name": "GitLab",
+      "slug": "gitlab",
+      "category": "Programming & Core",
+      "description": "Git hosting platform with integrated CI/CD.",
+      "aliases": [
+        "gitlab.com",
+        "glab"
+      ]
+    },
+    {
+      "name": "Linux",
+      "slug": "linux",
+      "category": "Programming & Core",
+      "description": "Operating system underlying most production ML infrastructure.",
+      "aliases": [
+        "gnu/linux",
+        "ubuntu",
+        "unix"
+      ]
+    },
+    {
+      "name": "Object-Oriented Programming",
+      "slug": "object-oriented-programming",
+      "category": "Programming & Core",
+      "description": "Programming paradigm modelling systems as objects with state and behaviour.",
+      "aliases": [
+        "object oriented programming",
+        "object-oriented design",
+        "oop"
+      ]
+    },
+    {
+      "name": "Data Structures",
+      "slug": "data-structures",
+      "category": "Programming & Core",
+      "description": "Core computer-science structures: arrays, linked lists, trees, hash tables, graphs.",
+      "aliases": [
+        "data structure",
+        "ds",
+        "trees and graphs"
+      ]
+    },
+    {
+      "name": "Algorithms",
+      "slug": "algorithms",
+      "category": "Programming & Core",
+      "description": "Problem-solving procedures, complexity analysis, and standard algorithm families.",
+      "aliases": [
+        "algorithm",
+        "algorithmic thinking",
+        "dsa"
+      ]
+    },
+    {
+      "name": "SQL",
+      "slug": "sql",
+      "category": "Data Engineering",
+      "description": "Declarative language for querying relational databases; the single most requested data skill.",
+      "aliases": [
+        "ansi sql",
+        "sequel",
+        "structured query language"
+      ]
+    },
+    {
+      "name": "PostgreSQL",
+      "slug": "postgresql",
+      "category": "Data Engineering",
+      "description": "Open-source relational database with strong SQL, JSONB, and extension support.",
+      "aliases": [
+        "pg",
+        "postgres",
+        "postgresql database",
+        "psql"
+      ]
+    },
+    {
+      "name": "MySQL",
+      "slug": "mysql",
+      "category": "Data Engineering",
+      "description": "Widely deployed open-source relational database.",
+      "aliases": [
+        "mariadb",
+        "my sql",
+        "mysql server"
+      ]
+    },
+    {
+      "name": "MongoDB",
+      "slug": "mongodb",
+      "category": "Data Engineering",
+      "description": "Document-oriented NoSQL database storing JSON-shaped records.",
+      "aliases": [
+        "mongo",
+        "mongo db",
+        "mongodb database"
+      ]
+    },
+    {
+      "name": "Redis",
+      "slug": "redis",
+      "category": "Data Engineering",
+      "description": "In-memory key-value store used for caching, queues, and low-latency lookups.",
+      "aliases": [
+        "redis cache",
+        "redis store"
+      ]
+    },
+    {
+      "name": "Apache Spark",
+      "slug": "apache-spark",
+      "category": "Data Engineering",
+      "description": "Distributed computing engine for large-scale batch and streaming data processing.",
+      "aliases": [
+        "apache spark sql",
+        "pyspark",
+        "spark",
+        "spark sql"
+      ]
+    },
+    {
+      "name": "Apache Hadoop",
+      "slug": "apache-hadoop",
+      "category": "Data Engineering",
+      "description": "Distributed storage and batch processing framework built on the Hadoop filesystem.",
+      "aliases": [
+        "hadoop",
+        "hadoop mapreduce",
+        "hdfs"
+      ]
+    },
+    {
+      "name": "Apache Kafka",
+      "slug": "apache-kafka",
+      "category": "Data Engineering",
+      "description": "Distributed event streaming platform for high-throughput pub/sub pipelines.",
+      "aliases": [
+        "kafka",
+        "kafka streams",
+        "redpanda"
+      ]
+    },
+    {
+      "name": "Apache Airflow",
+      "slug": "apache-airflow",
+      "category": "Data Engineering",
+      "description": "Programmatic authoring, scheduling, and monitoring of data workflows.",
+      "aliases": [
+        "airflow",
+        "apache airflow dag",
+        "dag orchestration"
+      ]
+    },
+    {
+      "name": "dbt",
+      "slug": "dbt",
+      "category": "Data Engineering",
+      "description": "Data build tool compiling SQL into versioned, tested, documented transformations.",
+      "aliases": [
+        "data build tool",
+        "dbt cloud",
+        "dbt core"
+      ]
+    },
+    {
+      "name": "ETL",
+      "slug": "etl",
+      "category": "Data Engineering",
+      "description": "Extract-transform-load pipelines that move data between systems.",
+      "aliases": [
+        "elt",
+        "etl pipeline",
+        "extract transform load"
+      ]
+    },
+    {
+      "name": "Data Warehousing",
+      "slug": "data-warehousing",
+      "category": "Data Engineering",
+      "description": "Purpose-built stores for large-scale analytical querying.",
+      "aliases": [
+        "data marts",
+        "data warehouse",
+        "dimensional modeling",
+        "warehousing"
+      ]
+    },
+    {
+      "name": "Data Modeling",
+      "slug": "data-modeling",
+      "category": "Data Engineering",
+      "description": "Designing schemas, keys, and relationships for analytical use cases.",
+      "aliases": [
+        "data models",
+        "dimensional modelling",
+        "schema design"
+      ]
+    },
+    {
+      "name": "Pandas",
+      "slug": "pandas",
+      "category": "Data Engineering",
+      "description": "DataFrame library for tabular analysis in Python.",
+      "aliases": [
+        "pandas dataframe",
+        "pd",
+        "python pandas"
+      ]
+    },
+    {
+      "name": "NumPy",
+      "slug": "numpy",
+      "category": "Data Engineering",
+      "description": "N-dimensional array and linear-algebra primitives for Python.",
+      "aliases": [
+        "np",
+        "numpy array",
+        "python numpy"
+      ]
+    },
+    {
+      "name": "Polars",
+      "slug": "polars",
+      "category": "Data Engineering",
+      "description": "Fast columnar DataFrame library written in Rust with a Python API.",
+      "aliases": [
+        "polars dataframe",
+        "polars rust"
+      ]
+    },
+    {
+      "name": "Apache Parquet",
+      "slug": "apache-parquet",
+      "category": "Data Engineering",
+      "description": "Columnar storage format for analytical datasets.",
+      "aliases": [
+        "parquet",
+        "parquet file format"
+      ]
+    },
+    {
+      "name": "Excel",
+      "slug": "excel",
+      "category": "Data Engineering",
+      "description": "Spreadsheet environment widely used for ad-hoc analysis and data cleaning.",
+      "aliases": [
+        "microsoft excel",
+        "ms excel",
+        "spreadsheet",
+        "xlsx"
+      ]
+    },
+    {
+      "name": "Data Cleaning",
+      "slug": "data-cleaning",
+      "category": "Data Engineering",
+      "description": "Resolving missing values, duplicates, inconsistent types, and malformed records.",
+      "aliases": [
+        "data cleansing",
+        "data scrubbing",
+        "data tidying",
+        "data wrangling"
+      ]
+    },
+    {
+      "name": "Data Visualization",
+      "slug": "data-visualization",
+      "category": "Data Engineering",
+      "description": "Communicating distributions, trends, and comparisons visually.",
+      "aliases": [
+        "charting",
+        "data visualisation",
+        "data viz",
+        "graphing"
+      ]
+    },
+    {
+      "name": "Statistics",
+      "slug": "statistics",
+      "category": "Statistics & Mathematics",
+      "description": "Descriptive and inferential reasoning about data.",
+      "aliases": [
+        "statistic",
+        "statistical analysis",
+        "statistical methods",
+        "stats"
+      ]
+    },
+    {
+      "name": "Probability",
+      "slug": "probability",
+      "category": "Statistics & Mathematics",
+      "description": "Modelling uncertainty, random variables, and distributions.",
+      "aliases": [
+        "probability theory",
+        "random variables",
+        "stochastic processes"
+      ]
+    },
+    {
+      "name": "Linear Algebra",
+      "slug": "linear-algebra",
+      "category": "Statistics & Mathematics",
+      "description": "Vectors, matrices, eigendecomposition, and tensor operations underlying ML.",
+      "aliases": [
+        "linear algebra math",
+        "matrices",
+        "matrix algebra",
+        "vector spaces"
+      ]
+    },
+    {
+      "name": "Calculus",
+      "slug": "calculus",
+      "category": "Statistics & Mathematics",
+      "description": "Derivatives, integrals, and gradients underpinning optimisation.",
+      "aliases": [
+        "differentiation",
+        "integration",
+        "multivariable calculus"
+      ]
+    },
+    {
+      "name": "Hypothesis Testing",
+      "slug": "hypothesis-testing",
+      "category": "Statistics & Mathematics",
+      "description": "Statistical tests for deciding whether an observed effect is real.",
+      "aliases": [
+        "hypothesis test",
+        "null hypothesis significance",
+        "p-value testing",
+        "significance testing"
+      ]
+    },
+    {
+      "name": "A/B Testing",
+      "slug": "a-b-testing",
+      "category": "Statistics & Mathematics",
+      "description": "Controlled experiments comparing two variants with randomised assignment.",
+      "aliases": [
+        "a/b tests",
+        "ab testing",
+        "online experiments",
+        "split testing"
+      ]
+    },
+    {
+      "name": "Regression Analysis",
+      "slug": "regression-analysis",
+      "category": "Statistics & Mathematics",
+      "description": "Modelling a continuous target from explanatory variables.",
+      "aliases": [
+        "linear regression",
+        "logistic regression",
+        "multiple regression",
+        "regression",
+        "regressions"
+      ]
+    },
+    {
+      "name": "Time Series Analysis",
+      "slug": "time-series-analysis",
+      "category": "Statistics & Mathematics",
+      "description": "Modelling and forecasting sequences indexed by time.",
+      "aliases": [
+        "seasonality",
+        "time series",
+        "time series forecasting",
+        "time-series"
+      ]
+    },
+    {
+      "name": "Bayesian Statistics",
+      "slug": "bayesian-statistics",
+      "category": "Statistics & Mathematics",
+      "description": "Inference through the posterior distribution using Bayes' theorem.",
+      "aliases": [
+        "bayes theorem",
+        "bayesian inference",
+        "bayesian modelling",
+        "markov chain monte carlo",
+        "mcmc"
+      ]
+    },
+    {
+      "name": "Sampling",
+      "slug": "sampling",
+      "category": "Statistics & Mathematics",
+      "description": "Selecting representative subsets and resampling techniques.",
+      "aliases": [
+        "bootstrap",
+        "bootstrapping",
+        "random sampling",
+        "resampling",
+        "stratified sampling"
+      ]
+    },
+    {
+      "name": "Feature Engineering",
+      "slug": "feature-engineering",
+      "category": "Statistics & Mathematics",
+      "description": "Transforming raw inputs into representations that model better.",
+      "aliases": [
+        "feature engineering pipelines",
+        "feature extraction",
+        "feature selection",
+        "feature transformation"
+      ]
+    },
+    {
+      "name": "Outlier Detection",
+      "slug": "outlier-detection",
+      "category": "Statistics & Mathematics",
+      "description": "Identifying and handling anomalous observations.",
+      "aliases": [
+        "anomaly detection basics",
+        "outlier analysis",
+        "outlier treatment"
+      ]
+    },
+    {
+      "name": "Correlation",
+      "slug": "correlation",
+      "category": "Statistics & Mathematics",
+      "description": "Measuring association between variables, and the pitfalls of reading it.",
+      "aliases": [
+        "correlation analysis",
+        "covariance",
+        "pearson correlation",
+        "spearman correlation"
+      ]
+    },
+    {
+      "name": "Descriptive Statistics",
+      "slug": "descriptive-statistics",
+      "category": "Statistics & Mathematics",
+      "description": "Summarising central tendency, spread, and distribution shape.",
+      "aliases": [
+        "descriptive analytics",
+        "mean median mode",
+        "summary statistics"
+      ]
+    },
+    {
+      "name": "Scikit-learn",
+      "slug": "scikit-learn",
+      "category": "ML Frameworks",
+      "description": "Python machine-learning library providing classical regression, classification, clustering, and model-selection tools.",
+      "aliases": [
+        "sci-kit learn",
+        "scikit",
+        "scikit learn",
+        "sk-learn",
+        "sklearn",
+        "sklearn library"
+      ]
+    },
+    {
+      "name": "XGBoost",
+      "slug": "xgboost",
+      "category": "ML Frameworks",
+      "description": "Gradient-boosted decision trees, the standard baseline for tabular problems.",
+      "aliases": [
+        "extreme gradient boosting",
+        "xg boost",
+        "xgboost library"
+      ]
+    },
+    {
+      "name": "LightGBM",
+      "slug": "lightgbm",
+      "category": "ML Frameworks",
+      "description": "Gradient boosting framework using histogram-based, leaf-wise tree growth.",
+      "aliases": [
+        "light gbm",
+        "lightgbm library"
+      ]
+    },
+    {
+      "name": "CatBoost",
+      "slug": "catboost",
+      "category": "ML Frameworks",
+      "description": "Gradient boosting library with strong native handling of categorical features.",
+      "aliases": [
+        "cat boost",
+        "catboost library"
+      ]
+    },
+    {
+      "name": "TensorFlow",
+      "slug": "tensorflow",
+      "category": "ML Frameworks",
+      "description": "End-to-end platform for building and deploying machine-learning models.",
+      "aliases": [
+        "tensor-flow",
+        "tensorflow keras",
+        "tensorflow2",
+        "tf"
+      ]
+    },
+    {
+      "name": "Keras",
+      "slug": "keras",
+      "category": "ML Frameworks",
+      "description": "High-level neural-network API that can run on TensorFlow, JAX, or PyTorch.",
+      "aliases": [
+        "keras api",
+        "keras tensorflow",
+        "keras3"
+      ]
+    },
+    {
+      "name": "PyTorch",
+      "slug": "pytorch",
+      "category": "ML Frameworks",
+      "description": "Tensor-based deep-learning framework with autograd and first-class GPU support.",
+      "aliases": [
+        "py torch",
+        "py-torch",
+        "pytorch lightning standalone",
+        "torch"
+      ]
+    },
+    {
+      "name": "JAX",
+      "slug": "jax",
+      "category": "ML Frameworks",
+      "description": "Composable transformations of NumPy-like code with automatic differentiation and XLA compilation.",
+      "aliases": [
+        "google jax",
+        "jax library"
+      ]
+    },
+    {
+      "name": "statsmodels",
+      "slug": "statsmodels",
+      "category": "ML Frameworks",
+      "description": "Statistical modelling and econometrics with rich inference support.",
+      "aliases": [
+        "stats models",
+        "statsmodels library"
+      ]
+    },
+    {
+      "name": "SHAP",
+      "slug": "shap",
+      "category": "ML Frameworks",
+      "description": "Shapley-additive-explanations library for interpreting model predictions.",
+      "aliases": [
+        "shap explainability",
+        "shapley value explanations",
+        "shapley values"
+      ]
+    },
+    {
+      "name": "Optuna",
+      "slug": "optuna",
+      "category": "ML Frameworks",
+      "description": "Automatic hyperparameter optimization with pruning and Bayesian sampling.",
+      "aliases": [
+        "hpo",
+        "optuna hyperparameter",
+        "optuna study"
+      ]
+    },
+    {
+      "name": "MLflow",
+      "slug": "mlflow",
+      "category": "ML Frameworks",
+      "description": "Experiment tracking, model registry, and deployment tooling for the ML lifecycle.",
+      "aliases": [
+        "ml flow",
+        "mlflow experiments",
+        "mlflow tracking",
+        "model registry"
+      ]
+    },
+    {
+      "name": "Weights & Biases",
+      "slug": "weights-and-biases",
+      "category": "ML Frameworks",
+      "description": "Hosted experiment tracking, sweeps, and model registry.",
+      "aliases": [
+        "w&b",
+        "wandb",
+        "weights and biases"
+      ]
+    },
+    {
+      "name": "H2O.ai",
+      "slug": "h2o-ai",
+      "category": "ML Frameworks",
+      "description": "AutoML platform producing interpretable model leaderboards across algorithms.",
+      "aliases": [
+        "driverless ai",
+        "h2o",
+        "h2o auto ml"
+      ]
+    },
+    {
+      "name": "AutoML",
+      "slug": "automl",
+      "category": "ML Frameworks",
+      "description": "Automated end-to-end model selection and tuning pipelines.",
+      "aliases": [
+        "automated machine learning",
+        "automated ml"
+      ]
+    },
+    {
+      "name": "Model Selection",
+      "slug": "model-selection",
+      "category": "ML Frameworks",
+      "description": "Choosing among candidate models using cross-validation and validation metrics.",
+      "aliases": [
+        "algorithm selection",
+        "model benchmarking",
+        "model evaluation"
+      ]
+    },
+    {
+      "name": "Cross-validation",
+      "slug": "cross-validation",
+      "category": "ML Frameworks",
+      "description": "k-fold and related resampling schemes for estimating generalisation.",
+      "aliases": [
+        "cross validation",
+        "cv folds",
+        "k-fold cross validation",
+        "kfold",
+        "stratified k-fold"
+      ]
+    },
+    {
+      "name": "Ensemble Methods",
+      "slug": "ensemble-methods",
+      "category": "ML Frameworks",
+      "description": "Combining predictors (bagging, boosting, stacking) to improve accuracy.",
+      "aliases": [
+        "bagging",
+        "ensemble learning",
+        "ensembles",
+        "model ensembling",
+        "stacking",
+        "voting classifier"
+      ]
+    },
+    {
+      "name": "Neural Networks",
+      "slug": "neural-networks",
+      "category": "Deep Learning",
+      "description": "Layered non-linear models trained by gradient descent.",
+      "aliases": [
+        "deep neural networks",
+        "dnn",
+        "fully connected networks",
+        "mlp",
+        "multi layer perceptron",
+        "neural network",
+        "nn",
+        "perceptron"
+      ]
+    },
+    {
+      "name": "Convolutional Neural Networks",
+      "slug": "convolutional-neural-networks",
+      "category": "Deep Learning",
+      "description": "CNNs with learned filters for spatial data such as images.",
+      "aliases": [
+        "cnn",
+        "convnet",
+        "convolution networks",
+        "convolutional networks"
+      ]
+    },
+    {
+      "name": "Recurrent Neural Networks",
+      "slug": "recurrent-neural-networks",
+      "category": "Deep Learning",
+      "description": "Sequence models carrying state through time.",
+      "aliases": [
+        "recurrent networks",
+        "rnn"
+      ]
+    },
+    {
+      "name": "LSTM",
+      "slug": "lstm",
+      "category": "Deep Learning",
+      "description": "Long short-term memory networks, addressing vanishing gradients in sequence modelling.",
+      "aliases": [
+        "long short term memory",
+        "lstm layer",
+        "lstm networks"
+      ]
+    },
+    {
+      "name": "Generative Adversarial Networks",
+      "slug": "generative-adversarial-networks",
+      "category": "Deep Learning",
+      "description": "GANs pairing a generator with a discriminator for synthetic data.",
+      "aliases": [
+        "adversarial training",
+        "gan",
+        "gans",
+        "generative adversarial network"
+      ]
+    },
+    {
+      "name": "Transformers",
+      "slug": "transformers",
+      "category": "Deep Learning",
+      "description": "Attention-based architectures underpinning modern sequence modelling.",
+      "aliases": [
+        "attention is all you need",
+        "self attention architecture",
+        "transformer",
+        "transformer architecture",
+        "transformer models"
+      ]
+    },
+    {
+      "name": "Attention Mechanism",
+      "slug": "attention-mechanism",
+      "category": "Deep Learning",
+      "description": "Weighted aggregation of positions, the core of the transformer.",
+      "aliases": [
+        "attention",
+        "attention mechanism",
+        "multi head attention",
+        "scaled dot product attention"
+      ]
+    },
+    {
+      "name": "Transfer Learning",
+      "slug": "transfer-learning",
+      "category": "Deep Learning",
+      "description": "Reusing representations learned on one task for another.",
+      "aliases": [
+        "fine tuning",
+        "fine-tuning",
+        "pretrained models",
+        "transfer learning"
+      ]
+    },
+    {
+      "name": "Embeddings",
+      "slug": "embeddings",
+      "category": "Deep Learning",
+      "description": "Dense vector representations of items, tokens, or documents.",
+      "aliases": [
+        "dense vectors",
+        "embedding models",
+        "embedding vectors",
+        "sentence embeddings",
+        "vector embeddings",
+        "word embeddings"
+      ]
+    },
+    {
+      "name": "Computer Vision",
+      "slug": "computer-vision",
+      "category": "Deep Learning",
+      "description": "Interpreting images and video: classification, detection, segmentation, tracking.",
+      "aliases": [
+        "computer vision models",
+        "cv",
+        "image understanding",
+        "vision"
+      ]
+    },
+    {
+      "name": "Object Detection",
+      "slug": "object-detection",
+      "category": "Deep Learning",
+      "description": "Locating and labelling objects within images.",
+      "aliases": [
+        "bounding box detection",
+        "object localisation",
+        "yolo"
+      ]
+    },
+    {
+      "name": "Natural Language Processing",
+      "slug": "natural-language-processing",
+      "category": "Deep Learning",
+      "description": "Processing and generating human language.",
+      "aliases": [
+        "language processing",
+        "natural language understanding",
+        "nlp",
+        "text analytics",
+        "text processing"
+      ]
+    },
+    {
+      "name": "Reinforcement Learning",
+      "slug": "reinforcement-learning",
+      "category": "Deep Learning",
+      "description": "Learning policies from rewards in sequential environments.",
+      "aliases": [
+        "deep reinforcement learning",
+        "policy gradient",
+        "q learning",
+        "reinforcement learning algorithms",
+        "rl"
+      ]
+    },
+    {
+      "name": "Self-Supervised Learning",
+      "slug": "self-supervised-learning",
+      "category": "Deep Learning",
+      "description": "Training representations from the data itself without manual labels.",
+      "aliases": [
+        "contrastive learning",
+        "pre-training",
+        "pretraining",
+        "self supervised learning",
+        "semi supervised learning"
+      ]
+    },
+    {
+      "name": "spaCy",
+      "slug": "spacy",
+      "category": "NLP & LLM",
+      "description": "Industrial-strength Python NLP with a fast PhraseMatcher used by this system's extractor.",
+      "aliases": [
+        "python spacy",
+        "spacy nlp",
+        "spacy pipeline"
+      ]
+    },
+    {
+      "name": "NLTK",
+      "slug": "nltk",
+      "category": "NLP & LLM",
+      "description": "Classic Python NLP toolkit covering tokenisation, stemming, and corpora.",
+      "aliases": [
+        "natural language toolkit",
+        "nltk toolkit"
+      ]
+    },
+    {
+      "name": "Hugging Face",
+      "slug": "hugging-face",
+      "category": "NLP & LLM",
+      "description": "Hub and library ecosystem for pretrained models, tokenizers, and datasets.",
+      "aliases": [
+        "hf",
+        "hugging face",
+        "hugging face transformers",
+        "huggingface",
+        "huggingface hub",
+        "transformers library"
+      ]
+    },
+    {
+      "name": "BERT",
+      "slug": "bert",
+      "category": "NLP & LLM",
+      "description": "Bidirectional encoder representations from transformers.",
+      "aliases": [
+        "bert embeddings",
+        "bert model",
+        "google bert",
+        "roberta"
+      ]
+    },
+    {
+      "name": "GPT",
+      "slug": "gpt",
+      "category": "NLP & LLM",
+      "description": "Generative pretrained transformer models and their prompting patterns.",
+      "aliases": [
+        "generative pretrained transformer",
+        "gpt models",
+        "gpt-3",
+        "gpt-4",
+        "openai gpt"
+      ]
+    },
+    {
+      "name": "LLaMA",
+      "slug": "llama",
+      "category": "NLP & LLM",
+      "description": "Open large language models from Meta.",
+      "aliases": [
+        "llama 2",
+        "llama 3",
+        "llama models",
+        "meta llama"
+      ]
+    },
+    {
+      "name": "LangChain",
+      "slug": "langchain",
+      "category": "NLP & LLM",
+      "description": "Framework for composing LLM applications: chains, tools, and retrieval.",
+      "aliases": [
+        "lang chain",
+        "langchain framework",
+        "langgraph"
+      ]
+    },
+    {
+      "name": "LlamaIndex",
+      "slug": "llamaindex",
+      "category": "NLP & LLM",
+      "description": "Data-connectivity framework for LLM applications over private corpora.",
+      "aliases": [
+        "gpt index",
+        "llama index",
+        "llama-index"
+      ]
+    },
+    {
+      "name": "Prompt Engineering",
+      "slug": "prompt-engineering",
+      "category": "NLP & LLM",
+      "description": "Designing, testing, and refining instructions for language models.",
+      "aliases": [
+        "prompt craft",
+        "prompt design",
+        "prompt optimisation",
+        "prompt tuning",
+        "prompting"
+      ]
+    },
+    {
+      "name": "Retrieval-Augmented Generation",
+      "slug": "retrieval-augmented-generation",
+      "category": "NLP & LLM",
+      "description": "Grounding generation in retrieved context.",
+      "aliases": [
+        "grounded generation",
+        "rag",
+        "retrieval augmentation",
+        "retrieval augmented generation"
+      ]
+    },
+    {
+      "name": "Vector Databases",
+      "slug": "vector-databases",
+      "category": "NLP & LLM",
+      "description": "Databases indexing embedding vectors for similarity search.",
+      "aliases": [
+        "embeddings database",
+        "similarity search index",
+        "vector database",
+        "vector db",
+        "vector store"
+      ]
+    },
+    {
+      "name": "FAISS",
+      "slug": "faiss",
+      "category": "NLP & LLM",
+      "description": "Facebook AI Similarity Search for efficient nearest-neighbour retrieval.",
+      "aliases": [
+        "facebook ai similarity search",
+        "faiss library",
+        "similarity search"
+      ]
+    },
+    {
+      "name": "Pinecone",
+      "slug": "pinecone",
+      "category": "NLP & LLM",
+      "description": "Hosted managed vector database for similarity search.",
+      "aliases": [
+        "pinecone db",
+        "pinecone vector"
+      ]
+    },
+    {
+      "name": "Tokenization",
+      "slug": "tokenization",
+      "category": "NLP & LLM",
+      "description": "Splitting text into model-consumable units, with vocabulary management.",
+      "aliases": [
+        "bpe",
+        "subword tokenization",
+        "tokenisation",
+        "tokeniser",
+        "tokenizer"
+      ]
+    },
+    {
+      "name": "Named Entity Recognition",
+      "slug": "named-entity-recognition",
+      "category": "NLP & LLM",
+      "description": "Extracting people, organisations, and locations from text.",
+      "aliases": [
+        "entity extraction",
+        "entity recognition",
+        "named entity recognition",
+        "ner"
+      ]
+    },
+    {
+      "name": "Docker",
+      "slug": "docker",
+      "category": "MLOps & Cloud",
+      "description": "Container build and runtime packaging for reproducible ML services.",
+      "aliases": [
+        "containerization",
+        "containers",
+        "docker compose",
+        "docker container",
+        "dockerfile"
+      ]
+    },
+    {
+      "name": "Kubernetes",
+      "slug": "kubernetes",
+      "category": "MLOps & Cloud",
+      "description": "Container orchestration for scheduling and scaling model-serving workloads.",
+      "aliases": [
+        "container orchestration",
+        "k8s",
+        "k8s cluster",
+        "kubernetes cluster"
+      ]
+    },
+    {
+      "name": "Terraform",
+      "slug": "terraform",
+      "category": "MLOps & Cloud",
+      "description": "Declarative infrastructure-as-code provisioning across cloud providers.",
+      "aliases": [
+        "hashicorp terraform",
+        "iac",
+        "infrastructure as code",
+        "terraform iac"
+      ]
+    },
+    {
+      "name": "AWS",
+      "slug": "aws",
+      "category": "MLOps & Cloud",
+      "description": "Amazon Web Services: the most common cloud platform for ML workloads.",
+      "aliases": [
+        "amazon web services",
+        "aws cloud",
+        "aws ec2",
+        "aws s3"
+      ]
+    },
+    {
+      "name": "Azure",
+      "slug": "azure",
+      "category": "MLOps & Cloud",
+      "description": "Microsoft Azure: cloud compute, data, and ML services.",
+      "aliases": [
+        "azure cloud",
+        "azure ml",
+        "microsoft azure"
+      ]
+    },
+    {
+      "name": "GCP",
+      "slug": "gcp",
+      "category": "MLOps & Cloud",
+      "description": "Google Cloud Platform: compute, data, and Vertex AI model services.",
+      "aliases": [
+        "gcp ml",
+        "google cloud",
+        "google cloud platform",
+        "vertex ai"
+      ]
+    },
+    {
+      "name": "Amazon EC2",
+      "slug": "amazon-ec2",
+      "category": "MLOps & Cloud",
+      "description": "Elastic compute instances for training and serving on AWS.",
+      "aliases": [
+        "aws compute",
+        "ec2",
+        "elastic compute cloud"
+      ]
+    },
+    {
+      "name": "Amazon S3",
+      "slug": "amazon-s3",
+      "category": "MLOps & Cloud",
+      "description": "Object storage for datasets, checkpoints, and model artifacts.",
+      "aliases": [
+        "aws s3 storage",
+        "s3",
+        "s3 bucket",
+        "simple storage service"
+      ]
+    },
+    {
+      "name": "AWS Lambda",
+      "slug": "aws-lambda",
+      "category": "MLOps & Cloud",
+      "description": "Event-driven serverless functions.",
+      "aliases": [
+        "aws lambda",
+        "lambda functions",
+        "serverless functions aws"
+      ]
+    },
+    {
+      "name": "Amazon SageMaker",
+      "slug": "amazon-sagemaker",
+      "category": "MLOps & Cloud",
+      "description": "Managed service for training, tuning, and hosting ML models on AWS.",
+      "aliases": [
+        "aws sagemaker",
+        "sagemaker"
+      ]
+    },
+    {
+      "name": "CI/CD",
+      "slug": "ci-cd",
+      "category": "MLOps & Cloud",
+      "description": "Continuous integration and delivery pipelines for reproducible releases.",
+      "aliases": [
+        "ci cd pipelines",
+        "continuous delivery",
+        "continuous deployment",
+        "continuous integration"
+      ]
+    },
+    {
+      "name": "GitHub Actions",
+      "slug": "github-actions",
+      "category": "MLOps & Cloud",
+      "description": "Workflow automation for CI/CD defined in the repository itself.",
+      "aliases": [
+        "gh actions",
+        "github actions workflow"
+      ]
+    },
+    {
+      "name": "Jenkins",
+      "slug": "jenkins",
+      "category": "MLOps & Cloud",
+      "description": "Self-hosted automation server for build and deploy pipelines.",
+      "aliases": [
+        "jenkins ci",
+        "jenkins pipeline"
+      ]
+    },
+    {
+      "name": "Ansible",
+      "slug": "ansible",
+      "category": "MLOps & Cloud",
+      "description": "Agentless configuration management and orchestration.",
+      "aliases": [
+        "ansible automation",
+        "ansible playbook",
+        "ansible tower"
+      ]
+    },
+    {
+      "name": "Helm",
+      "slug": "helm",
+      "category": "MLOps & Cloud",
+      "description": "Package manager for Kubernetes deployment charts.",
+      "aliases": [
+        "helm chart",
+        "helm charts",
+        "kubernetes package manager"
+      ]
+    },
+    {
+      "name": "Prometheus",
+      "slug": "prometheus",
+      "category": "MLOps & Cloud",
+      "description": "Metrics collection and alerting for systems and model services.",
+      "aliases": [
+        "prometheus alerting",
+        "prometheus metrics",
+        "prometheus monitoring"
+      ]
+    },
+    {
+      "name": "Grafana",
+      "slug": "grafana",
+      "category": "MLOps & Cloud",
+      "description": "Dashboards and visualisation for metrics, logs, and traces.",
+      "aliases": [
+        "grafana dashboards",
+        "grafana monitoring"
+      ]
+    },
+    {
+      "name": "Serverless",
+      "slug": "serverless",
+      "category": "MLOps & Cloud",
+      "description": "Event-driven architectures that scale without managing servers.",
+      "aliases": [
+        "faas",
+        "function as a service",
+        "serverless architecture"
+      ]
+    },
+    {
+      "name": "Matplotlib",
+      "slug": "matplotlib",
+      "category": "Analytics & Communication",
+      "description": "Foundational Python plotting library.",
+      "aliases": [
+        "matplotlib plotting",
+        "matplotlib pyplot",
+        "pyplot"
+      ]
+    },
+    {
+      "name": "Seaborn",
+      "slug": "seaborn",
+      "category": "Analytics & Communication",
+      "description": "Statistical plotting built on Matplotlib with attractive defaults.",
+      "aliases": [
+        "seaborn library",
+        "seaborn plots"
+      ]
+    },
+    {
+      "name": "Plotly",
+      "slug": "plotly",
+      "category": "Analytics & Communication",
+      "description": "Interactive web-based charting in Python and JavaScript.",
+      "aliases": [
+        "plotly charts",
+        "plotly dash",
+        "plotly express",
+        "plotly python"
+      ]
+    },
+    {
+      "name": "Power BI",
+      "slug": "power-bi",
+      "category": "Analytics & Communication",
+      "description": "Microsoft business-intelligence reporting and dashboards.",
+      "aliases": [
+        "microsoft power bi",
+        "power bi desktop",
+        "powerbi"
+      ]
+    },
+    {
+      "name": "Tableau",
+      "slug": "tableau",
+      "category": "Analytics & Communication",
+      "description": "Visual analytics platform for interactive dashboards.",
+      "aliases": [
+        "tableau desktop",
+        "tableau public",
+        "tableau reports"
+      ]
+    },
+    {
+      "name": "Streamlit",
+      "slug": "streamlit",
+      "category": "Analytics & Communication",
+      "description": "Building data applications from Python scripts with minimal front-end code.",
+      "aliases": [
+        "streamlit app",
+        "streamlit apps",
+        "streamlit dashboard"
+      ]
+    },
+    {
+      "name": "Flask",
+      "slug": "flask",
+      "category": "Analytics & Communication",
+      "description": "Lightweight Python web framework; the predecessor stack's serving layer.",
+      "aliases": [
+        "flask api",
+        "flask application",
+        "flask restful",
+        "flask web framework"
+      ]
+    },
+    {
+      "name": "FastAPI",
+      "slug": "fastapi",
+      "category": "Analytics & Communication",
+      "description": "Asynchronous Python web framework with automatic OpenAPI documentation.",
+      "aliases": [
+        "fastapi api",
+        "fastapi app",
+        "fastapi framework",
+        "fastapi rest"
+      ]
+    },
+    {
+      "name": "Django",
+      "slug": "django",
+      "category": "Analytics & Communication",
+      "description": "Full-stack Python web framework with ORM, admin, and auth built in.",
+      "aliases": [
+        "django app",
+        "django framework",
+        "django rest api",
+        "django rest framework"
+      ]
+    },
+    {
+      "name": "REST APIs",
+      "slug": "rest-apis",
+      "category": "Analytics & Communication",
+      "description": "Resource-oriented HTTP interface design consumed by the frontend.",
+      "aliases": [
+        "rest",
+        "rest api",
+        "restful",
+        "restful api",
+        "restful services",
+        "restful web services"
+      ]
+    },
+    {
+      "name": "SQLAlchemy",
+      "slug": "sqlalchemy",
+      "category": "Analytics & Communication",
+      "description": "Python SQL toolkit and ORM underpinning this system's data layer.",
+      "aliases": [
+        "object relational mapping",
+        "orm",
+        "sql alchemy",
+        "sqlalchemy core",
+        "sqlalchemy orm"
+      ]
+    },
+    {
+      "name": "Technical Writing",
+      "slug": "technical-writing",
+      "category": "Analytics & Communication",
+      "description": "Explaining systems, designs, and results clearly in writing.",
+      "aliases": [
+        "documentation writing",
+        "technical documentation",
+        "technical writing",
+        "write documentation"
+      ]
+    },
+    {
+      "name": "Data Storytelling",
+      "slug": "data-storytelling",
+      "category": "Analytics & Communication",
+      "description": "Framing analysis as a narrative that supports a decision.",
+      "aliases": [
+        "data storytelling",
+        "insight communication",
+        "narrative analytics",
+        "storytelling with data"
+      ]
+    },
+    {
+      "name": "Communication",
+      "slug": "communication",
+      "category": "Analytics & Communication",
+      "description": "Conveying technical findings to technical and non-technical audiences.",
+      "aliases": [
+        "business communication",
+        "communication skills",
+        "presenting results",
+        "stakeholder communication",
+        "technical communication"
+      ]
+    },
+    {
+      "name": "Agile",
+      "slug": "agile",
+      "category": "Analytics & Communication",
+      "description": "Iterative, incremental delivery with frequent feedback.",
+      "aliases": [
+        "agile development",
+        "agile methodology",
+        "kanban",
+        "scrum",
+        "sprint planning"
+      ]
+    },
+    {
+      "name": "PyTorch Lightning",
+      "slug": "pytorch-lightning",
+      "category": "ML Frameworks",
+      "description": "Framework that removes boilerplate from PyTorch training loops.",
+      "aliases": [
+        "lightning",
+        "lightning ai",
+        "pl trainer"
+      ]
+    },
+    {
+      "name": "ONNX",
+      "slug": "onnx",
+      "category": "ML Frameworks",
+      "description": "Open interchange format for exporting trained models to other runtimes.",
+      "aliases": [
+        "onnx model",
+        "onnx runtime",
+        "open neural network exchange"
+      ]
+    },
+    {
+      "name": "Vectorization",
+      "slug": "vectorization",
+      "category": "Statistics & Mathematics",
+      "description": "Operating on arrays rather than scalars; the basis of efficient numerical code.",
+      "aliases": [
+        "array programming",
+        "vectorisation",
+        "vectorized computing"
+      ]
+    },
+    {
+      "name": "Regularization",
+      "slug": "regularization",
+      "category": "Statistics & Mathematics",
+      "description": "Penalty and sampling techniques that control model complexity.",
+      "aliases": [
+        "l1 regularization",
+        "l2 regularization",
+        "lasso regression",
+        "regularisation",
+        "ridge regression"
+      ]
+    },
+    {
+      "name": "Hyperparameter Tuning",
+      "slug": "hyperparameter-tuning",
+      "category": "ML Frameworks",
+      "description": "Systematic search over training and architecture settings.",
+      "aliases": [
+        "hyperparameter optimisation",
+        "hyperparameter optimization",
+        "parameter tuning"
+      ]
+    },
+    {
+      "name": "Image Segmentation",
+      "slug": "image-segmentation",
+      "category": "Deep Learning",
+      "description": "Assigning a class to every pixel, for medical and satellite imagery.",
+      "aliases": [
+        "image segmentation",
+        "instance segmentation",
+        "masking",
+        "semantic segmentation",
+        "u-net"
+      ]
+    },
+    {
+      "name": "Text Classification",
+      "slug": "text-classification",
+      "category": "NLP & LLM",
+      "description": "Assigning labels to documents: sentiment, topic, intent, or spam.",
+      "aliases": [
+        "document classification",
+        "intent classification",
+        "sentiment analysis",
+        "text categorization",
+        "text classification",
+        "topic modelling"
+      ]
+    },
+    {
+      "name": "Speech Recognition",
+      "slug": "speech-recognition",
+      "category": "NLP & LLM",
+      "description": "Converting spoken audio into text.",
+      "aliases": [
+        "asr",
+        "automatic speech recognition",
+        "speech to text",
+        "transcription",
+        "whisper"
+      ]
+    },
+    {
+      "name": "Responsible AI",
+      "slug": "responsible-ai",
+      "category": "Analytics & Communication",
+      "description": "Fairness, transparency, privacy, and accountability in deployed models.",
+      "aliases": [
+        "ai ethics",
+        "ai fairness",
+        "algorithmic fairness",
+        "model fairness",
+        "responsible ai",
+        "responsible ml"
+      ]
+    },
+    {
+      "name": "MLOps",
+      "slug": "mlops",
+      "category": "MLOps & Cloud",
+      "description": "The discipline of reliably operating models in production.",
+      "aliases": [
+        "machine learning operations",
+        "ml ops",
+        "mlops practices",
+        "model deployment lifecycle"
+      ]
+    },
+    {
+      "name": "Observability",
+      "slug": "observability",
+      "category": "MLOps & Cloud",
+      "description": "Instrumenting services so production behaviour is measurable and alertable.",
+      "aliases": [
+        "distributed tracing",
+        "full stack observability",
+        "monitoring",
+        "opentelemetry",
+        "telemetry"
+      ]
+    },
+    {
+      "name": "Testing",
+      "slug": "testing",
+      "category": "MLOps & Cloud",
+      "description": "Automated verification of correctness, including of data and model behaviour.",
+      "aliases": [
+        "integration testing",
+        "pytest",
+        "software testing",
+        "test automation",
+        "unit testing"
+      ]
+    },
+    {
+      "name": "Linux Shell",
+      "slug": "linux-shell",
+      "category": "Programming & Core",
+      "description": "Command-line fluency for operating servers and pipelines.",
+      "aliases": [
+        "bash scripting",
+        "command line",
+        "shell",
+        "terminal",
+        "unix shell"
+      ]
+    },
+    {
+      "name": "Spark Streaming",
+      "slug": "spark-streaming",
+      "category": "Data Engineering",
+      "description": "Near-real-time processing on the Spark engine.",
+      "aliases": [
+        "spark structured streaming",
+        "streaming analytics",
+        "structured streaming"
+      ]
+    },
+    {
+      "name": "Data Governance",
+      "slug": "data-governance",
+      "category": "Data Engineering",
+      "description": "Ownership, lineage, and policy for data assets.",
+      "aliases": [
+        "data catalog",
+        "data governance",
+        "data lineage",
+        "metadata management"
+      ]
+    },
+    {
+      "name": "ML Documentation",
+      "slug": "ml-documentation",
+      "category": "Analytics & Communication",
+      "description": "Documenting models, datasets, experiments, and their limitations.",
+      "aliases": [
+        "datasheets for datasets",
+        "experiment documentation",
+        "model cards",
+        "model documentation"
+      ]
+    },
+    {
+      "name": "Experiment Tracking",
+      "slug": "experiment-tracking",
+      "category": "ML Frameworks",
+      "description": "Recording configurations and metrics so results are reproducible.",
+      "aliases": [
+        "experiment logging",
+        "experiment tracking",
+        "ml experiment tracking",
+        "run tracking"
+      ]
+    },
+    {
+      "name": "Machine Learning",
+      "slug": "machine-learning",
+      "category": "ML Frameworks",
+      "description": "Algorithms that learn patterns from data rather than being explicitly programmed.",
+      "aliases": [
+        "machine learning algorithms",
+        "machine learning models",
+        "ml",
+        "ml algorithms",
+        "statistical learning"
+      ]
+    },
+    {
+      "name": "Deep Learning",
+      "slug": "deep-learning",
+      "category": "Deep Learning",
+      "description": "Multi-layer neural networks trained on large data; the basis of modern AI applications.",
+      "aliases": [
+        "deep learning frameworks",
+        "deep learning models",
+        "deep neural learning",
+        "dl"
+      ]
+    }
+  ]
+}

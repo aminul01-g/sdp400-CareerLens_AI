@@ -11,6 +11,10 @@
 *.sqlite
 *.sqlite3
 *.db-journal
+# The predecessor Pathfinder database is deliberately archived, NOT dropped
+# (plan T174). It is the one .db file that must be version-controlled so the
+# "no data was migrated" decision stays auditable. See docs/archive/README.md.
+!docs/archive/pathfinder-legacy.db
 
 # ---- Python ----
 __pycache__/

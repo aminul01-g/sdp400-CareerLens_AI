@@ -1,10 +1,51 @@
-Flask>=2.2
-Flask-SQLAlchemy>=3.0
-Flask-JWT-Extended>=4.4
-Flask-Admin>=1.6.0
-APScheduler>=3.10
-requests>=2.28
-python-dotenv>=1.0.0
-gunicorn
+# CareerLens AI — backend runtime dependencies
+# Python 3.12 (pinned in .python-version).
+#
+# Why 3.12 and not the system 3.14 (plan environment note E1):
+#   spaCy 3.8.x publishes cp314 wheels, but thinc >= 9.0.0 publishes cp39-cp312
+#   only. spaCy declares thinc >=8.3.4,<9.3.0, so a fresh resolver on 3.14
+#   prefers thinc 9.1.1 and attempts a multi-minute Rust/Cython source build
+#   that commonly fails. Pinning the interpreter to 3.12 removes the whole class
+#   of problem: every wheel in this stack ships a cp312 binary.
 
-flask-cors>=3.0
+# ---- Web framework ----
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-multipart==0.0.20          # required by FastAPI for multipart/form-data
+
+# ---- Configuration & validation ----
+pydantic==2.10.4
+pydantic-settings==2.7.0
+email-validator==2.2.0            # backs pydantic.EmailStr
+
+# ---- Database ----
+SQLAlchemy==2.0.36
+alembic==1.14.0
+psycopg[binary]==3.2.3            # PostgreSQL 16 driver
+
+# ---- Auth ----
+PyJWT==2.10.1
+passlib[bcrypt]==1.7.4
+bcrypt==4.0.1                     # pinned: passlib 1.7.4 predates bcrypt 4.1+ and
+                                   # emits a spurious "has no attribute __about__" warning
+                                   # on 4.2.x. Hashing is unaffected either way, but the
+                                   # warning pollutes test output and hides real problems.
+
+# ---- AI / ML engine (all CPU-only, no GPU, no network at request time) ----
+spacy==3.8.4
+# The spaCy English model is pinned as a direct wheel dependency (plan risk R21)
+# rather than downloaded at container start, so the image builds fast and the
+# model version is reproducible. Only PhraseMatcher is used, which also works on
+# spacy.blank("en") as an offline fallback (plan risk R6).
+en-core-web-sm @ https://github.com/explosion/spacy-models/releases/download/en_core_web_sm-3.8.0/en_core_web_sm-3.8.0-py3-none-any.whl
+scikit-learn==1.5.2
+numpy==1.26.4
+pandas==2.2.3
+scipy==1.14.1                     # pinned: scikit-learn 1.5 needs <1.15 on cp312
+
+# ---- CV text extraction (OCR deliberately out of scope, proposal S11) ----
+pdfplumber==0.11.4
+python-docx==1.1.2
+
+# ---- Production WSGI/ASGI server (used by render.yaml / Dockerfile) ----
+gunicorn==23.0.0
