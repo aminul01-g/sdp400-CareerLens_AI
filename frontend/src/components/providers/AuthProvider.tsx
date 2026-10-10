@@ -109,7 +109,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     () => ({
       user,
       isLoading,
-      isAuthenticated: Boolean(user) || Boolean(getToken()),
+      // Derived from state only, never from `getToken()`. `getToken` reads
+      // localStorage, so it returns null on the server but a value on the
+      // client's first render: the server HTML said "signed out" while
+      // hydration said "signed in", React threw away the server markup and
+      // re-rendered the whole tree on the client. Every consumer then had to
+      // cope with a signed-in UI appearing out of nowhere.
+      //
+      // `revalidate` above runs on mount and sets `user` from the stored token,
+      // so the correct value still arrives one tick later. Callers that must not
+      // flash the signed-out state branch on `isLoading` first.
+      isAuthenticated: Boolean(user),
       isAdmin: user?.role === "admin",
       login,
       register,

@@ -13,6 +13,11 @@ every profile matches at 95% tests nothing. The same consideration applies to th
 evaluation dataset in ``app/ml/evaluation/labelled_profiles.jsonl``.
 
 Idempotent: keyed on email, so re-running updates rather than duplicates.
+
+The demo addresses use a ``.dev`` domain, not ``.local``. These rows are written
+straight to the database, so nothing validates them here — but the login endpoint
+does, and ``.local`` is reserved by RFC 6762 for mDNS, so a ``.local`` account
+would be created successfully and then be unable to log in.
 """
 
 from __future__ import annotations
@@ -40,7 +45,7 @@ DEMO_PASSWORD = "Demo#Pass2026"
 
 DEMO_USERS: list[dict] = [
     {
-        "email": "ml.engineer@careerlens.local",
+        "email": "ml.engineer@careerlens.dev",
         "name": "Nusrat Jahan",
         "headline": "Machine Learning Engineer",
         "career_goal": "Move from model development into production MLOps work.",
@@ -92,7 +97,7 @@ DEMO_USERS: list[dict] = [
         ],
     },
     {
-        "email": "data.scientist@careerlens.local",
+        "email": "data.scientist@careerlens.dev",
         "name": "Tanvir Hasan",
         "headline": "Data Scientist focused on experimentation",
         "career_goal": "Move into a senior data science role leading experimentation.",
@@ -146,7 +151,7 @@ DEMO_USERS: list[dict] = [
         ],
     },
     {
-        "email": "mlops.engineer@careerlens.local",
+        "email": "mlops.engineer@careerlens.dev",
         "name": "Farhan Kabir",
         "headline": "MLOps Engineer",
         "career_goal": "Own a production ML platform end to end.",
@@ -197,7 +202,7 @@ DEMO_USERS: list[dict] = [
         ],
     },
     {
-        "email": "sparse.student@careerlens.local",
+        "email": "sparse.student@careerlens.dev",
         "name": "Rafiul Islam",
         "headline": "Computer Science undergraduate",
         "career_goal": "Not sure yet - exploring what data work might suit me.",

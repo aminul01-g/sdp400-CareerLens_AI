@@ -33,9 +33,9 @@ export function useAdminJob(id: number | null) {
   return useQuery({ queryKey: adminKeys.job(id ?? 0), queryFn: () => adminApi.getJob(id as number), enabled: id != null });
 }
 
-export function useAdminTaxonomy(params: { q?: string; category?: string }) {
+export function useAdminTaxonomy(params: { q?: string; category?: string; page?: number }) {
   return useQuery({
-    queryKey: adminKeys.taxonomy(params.q ?? "", params.category ?? ""),
+    queryKey: [...adminKeys.taxonomy(params.q ?? "", params.category ?? ""), params.page ?? 1],
     queryFn: () => adminApi.listTaxonomy({ ...params, page_size: 50 }),
   });
 }

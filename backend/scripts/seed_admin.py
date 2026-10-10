@@ -29,7 +29,10 @@ logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
 logger = logging.getLogger("seed_admin")
 
 PLACEHOLDER_MARKERS = ("ChangeMe", "CHANGE_ME", "changeme", "replace-with")
-DEFAULT_ADMIN_EMAIL = "admin@careerlens.local"
+# Must be a domain the API's `EmailStr` accepts. `.local` is reserved by
+# RFC 6762 for mDNS, so an admin seeded with it is created fine here and then
+# rejected at login with a 422 that no user can act on.
+DEFAULT_ADMIN_EMAIL = "admin@careerlens.dev"
 
 
 def seed(db: Session) -> User:

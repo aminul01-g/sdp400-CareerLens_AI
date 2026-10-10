@@ -49,6 +49,9 @@ const userNavLinks = [
 const adminNavLinks = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/jobs", label: "Job Roles" },
+  { href: "/admin/taxonomy", label: "Taxonomy" },
+  { href: "/admin/users", label: "Users" },
+  { href: "/admin/feedback", label: "Feedback" },
   { href: "/admin/evaluation", label: "Evaluation" },
 ] as const;
 
@@ -77,6 +80,15 @@ export function Header() {
 
   const links = isAuthenticated ? userNavLinks : publicNavLinks;
 
+  // The header shows **one** horizontal nav at a time. Ten user links and six
+  // admin links measured 385px of overflow at 1536px and 193px even at 1920px,
+  // so rendering both at once cannot be made to fit — not by shrinking type,
+  // which would break legibility, and not by truncation, which would hide a
+  // destination. Instead the admin section replaces the user nav while you are
+  // inside it, and the Admin button plus the avatar menu keep the other set one
+  // click away. Below `2xl` neither fits, so the hamburger carries both.
+  const inAdminSection = pathname === "/admin" || pathname.startsWith("/admin/");
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between gap-4 px-4">
@@ -85,14 +97,17 @@ export function Header() {
           <span>CareerLens <span className="text-primary">AI</span></span>
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Main">
+        <nav
+          className={cn("items-center gap-1", inAdminSection ? "hidden" : "hidden 2xl:flex")}
+          aria-label="Main"
+        >
           {links.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               aria-current={isActive(link.href) ? "page" : undefined}
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
+                "whitespace-nowrap rounded-md px-2.5 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground",
                 isActive(link.href) && "bg-accent text-accent-foreground",
               )}
             >
@@ -116,14 +131,17 @@ export function Header() {
               ) : null}
 
               {isAdmin ? (
-                <nav className="hidden items-center gap-1 lg:flex" aria-label="Admin">
+                <nav
+                  className={cn("items-center gap-1", inAdminSection ? "hidden 2xl:flex" : "hidden")}
+                  aria-label="Admin"
+                >
                   {adminNavLinks.map((link) => (
                     <Link
                       key={link.href}
                       href={link.href}
                       aria-current={isActive(link.href) ? "page" : undefined}
                       className={cn(
-                        "rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
+                        "whitespace-nowrap rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground",
                         isActive(link.href) && "bg-accent text-accent-foreground",
                       )}
                     >
@@ -182,7 +200,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="2xl:hidden"
             aria-expanded={mobileOpen}
             aria-label={mobileOpen ? "Close navigation" : "Open navigation"}
             onClick={() => setMobileOpen((open) => !open)}
@@ -193,7 +211,7 @@ export function Header() {
       </div>
 
       {mobileOpen ? (
-        <div className="border-t md:hidden">
+        <div className="border-t 2xl:hidden">
           <nav className="container mx-auto flex flex-col gap-1 px-4 py-3" aria-label="Mobile">
             {links.map((link) => (
               <Link

@@ -377,27 +377,106 @@ export interface AdminUser {
   projects_count: number;
 }
 
+/**
+ * A stored feedback entry, as `GET /api/admin/feedback` returns it.
+ *
+ * There is deliberately no `user_id` here: the backend's read model omits it
+ * ("an admin listing has no need for it"), so an admin sees what was said but
+ * not who said it. Do not add the field to the type without adding it to
+ * `FeedbackRead` first.
+ */
+export interface AdminFeedback {
+  id: number;
+  category: string;
+  message: string;
+  rating: number | null;
+  created_at: string;
+}
+
+/**
+ * One hand-labelled profile's measured result.
+ *
+ * `expected_role`, `top1_role` and the entries of `top3_roles` / `ranked_roles`
+ * are **role slugs**, not titles — the harness records what it compared, and the
+ * slug is the stable identity. `expected_rank` is null when the expected role
+ * fell outside the ranked list.
+ */
+export interface EvaluationOutcome {
+  id: string;
+  name: string;
+  expected_role: string;
+  expected_family: string;
+  top1_role: string;
+  top3_roles: string[];
+  ranked_roles: string[];
+  expected_rank: number | null;
+  top1_compatibility: number;
+  expected_compatibility: number;
+  coverage: number;
+  tfidf_similarity: number;
+  rationale: string;
+  note: string;
+}
+
+/** One row of the coverage/TF-IDF weight sweep. */
+export interface EvaluationSweepPoint {
+  coverage_weight: number;
+  tfidf_weight: number;
+  top1_accuracy: number;
+  top3_hit_rate: number;
+  mean_reciprocal_rank: number;
+  mean_compatibility_of_expected: number;
+}
+
+/**
+ * The committed evaluation report, exactly as `GET /api/admin/evaluation`
+ * returns it.
+ *
+ * This mirrors the payload built in `app/ml/evaluation/harness.py`, which is the
+ * artefact of record. Two earlier assumptions were wrong and are corrected here:
+ *
+ * - The target is **flat** (`target_top3_hit_rate` / `meets_target`), not nested
+ *   under a `target` object.
+ * - `per_family` is a **dict keyed by family name**, not an array, so a chart
+ *   has to flatten it first.
+ *
+ * There is no `top5_hit_rate` and no `environment` block: the harness does not
+ * compute either. Top-5 is deliberately not derived in the UI — this page's
+ * contract is that it never recomputes a metric, so that it cannot disagree with
+ * `docs/evaluation_report.md`.
+ */
 export interface EvaluationReport {
+  schema_version: string;
+  /** ISO date the harness ran, e.g. `2026-09-30`. */
   generated_at: string;
-  profiles: number;
+  target_top3_hit_rate: number;
+  weights: { coverage: number; tfidf: number };
   metrics: {
+    n_profiles: number;
     top1_accuracy: number;
     top3_hit_rate: number;
-    top5_hit_rate: number;
     mean_reciprocal_rank: number;
+    mean_compatibility_of_expected: number;
+    component_means: {
+      compatibility: number;
+      skill_coverage: number;
+      tfidf_similarity: number;
+    };
   };
-  weight_sweep: { coverage_weight: number; tfidf_weight: number; top1: number; top3: number; mrr: number }[];
-  per_family: { family: string; profiles: number; top1: number; top3: number; mrr: number }[];
-  per_profile: {
-    id: string;
-    name: string;
-    expected_role: string;
-    expected_family: string;
-    expected_rank: number | null;
-    top3: { job_role_id: number; title: string; slug: string; compatibility_pct: number }[];
-    rationale: string;
-  }[];
-  target: { top3_hit_rate: number; met: boolean };
-  environment: Record<string, string>;
-  notes: string[];
+  meets_target: boolean;
+  per_family: Record<
+    string,
+    {
+      n: number;
+      top1_accuracy: number;
+      top3_hit_rate: number;
+      mean_reciprocal_rank: number;
+    }
+  >;
+  sweep: EvaluationSweepPoint[];
+  /** The weighting the harness recommends, with the metrics it produced. */
+  recommendation: EvaluationSweepPoint;
+  /** Compatibility a meaningless ranking would score, for scale. */
+  noise_floor: number;
+  outcomes: EvaluationOutcome[];
 }
