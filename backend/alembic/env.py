@@ -35,7 +35,14 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 settings = get_settings()
+# Read the environment variable *through* the settings object rather than
+# directly, so the URL goes through the same normalisation the application
+# applies. A platform's bare ``postgresql://`` URL names the psycopg2
+# driver, which is not installed here; without this the migration fails at
+# boot with "No module named 'psycopg2'" while the application itself
+# would have started.
 DATABASE_URL = os.getenv("DATABASE_URL") or settings.database_url
+DATABASE_URL = settings._normalise_database_url(DATABASE_URL)
 config.set_main_option("sqlalchemy.url", DATABASE_URL)
 
 target_metadata = Base.metadata

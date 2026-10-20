@@ -209,6 +209,29 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     # Validators
     # ------------------------------------------------------------------
+    @field_validator("database_url", "test_database_url")
+    @classmethod
+    def _normalise_database_url(cls, value: str) -> str:
+        """Make sure the URL names a driver that is actually installed.
+
+        SQLAlchemy reads the driver from the URL's scheme. A bare
+        ``postgresql://`` means **psycopg2**, which is not a dependency of
+        this project — the driver here is psycopg3, spelled
+        ``postgresql+psycopg://``. Platforms hand out their connection
+        strings in the bare form: Render's internal URL is
+        ``postgresql://user:pass@host/db``, and so are several others.
+
+        Left alone, the application starts, and the first query fails with
+        ``ModuleNotFoundError: No module named 'psycopg2'`` — or, worse,
+        the migrations fail at boot and the service never comes up. Adding
+        the driver here means a URL from any platform works, and the
+        development default keeps its explicit spelling either way.
+        """
+        for scheme in ("postgresql://", "postgres://"):
+            if value.startswith(scheme):
+                return "postgresql+psycopg://" + value[len(scheme):]
+        return value
+
     @field_validator("upload_dir")
     @classmethod
     def _resolve_upload_dir(cls, value: str) -> str:
