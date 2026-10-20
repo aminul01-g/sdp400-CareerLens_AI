@@ -1,7 +1,7 @@
 # CareerLens AI
 
 An AI-powered job and career recommendation system. Tell it what you can do; it
-tells you which of 82 job roles you are a credible candidate for, shows you the
+tells you which of 100 job roles you are a credible candidate for, shows you the
 arithmetic behind every percentage, and tells you exactly which skills stand
 between you and each one.
 
@@ -14,10 +14,13 @@ Built for SDP400. Runs entirely on your machine with `docker compose up`.
 | | |
 |---|---|
 | **Nine modules, full CRUD** | Profile, skills, projects, education, certifications, CV, recommendations, skill gap, admin |
-| **Knowledge base** | 151 skills resolving 756 normalised surface forms from 555 declared aliases; 82 job roles with 1,043 weighted requirements across 16 families |
+| **Knowledge base** | 250 skills resolving 1,016 normalised surface forms from 852 declared aliases; 100 job roles with 1,234 weighted requirements across 21 families |
 | **Explainable scoring** | `0.6 × weighted skill coverage + 0.4 × tf-idf cosine`, both components stored and displayed |
-| **CV extraction** | PDF and DOCX → 17 skills proposed → **the user decides** what to accept |
+| **Context signals** | Experience, level, per-skill recency and depth — so a junior and a principal with the same skills score differently |
+| **CV extraction** | PDF and DOCX → skills and work history proposed, section by section → **the user decides** what to accept |
 | **Skill gap** | Missing skills in strict weight order, tiered critical → important → desirable |
+| **Learns from use** | Say whether a role is worth keeping; the aggregate moves future rankings by at most 10% |
+| **Operational** | Rate limiting, email verification, password reset and a full audit log |
 | **Evaluation** | 26 hand-labelled profiles; top-3 hit rate 1.000 against a committed threshold of 0.75 |
 | **No trained model** | A formula, chosen so every number in the UI can be checked by hand |
 
@@ -63,14 +66,29 @@ If you are **not** using Docker, see [`docs/tutorials.md`](docs/tutorials.md#1-s
 
 ```bash
 cd backend
-python -m pytest                      # 419 tests
+python -m pytest                      # 702 tests
 python -m app.ml.evaluation --check   # the evaluation, as a gate
 cd .. && python scripts/verify_compliance.py
 cd frontend && npm run build && npx eslint .
 ```
 
-`verify_compliance.py` runs 31 repository-level assertions: no legacy code, no
+`verify_compliance.py` runs 34 repository-level assertions: no legacy code, no
 tracked secrets, no mock data, no branding leakage, and the ML layer's purity.
+
+There is a browser suite as well. It drives the real application against the
+real API, so the API has to be running first:
+
+```bash
+cd backend && python -m uvicorn app.main:app --port 8000   # in another terminal
+cd frontend && npx playwright install chromium              # once
+npm run test:e2e                                            # 38 tests
+```
+
+It checks the accessibility of every route with `axe-core` in both colour
+schemes, walks the keyboard, measures the layout at 320 CSS pixels, and
+completes the whole journey. The administrator specs are skipped unless
+`E2E_ADMIN_EMAIL` and `E2E_ADMIN_PASSWORD` are set, because a repository
+should not contain an administrator's password.
 
 ---
 
@@ -84,7 +102,9 @@ tracked secrets, no mock data, no branding leakage, and the ML layer's purity.
 | [`docs/user_manual.md`](docs/user_manual.md) | Using the product, and troubleshooting it |
 | [`docs/tutorials.md`](docs/tutorials.md) | Task-oriented: add a skill, add a role, add an endpoint, add a screen |
 | [`docs/evaluation_report.md`](docs/evaluation_report.md) | How good the engine is, and how that number should be read |
-| [`docs/limitations.md`](docs/limitations.md) | **What this cannot do** |
+| [`docs/limitations.md`](docs/limitations.md) | **What this cannot do** — and what it used not to be able to do |
+| [`docs/proficiency-rubric.md`](docs/proficiency-rubric.md) | What a proficiency number means, written down |
+| [`docs/accessibility-audit.md`](docs/accessibility-audit.md) | What was checked for accessibility, and what was not |
 | [`docs/deployment.md`](docs/deployment.md) | Production deploy, rollback, and the offline fallback |
 | [`docs/legacy-freeze.md`](docs/legacy-freeze.md) | The system this replaced, its defects, and why its data was not migrated |
 | [`docs/report.md`](docs/report.md) | The final project report |
@@ -107,7 +127,7 @@ backend/
     core/           Settings, security, logging
   data/             skills_taxonomy.json, job_roles.json — the knowledge base
   alembic/          Migrations
-  tests/            20 files, 419 tests
+  tests/            38 files, 692 tests
 frontend/
   app/              Next.js App Router: (public), (app), (admin)
   src/              components, hooks, lib/api, middleware
@@ -128,7 +148,7 @@ machine.
 PostgreSQL 16, spaCy, scikit-learn, PyJWT, bcrypt.
 
 **Frontend** — Next.js 16 (App Router), React 18, TypeScript, TanStack Query,
-Tailwind v4, shadcn/ui.
+Tailwind v3, shadcn/ui.
 
 **Infrastructure** — Docker, Docker Compose, Render, Vercel.
 
@@ -140,7 +160,8 @@ at the top of `backend/requirements.txt`.
 
 ## Engineering
 
-- **419 tests**, 92% statement coverage, ruff and mypy clean.
+- **702 tests**, 92% statement coverage, ruff and mypy clean.
+- **38 browser tests** (Playwright + axe) over the live application.
 - **Determinism** is a stated acceptance criterion: the same input gives the same
   output on every run, and there is a test for it.
 - **The app refuses to start** without a real 32-character signing key, rather than

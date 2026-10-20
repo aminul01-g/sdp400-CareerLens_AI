@@ -37,10 +37,15 @@ evidence rather than now, on incomplete data.
 
 The literal instruction was to archive the file unchanged. That was not followed,
 because the file contains **real people's data**: 11 user rows with genuine names
-(`ABC Islam`, `AV S`) and genuine email addresses (`a@gmail.com`,
-`abc@gmail.com`, `s2gmail@gmail.com`). Committing those to a repository is a
-privacy incident, and the fact that they are probably a teammate's own test
-accounts does not change that.
+and genuine email addresses. Committing those to a repository is a privacy
+incident, and the fact that they are probably a teammate's own test accounts
+does not change that.
+
+Those names and addresses are not reproduced here either. A redaction that
+quotes what it redacted is only half a redaction — the very document that
+describes removing the data would otherwise republish it, in the one place a
+reader is guaranteed to look. The rows themselves are in the archive, in the
+same `.invalid` form described below.
 
 What was changed:
 

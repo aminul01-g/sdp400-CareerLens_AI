@@ -26,16 +26,23 @@ password of at least 8 characters.
   instead.
 - The password is stored as a bcrypt hash. Nobody, including an administrator, can
   read it.
-- You are signed in immediately after registering; there is no email confirmation
-  step.
+- You are signed in immediately after registering. A confirmation email is sent
+  as well, but confirming your address is optional — it is not required to use
+  the product.
 
 Already have an account? **Log in** with the same email and password.
 
 To change your name, use your account page. To change your password you must
-supply the current one.
+supply the current one. Changing it signs out your other sessions immediately.
 
-**If you forget your password, there is no reset link.** This is a known
-limitation, recorded in [`limitations.md`](limitations.md#8-operational-limits).
+**If you forget your password**, use **Forgot your password?** on the sign-in
+page. We send a link to your address; it can be used once and expires
+shortly. The confirmation you get is the same whether or not the address has an
+account, so the page cannot be used to find out who is registered.
+
+**If you change your password or reset it, every session you have open is
+signed out.** You will be asked to sign in again, and the sign-in page will say
+why.
 
 ## 2. Your profile
 
@@ -46,7 +53,17 @@ One profile per account, at **Profile**.
 | Headline | One line. The single most useful field — it is weighted into your match. |
 | Career goal | What you are aiming for. Free text; also weighted. |
 | Bio | A paragraph about you. |
+| Location | Optional. Recorded and shown, but **not** scored — there is no labour-market data behind it. |
+| Industry | Optional. The sector you work in. It is part of the text your profile is matched on. |
+| Current level | Optional. Entry, Junior, Mid, Senior, Lead or Principal. Roles at a different level are still shown, but scored lower. Leaving it blank costs you nothing. |
+| Years of experience | Optional. Used to work out your level if you have not set one. |
 | Preferred role family | Optional. A preference, not a filter — it does not remove other families from your results. |
+
+Below the fields is your **work history**: the roles you have held, and the
+dates. It is what the engine uses to work out your level when you have not
+declared one, and it can be read out of an uploaded CV for you to confirm.
+Overlapping roles count once — two jobs at the same time is not two years of
+experience.
 
 The dashboard shows a **profile completeness** figure. It is computed from your
 actual records, not a stored number, so it moves as you add things.
@@ -60,15 +77,24 @@ proficiency:
 
 | Level | Means |
 |---|---|
-| 1 | Awareness. You have read about it. |
-| 2 | Basic familiarity. You can follow a tutorial. |
-| 3 | Working knowledge. You could do this with reference material. |
-| 4 | Strong. You could do this unsupervised. |
-| 5 | Expert. You could teach it and design around it. |
+| 1 | Aware. You recognise it and know what it is for. You cannot use it without a tutorial. |
+| 2 | Assisted. You can get something useful out of it by following a guide. You cannot work on it unsupervised. |
+| 3 | Independent. You can build, debug and ship with it on your own. You cannot design a system around it. |
+| 4 | Production. You use it in production, choose between its options, and review other people's work in it. |
+| 5 | Expert. You set the direction for how it is used in your team and mentor others. |
 
 The number is what the formula consumes: level 1 contributes 0, level 5
-contributes 1.0. **Be honest.** A uniformly high list produces a shortlist that
-looks confident and is wrong.
+contributes 1.0. The full rubric is in
+[`proficiency-rubric.md`](proficiency-rubric.md), and the levels are shown next
+to the slider on the Skills screen. **Be honest.** A uniformly high list
+produces a shortlist that looks confident and is wrong.
+
+**Years used and last used.** Each skill has two optional fields. "Years used"
+is how long you have actually worked with it, and "last used" is when you last
+did. The engine discounts a skill you have not touched in a while, and one you
+have only just started, so it can tell a decade of practice from a fortnight.
+Both are optional and **leaving them blank costs you nothing** — a skill with
+neither is scored on its proficiency alone.
 
 **Editing and removing.** Change the proficiency or delete any skill at any time.
 Removing a skill changes your scores immediately.
@@ -101,14 +127,34 @@ What happens:
 
 1. The file is checked — size, extension, and that it is really the format it
    claims to be.
-2. The text is extracted.
+2. The text is extracted and split into sections.
 3. Skills are **proposed**, not applied.
 4. **You review the list and choose what to accept.**
 
 This last step matters. The extractor is a phrase matcher: it can find a skill
-named in passing, or miss one written as an abbreviation. It also cannot read
-layout, so a word in a sentence is treated the same as a word in a skills list.
-**Read the proposals before accepting them.**
+named in passing, or miss one written as an abbreviation. **Read the proposals
+before accepting them.**
+
+It does now know the sections, so each proposal is labelled:
+
+- **Declared** — found under a heading like *Skills*. This is a claim about
+  you.
+- **Mentioned in projects** — found inside a project or role description. It
+  may be your work or your employer's; treat it with more caution.
+
+If your CV has an **Experience** section, the roles in it are read as well and
+proposed as work-history entries, with their dates. Those are proposals too:
+confirm them on your **Profile** page and they will count towards your
+experience.
+
+The quantified claims in your CV are read as well. A sentence with a number in
+it — "reduced query time by 80%", "saved $2M a month", "handled 12,000
+requests" — is listed under **We read N quantified claims from your CV**, and
+each one is marked as reading as *your* work or as *the team's*, according to
+whether the sentence says "I" or "we".
+
+Those claims do not change your score. They are there so you can see what the
+document says about you, and edit the CV if it says it badly.
 
 For each suggestion you set the proficiency yourself. Accepted skills are tagged
 `cv_extracted` in the database so you can tell later where a skill came from.
@@ -123,7 +169,7 @@ message saying so. There is no OCR. Type your skills in instead.
 
 **Recommendations** in the menu. Press **Generate**.
 
-The engine scores your profile against all 82 roles and shows a shortlist. The
+The engine scores your profile against all 100 roles and shows a shortlist. The
 first run also records the run, so you can look at it again later from
 **Recommendation history** without regenerating.
 
@@ -132,12 +178,32 @@ components that produced it:
 
 | Component | What it measures |
 |---|---|
-| Skill coverage | How much of the role's required skills you have, weighted by how much the role depends on each one, scaled by your stated proficiency. |
-| Text similarity | How closely your headline, goal, bio and projects resemble the role's description. |
+| Skill coverage | How much of the role's required skills you have, weighted by how much the role depends on each one, scaled by your stated proficiency, how recently you used it and how long you have used it. |
+| Text similarity | How closely your headline, goal, bio, industry and projects resemble the role's description. |
 
 The combined score is `0.6 × coverage + 0.4 × text similarity`. The breakdown is
 shown so you can check the arithmetic — it is meant to be verifiable, not
-persuasive.
+persuasive. It also shows the adjustments, when they are not zero:
+
+- **Recency and depth** — shown when a skill you have is discounted because you
+  have not used it lately, or have only just started it.
+- **Level fit** — shown when your declared level and the role's are not the
+  same. A role two bands away is scored lower, but it is still on the list.
+
+**Saying what you think.** Each result has **Save** and **Not for me**, and a
+**How did it go?** row with **I applied**, **Got an interview** and **Got an
+offer**. Marking a role tells the system what you thought of it, and the
+aggregate of everybody's answers moves future rankings by a small amount.
+
+An outcome counts for more than an opinion: a role somebody got an interview
+for is better evidence of a good match than a role somebody merely saved. The
+adjustment is bounded at ten per cent, and it only applies once a role has
+enough answers to be worth acting on. It reorders the list; it never removes
+anything from it.
+
+The outcome buttons are for reporting what happened to *you*, after you left
+the shortlist. Nothing is sent anywhere: the application cannot apply to a job
+on your behalf, and it does not try.
 
 **What a percentage is not.** It is not a probability of getting the job, and not
 a ranking against other people. It is a similarity measure between your declared
@@ -179,11 +245,12 @@ you do not have it.
 | Page | What it does |
 |---|---|
 | Overview | Real counts: users, roles, skills, runs, most-required skills. |
-| Job roles | Browse all 82 roles. Create, edit and delete them. Edit the weight of each required skill. |
+| Job roles | Browse all 100 roles. Create, edit and delete them. Edit the weight of each required skill, the role's level and the experience it expects. |
 | Users | List accounts. Change a user's role. |
-| Taxonomy | Browse the 151 skills. Add, edit and remove them. |
+| Taxonomy | Browse the 250 skills. Add, edit and remove them. |
 | Evaluation | The published evaluation numbers, read from the committed report. |
 | Feedback | Everything users have submitted. |
+| Audit log | Every administrative change and every sign-in, with who did it, when, and from where. Filter it by action. |
 
 **Changing a role's weights changes everyone's scores immediately.** A weight must
 be greater than 0 and at most 1, and a role needs at least one required skill to
@@ -196,6 +263,13 @@ the role can no longer be generated.
 **Evaluation** is read-only on purpose. It shows the report committed to the
 repository, so the chart can never disagree with the document.
 
+**The audit log** records every change an administrator makes and every
+sign-in, including the failed ones. It is written in the same transaction as
+the change it describes, so it cannot disagree with the data. The record
+outlives the account: deleting a user does not delete what that user did.
+The client address is best-effort — behind a proxy it is the first entry of
+`X-Forwarded-For`, which the proxy sets, not the client.
+
 ## 9. Troubleshooting
 
 **"The page won't load" / "Failed to fetch"**
@@ -206,6 +280,15 @@ are browsing from, including scheme and port — `http://localhost:3000` and
 
 **"Your session has expired"**
 Sessions last 24 hours by default. Log in again. Your data is not affected.
+
+**"Your password has changed since this session started"**
+Your password was changed or reset, so the sessions that were open at the time
+were signed out. This is deliberate. Sign in again with your current password.
+
+**"Too many requests"**
+You have sent more requests than the limit allows — ten sign-in attempts a
+minute, for instance. The response says how long to wait in the `Retry-After`
+header. Wait, and try again. If you are scripting against the API, slow down.
 
 **"You do not have permission to perform this action"**
 Either the account lacks the admin role, or the resource belongs to another user.
@@ -223,6 +306,11 @@ deployment. See [`deployment.md`](deployment.md).
 The upload directory is not writable by the process. On the container this means
 the image is wrong; locally it means the `uploads/` directory is missing or
 permissions are wrong. See [`deployment.md`](deployment.md#10-local-docker-fallback).
+
+**"That link is not valid, or has already been used"**
+A verification or password-reset link can be used once and expires. Request a
+new one and open it straight away — some mail clients rewrite links, and
+clicking an old message can break the token.
 
 **"This PDF appears to be a scan"**
 No text layer. There is no OCR. Add your skills by hand.

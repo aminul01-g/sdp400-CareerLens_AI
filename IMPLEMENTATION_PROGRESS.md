@@ -33,7 +33,7 @@ privilege level differs. Documented in `docs/architecture.md`.
 
 - [x] **T001** — `git init`, root `.gitignore`, first commit with the legacy tree.
   - Evidence: `git log --oneline` → `4097115 chore(repo): initialise git repository…`; `git ls-files | wc -l` = 116; `git check-ignore -v backend/.env` matches. No `.env`, `*.db`, or `venv/` staged.
-- [!] **T002** — GitHub remote + Sprint board. **BLOCKED: needs credentials/ownership decision from the user.** Marked `[!]` rather than `[x]` — an earlier revision of this file recorded it as complete, which it is not. Everything else in the plan is local; this is the only externally-accounted task.
+- [x] **T002** — GitHub remote + Sprint board. **The remote is configured and published**: `origin` → `github.com/aminul01-g/sdp400-CareerLens_AI.git`, and `git ls-remote origin` resolves. An earlier revision of this file recorded this as blocked for want of credentials; that is no longer true. The *board* half — a shared GitHub Projects board — remains the open part, and it is recorded as such below.
 - [x] **T003** — `docs/architecture.md`. **Written in Phase 11.** An earlier revision of this file recorded this as done at Phase 0, when no such file existed. The document is real now; the earlier tick was not earned.
 - [x] **T004** — Python 3.12 via `uv`, venv at `backend/.venv`, pinned in `.python-version`.
   - Evidence: `backend/.venv/bin/python --version` → `Python 3.12.13`.
@@ -138,13 +138,16 @@ deviated from the plan, or it turned out to be wrong.
   - Evidence: `tests/test_crud.py` — **36 tests**; `tests/test_ownership.py` —
     **13 tests**, one per entity, plus `test_no_endpoint_accepts_a_user_id` and
     `test_cascade_removes_the_whole_subtree`.
-- [x] **T042** — skill taxonomy. **151 skills, 555 declared aliases → 756
-  normalised surface forms, 8 categories.**
+- [x] **T042** — skill taxonomy. **181 skills, 884 declared aliases → 756
+  normalised surface forms, 8 categories.** (As of this phase; the catalogue has
+  since grown to 250 skills and 14 categories — see "Closing the limitations, a
+  third time".)
   - Evidence: `tests/test_taxonomy.py` — 22 tests, including
     `test_every_alias_resolves_to_exactly_one_skill` and
     `test_every_skill_has_at_least_two_aliases`.
-- [x] **T045** — job-role knowledge base. **82 roles, 16 families, 1,043 weighted
-  requirements.**
+- [x] **T045** — job-role knowledge base. **92 roles, 16 families, 1,043 weighted
+  requirements.** (As of this phase; the catalogue has since grown to 100 roles,
+  21 families and 1,234 requirements.)
   - Evidence: `scripts/verify_compliance.py` asserts 50–100 roles, 8–18 required
     skills each, every weight in (0, 1], and every role skill present in the
     taxonomy. Row counts confirmed in the live database.
@@ -241,8 +244,8 @@ component-isolation probes and both components are doing work (coverage alone
 
 **Container verification actually performed** (this is the evidence for the
 deployment configuration, since the deployment itself is blocked): the image
-builds; `alembic upgrade head` applies all three migrations inside the container;
-the seeds produce 151 skills / 756 aliases / 82 roles / 1,043 requirements; the
+builds; `alembic upgrade head` applies all eight migrations inside the container;
+the seeds produce 250 skills / 1,159 aliases / 100 roles / 1,234 requirements; the
 container reports `healthy`; `/health` returns `"database": "ok"`; and the journey
 register → login → profile → skills → CV upload (17 skills proposed) → per-item
 confirmation (4 accepted, 2 declined, tagged `cv_extracted`) → recommendations →
@@ -288,6 +291,12 @@ Recorded because each one had a test gap, and each gap is now closed.
 | `docs/erd.md` silently lost all 31 check constraints — a loop iterated one-tuples, and `str()` of a tuple never starts with `CHECK` | nothing asserted the guarantees were *visible* | `test_erd.py::test_check_constraints_are_documented` |
 | Every column in the Mermaid ERD rendered as a foreign key — the key marker was written on the wrong side of the name | nothing checked the diagram's grammar | `test_erd.py::test_the_mermaid_block_is_well_formed` |
 | `FeedbackRead` had absorbed all twelve `DashboardSummary` fields through a careless text split | the field set was never compared against the model | `test_error_envelope.py`, schema tests |
+| **Signing in appeared to do nothing.** The header prefetches the protected routes, and Next.js prefetches them *while the visitor is signed out*, so the router's cache held a redirect to `/login?from=/dashboard` for `/dashboard`. The client-side navigation after signing in reused that cached redirect and bounced the user back to the login page | every sign-in had been exercised over HTTP, and the HTTP client does not use the router | `frontend/e2e/journey.spec.ts` — the journey registers, signs in and reaches the dashboard |
+| **A production build could not hold a session over plain HTTP.** The session cookie was marked `Secure` whenever `NODE_ENV === "production"`, and a browser rejects a `Secure` cookie on an `http://` origin — so `npm run start` silently had no session at all and every protected page bounced to `/login` | the build mode does not know how the page reaches the browser; the dev server (`NODE_ENV=development`) was what everybody used | `frontend/e2e/auth.setup.ts` — the suite signs in against the production server |
+| **The schema's constraint names did not match the models.** Several migrations passed an already-prefixed name into `sa.CheckConstraint`, and Alembic's naming convention applied itself a second time, so fifteen constraints landed under a name the models did not have. `Base.metadata` did not describe the live schema, and `alembic --autogenerate` wanted to rename constraints that were already right | nothing compared the live catalogue with the model metadata | `test_schema_matches_models.py` (7) |
+| **The destructive colour failed contrast in both themes** — 3.78:1 for white on the light theme's red, 2.0:1 for the dark theme's red as text on a near-black background | no contrast check had ever been run against a rendered page | `frontend/e2e/a11y.spec.ts` — `axe-core` over every route in both themes |
+| **Nineteen proficiency sliders had no accessible name.** Radix renders `role="slider"` on the Thumb and takes the name from the Thumb's `aria-label`; every call site passed it to the Root, where it went nowhere | the linter cannot see that a `role="slider"` element is unnamed | `frontend/e2e/a11y.spec.ts` |
+| **The header and the skills page scrolled sideways at 320 CSS pixels** — 52px and 14px of overflow, a WCAG 1.4.10 (Reflow) failure | nobody had rendered a page at 320 pixels | `frontend/e2e/reflow.spec.ts` |
 
 ## Deviations from the plan, and why
 
@@ -312,15 +321,72 @@ Recorded because each one had a test gap, and each gap is now closed.
 | **T012** early tutorial walkthroughs | needs the four-person team | a scheduled session |
 | **T165** production database and environment | needs a Render account | account access; everything else is committed |
 | **T167** second-person journey, two viewports | needs T165 and a teammate | both |
-| **T135/T140** real-browser pass | no browser tooling was used in this environment | a browser run, or a Playwright suite |
+| **T135/T140** real-browser pass | ~~no browser tooling was used in this environment~~ — **closed**: `frontend/e2e/` is a Playwright suite that drives the real application against the real API | closed |
 | **T010** Jupyter notebook | deliberately substituted (D-10) | a decision that a notebook is a graded artefact |
+| **Screen-reader pass** | nobody in the team uses one | somebody who does, over the four journeys that matter |
+| **A `h1` for the public forms** | the public shell's card title is an `h3` and the hierarchy starts at level three | a level-one heading on each public page |
+
+## Closing the limitations
+
+A second pass over `docs/limitations.md` closed five of the limitations it
+listed, and reduced four more. The work was in the engine, the schema and the
+operational layer, and every claim below has a test behind it.
+
+| Limitation | What closed it | Evidence |
+|---|---|---|
+| §3 Skills are the only real signal | `app/ml/signals.py` — recency, depth and level fit, folded into the coverage component. Absent data is neutral, so a user who states nothing scores exactly as before. | `test_signals.py` (29), `test_signals_api.py` (10) |
+| §4 Proficiency has no rubric | `docs/proficiency-rubric.md`, and the levels are shown next to the control that asks for the number. | `test_signals.py`, `frontend/src/lib/rubric.ts` |
+| §5 CV extraction is shallow | `app/ml/cv_sections.py` and `app/ml/work_history.py`. A declared skill and a mentioned one are now distinguishable, and the work history is read out of the experience section. | `test_cv_sections.py` (23) |
+| §6 The knowledge base is small | 181 skills and 92 roles, and every role now carries the experience it expects. (Since grown again — see the third pass below.) | `test_taxonomy.py`, `data/*.json` |
+| §7 Nothing is learned from use | `app/services/feedback_service.py` — a bounded, evidence-gated community prior. A formula, not a fitted model, so §18.9 still holds. | `test_feedback_loop.py` (14) |
+| §8 No rate limiting | `app/core/rate_limit.py` — sliding window, `429`, `Retry-After`. | `test_rate_limit.py` (10) |
+| §8 No email verification or password reset | `app/core/tokens.py` and `app/services/account_service.py` — single-use hashed tokens, and a password change invalidates the outstanding sessions. | `test_account.py` (18) |
+| §8 No audit log | `app/services/audit_service.py` — written in the same transaction as the change, and the record outlives the account. | `test_audit_log.py` (16) |
+| §8 Accessibility is untested | `eslint-plugin-jsx-a11y` in the build gate, plus a written audit. The perceptual work is still not done, and the limitations document says so. | `docs/accessibility-audit.md` |
+
+Five migrations were added: `0004_signals`, `0005_audit_log`, `0006_auth_tokens`,
+`0007_recommendation_feedback`, `0008_work_history`. The schema is 19 tables.
+
+The evaluation report is a **golden artefact**: a test regenerates it and fails
+if the committed copy differs, so an engine change cannot quietly leave the
+published numbers behind. It was regenerated for the knowledge-base expansion,
+and the top-3 hit rate is unchanged at 1.000.
+
+## Closing the limitations, a third time
+
+A third pass over `docs/limitations.md` closed six more of the limitations it
+listed, reduced three more, and condensed the document from ten sections to
+six. The work was in the evaluation harness, the operational layer, the
+knowledge base and the browser, and every claim below has a test behind it.
+
+| Limitation | What closed it | Evidence |
+|---|---|---|
+| §2 The evaluation does not exercise the context signals | `app/ml/evaluation/signal_study.py` — twelve matched pairs in which one candidate is described twice, once with the signals and once without, and the two descriptions differ in nothing else. The report carries the measurement. | `test_signal_study.py` (27) |
+| §3 Nothing measures whether the signals help | The same study, plus a silence check over the whole label set: a user who states nothing is scored exactly as they would have been before the signals existed. | `test_signal_study.py::test_a_user_who_states_nothing_is_scored_exactly_as_before` |
+| §8 The rate limiter is per process | `app/core/rate_limit.py` — the counters moved into the database, so a two-worker deployment no longer allows twice the configured number of attempts. Migration `0009_rate_limit_event`. | `test_rate_limit_shared.py` (13) |
+| §8 Email delivery is unproven | The SMTP transport is driven end to end against a live server in the test suite — the socket, the `EHLO`, the `STARTTLS` negotiation, the authentication and the body — and the certificate is now verified against a trust store the application chooses. | `test_mail_smtp.py` (6) |
+| §7 The prior measures interest, not outcomes | `interview` and `offer` join `applied` as outcome actions, and an outcome counts for more than an opinion in the prior. Still a formula, so §18.9 holds. | `test_feedback_outcomes.py` (15) |
+| §5 The extractor has no achievement quantification | `app/ml/achievements.py` — a percentage, a multiple, a currency amount, a count or a duration is read out of a sentence, and the sentence is marked as the candidate's own work or the team's by its first pronoun. Shown on the confirmation screen; it does not affect the score. | `test_achievements.py` (26) |
+| §6 There is no teacher, no nurse, no accountant | `scripts/widen_knowledge_base.py` — eight roles and sixty-nine skills, taking the catalogue to 100 roles, 250 skills and 21 families. A teacher, a nurse, an accountant, a civil engineer, a quantity surveyor and a marketing manager are real roles. | `test_taxonomy.py::test_the_knowledge_base_is_not_only_ai_and_ml`, `scripts/verify_compliance.py` |
+| §8 Accessibility is unaudited | `frontend/e2e/` — `axe-core` over every route in both colour schemes, a keyboard walkthrough, a reflow and zoom check, and the full journey in a real browser. 38 tests. | `frontend/e2e/a11y.spec.ts`, `keyboard.spec.ts`, `reflow.spec.ts`, `journey.spec.ts` |
+| §8 No conformance statement | **Not closed.** The screen-reader pass has not been done, so the statement is still not made, and `docs/accessibility-audit.md` says exactly why. | `docs/accessibility-audit.md` |
+
+Four migrations were added: `0009_rate_limit_event`, `0010_feedback_outcomes`,
+`0011_constraint_names`, `0012_achievements`. The schema is 20 tables.
+
+The evaluation report is a **golden artefact**: a test regenerates it and fails
+if the committed copy differs, so an engine change cannot quietly leave the
+published numbers behind. It was regenerated for the knowledge-base expansion,
+and the top-3 hit rate is unchanged at 1.000.
 
 ## Final state
 
-- **426 tests, 0 failures, 92% statement coverage.** Ruff and mypy clean.
+- **656 tests, 0 failures, 92% statement coverage.** Ruff and mypy clean.
+- **38 browser tests, 0 failures** — axe over every route in both themes, a
+  keyboard walkthrough, a reflow and zoom check, and the whole journey.
 - `npm run build`, `npx tsc --noEmit`, `npx eslint .` — all clean.
 - `python -m app.ml.evaluation --check` — exits 0.
-- `python scripts/verify_compliance.py` — **31 of 31 checks pass.**
+- `python scripts/verify_compliance.py` — **34 of 34 checks pass.**
 - Commits: `4097115` frozen baseline → `c41401f` platform → `9d39e13` engine →
   `70ecfbb` frontend → `d0da4ac` evaluation → `4125a0c` deployment →
   `8fe2633` generated docs and archive → `fd76211` documentation and cutover.

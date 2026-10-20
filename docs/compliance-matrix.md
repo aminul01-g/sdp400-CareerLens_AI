@@ -9,8 +9,8 @@ each says so and says why. A matrix that is 100% green is a matrix nobody checke
 | | Count | |
 |---|---|---|
 | ✅ Met, evidence in this repository | 62 | |
-| ⚠️ Implemented, not verified by the means §18 asks for | 3 | responsive viewports, browser testing, deployed journey |
-| ⬜ Not done | 3 | Jupyter notebook, deployed URL, external accounts |
+| ⚠️ Implemented, not verified by the means §18 asks for | 5 | responsive viewports, browser testing, deployed journey, the agile board, the AI/ML-specialisation wording |
+| ⬜ Not done | 2 | Jupyter notebook, deployed URL |
 | 🚫 Correctly absent (out of scope, §18.9) | 3 | |
 
 Every factual claim below was checked by reading the file or running the test
@@ -24,11 +24,11 @@ named. Where a plan task is cited, the citation is to the task in
 
 | Proposal requirement | Implementation | Evidence | Status |
 |---|---|---|---|
-| React / **Next.js** | Next.js 16.3.7 App Router, 20 routes, three route groups | `frontend/package.json:3` (`"next": "^16.3.7"`), `frontend/app/**` | ✅ |
-| **Tailwind CSS** | Unmodified `tailwind.config.ts` + `app/globals.css`; 49 shadcn components retained byte-identically | `frontend/tailwind.config.ts`, `frontend/src/components/ui/**` | ✅ |
+| React / **Next.js** | Next.js 16.3.7 App Router, 27 routes, three route groups | `frontend/package.json:3` (`"next": "^16.3.7"`), `frontend/app/**` | ✅ |
+| **Tailwind CSS** | Unmodified `tailwind.config.ts` + `app/globals.css`; 25 shadcn components retained byte-identically | `frontend/tailwind.config.ts`, `frontend/src/components/ui/**` | ✅ |
 | TypeScript | Next.js TypeScript config; build clean | `frontend/tsconfig.json`; `npx tsc --noEmit` → 0 errors | ✅ |
 | Python 3 | Python 3.12 | `backend/.python-version` (`3.12`); `backend/requirements.txt:1-13` (why 3.12) | ✅ |
-| **FastAPI** | `app/main.py` factory, 14 `APIRouter`s, **67 operations over 45 paths** | `backend/app/main.py:create_app`; `backend/app/api/router.py`; count from `app.openapi()` | ✅ *(exceeds the plan's estimate of 61)* |
+| **FastAPI** | `app/main.py` factory, 14 `APIRouter`s, **80 operations over 56 paths** | `backend/app/main.py:create_app`; `backend/app/api/router.py`; count from `app.openapi()` | ✅ *(exceeds the plan's estimate of 61)* |
 | **SQLAlchemy** | 2.0 `DeclarativeBase`, `Mapped[]`, `SessionLocal` | `backend/app/db/base.py`, `backend/app/db/session.py` | ✅ |
 | **Pydantic** | `schemas/` with separate Create/Update/Read per domain | `backend/app/schemas/{auth,profile,skill,project,education,job,recommendation,cv,dashboard}.py` | ✅ |
 | **JWT** authentication | PyJWT HS256, explicit `exp`, `sub`, `role` | `backend/app/core/security.py`; `test_auth.py::test_token_issued_now_is_valid_now` | ✅ |
@@ -36,16 +36,17 @@ named. Where a plan task is cited, the citation is to the task in
 | pgAdmin | `dpage/pgadmin4:8` Compose service | `docker-compose.yml:52` | ✅ |
 | **scikit-learn** | `TfidfVectorizer` + `cosine_similarity` | `backend/app/ml/matcher.py::tfidf_cosine`; `tests/test_matcher.py` (23) | ✅ |
 | pandas / NumPy | Installed and available; the harness formats its tables and the sweep | `backend/requirements.txt:70-73`; `app/ml/evaluation/harness.py::render_markdown` | ✅ |
-| **spaCy** | `PhraseMatcher` over 686 normalised surface forms (151 canonical + aliases) | `backend/app/ml/extractor.py:113` (`taxonomy.all_patterns()`); `tests/test_extractor.py` (43) | ✅ |
+| **spaCy** | `PhraseMatcher` over 1,016 normalised surface forms (250 canonical + aliases) | `backend/app/ml/extractor.py:113` (`taxonomy.all_patterns()`); `tests/test_extractor.py` (43) | ✅ |
 | pdfplumber / PyPDF | PDF branch of the loader | `backend/app/ml/text_loader.py`; `tests/test_extraction_pipeline.py` (25, includes a real PDF) | ✅ |
 | **python-docx** | DOCX branch of the loader | same, plus `sample_cv_ml_engineer.docx` parsed end to end | ✅ |
 | Optional LLM API | `ml/learning_path.py`, flag-gated off, **P2** | `backend/app/core/config.py:93` (`llm_enabled: bool = False`); `tests/test_learning_path.py` (28) | ✅ *(built, disabled by default)* |
 | Docker | Compose + multi-stage `backend/Dockerfile` | `backend/Dockerfile` (built and run; non-root, health-checked) | ✅ |
-| Git / GitHub | Repository initialised; **remote not configured** | commit `4097115`; see §18.6 agile row | ⚠️ *(local git only — T002 blocked)* |
+| Git / GitHub | Repository initialised **and published**: `origin` → `github.com/aminul01-g/sdp400-CareerLens_AI.git`; `git ls-remote origin` resolves | `git remote -v`; `git log --oneline` | ✅ *(see §18.6 agile row for the board, which is the part still open)* |
 | Postman | OpenAPI UI at `/docs` covers the same need | `http://localhost:8000/docs` → 200 | ✅ *(substituted, as the plan permits)* |
 | Figma / draw.io | No Figma file; `docs/erd.md` is Mermaid, rendered from the live catalogue | `docs/erd.md:6` (` ```mermaid ` block) | ✅ *(substituted)* |
 | Jupyter Notebook | **Not produced.** The weight sweep was done as `evaluation/tuning.py` and is reproducible, tested and committed | `app/ml/evaluation/tuning.py`; `tests/test_evaluation.py::test_sweep_covers_the_planned_range_and_holds_the_default` | ⬜ *(see note below)* |
-| **pytest** | **419 tests, 0 failures, 92% coverage** — against a floor of 60 | `backend/tests/` (20 files); `python -m pytest` | ✅ |
+| **pytest** | **702 tests, 0 failures, 92% coverage** — against a floor of 60 | `backend/tests/` (38 files); `python -m pytest` | ✅ |
+| **Browser suite** | **38 Playwright tests, 0 failures** — axe over every route in both themes, a keyboard walkthrough, a reflow check and the full journey | `frontend/e2e/`; `npm run test:e2e` | ✅ |
 | Browser testing | CRUD matrix and journey verified **over HTTP against the running container**, not through a browser | `docs/deployment.md:§11`; container journey recorded in `IMPLEMENTATION_PROGRESS.md` | ⚠️ *(no real-browser pass)* |
 | **Vercel** (frontend) | `vercel.json` + `NEXT_PUBLIC_API_URL` template | `frontend/vercel.json`, `frontend/.env.example` | ✅ *(config complete; not deployed)* |
 | **Render / Railway** (backend + DB) | `render.yaml` + managed PostgreSQL blueprint | `backend/render.yaml` | ⚠️ *(config complete; not provisioned — T165)* |
@@ -87,7 +88,7 @@ required as a graded artefact, it is a small piece of work — but producing one
 | | Show detected skills for confirmation | `resume_detected_skill` staging + `POST /api/skills/confirm` + a per-item accept/decline UI | `test_crud.py::test_confirm_rejects_unknown_ids_per_item`, `::test_bulk_confirm_is_idempotent`; `frontend/app/(app)/resume/page.tsx:47-94`; `test_extraction_pipeline.py::test_detections_carry_no_proficiency` | ✅ |
 | | *DB ops: Create, Read* | §8.1 rows 10–11 | `test_cv.py` | ✅ |
 | **AI job matching** | Ranked role list | `POST /api/recommendations`; `/recommendations` screen | `test_recommendations.py` (26) | ✅ |
-| | Compatibility % | `0.6·coverage + 0.4·cosine` | `backend/app/ml/matcher.py::combined_score`; `config.py:88-89` | ✅ |
+| | Compatibility % | `0.6·coverage + 0.4·cosine` | `backend/app/ml/matcher.py::combined_score`; `config.py:99-100` | ✅ |
 | | Matched skills | `recommendation_result` persists both components; `ScoreBreakdown` renders them | `backend/app/models/recommendation.py`; `frontend/src/features/recommendations/ScoreBreakdown.tsx` | ✅ |
 | | *DB ops: Read* | §8.1 rows 13–14 | `test_recommendations.py` | ✅ |
 | **Skill-gap analysis** | Pick a target role | `/api/skill-gap/{job_role_id}`; `/skill-gap` screen | `test_gap_analysis.py` (13) | ✅ |
@@ -100,15 +101,18 @@ required as a graded artefact, it is a small piece of work — but producing one
 
 | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|
-| Extract CV text, clean it, match against ≈150 skills with aliases, using **spaCy phrase matching** | 151 skills, 686 surface forms | `backend/app/ml/extractor.py:113`; `data/skills_taxonomy.json`; `test_extractor.py` | ✅ |
+| Extract CV text, clean it, match against ≈150 skills with aliases, using **spaCy phrase matching** | 250 skills, 1,016 surface forms | `backend/app/ml/extractor.py:113`; `data/skills_taxonomy.json`; `test_extractor.py` | ✅ |
 | Users confirm or edit the result | Staging table + confirm endpoint + per-item UI | `frontend/app/(app)/resume/page.tsx:47`; `app/api/routes/skills.py::confirm_skills` | ✅ |
 | Represent a user by skills, projects, education | `ml/text_profile.py` | `backend/app/ml/text_profile.py::build_profile_text` | ✅ |
 | **Weighted skill-coverage** score, scikit-learn | weighted by requirement importance, normalised by total weight | `app/ml/matcher.py::weighted_skill_coverage`; `test_matcher.py` | ✅ |
-| **TF-IDF cosine similarity**, profile text vs each role description | one vectoriser fitted across all 82 roles | `app/ml/matcher.py::tfidf_cosine`; `test_matcher.py` | ✅ |
-| Initial weights ~60% / 40% | `skill_coverage_weight = 0.60`, `tfidf_weight = 0.40`, and they must sum to 1.0 | `config.py:88-89`; `test_config.py::test_weights_must_sum_to_one` | ✅ |
+| **TF-IDF cosine similarity**, profile text vs each role description | one vectoriser fitted across all 100 roles | `app/ml/matcher.py::tfidf_cosine`; `test_matcher.py` | ✅ |
+| Initial weights ~60% / 40% | `skill_coverage_weight = 0.60`, `tfidf_weight = 0.40`, and they must sum to 1.0 | `config.py:99-100`; `test_config.py::test_weights_must_sum_to_one` | ✅ |
 | Weights tuned on the labelled sample profiles | sweep over 0.5–0.9 plus component-isolation probes at 0.0 and 1.0 | `app/ml/evaluation/tuning.py`; `docs/evaluation_report.md` *Weight sweep*; `test_evaluation.py` (27) | ✅ |
 | Gap = required − user skills, ranked by importance weight | tiered at 0.8 / 0.5 | `app/ml/gap_analysis.py`; `test_gap_analysis.py` | ✅ |
-| LLM turns the gap into a learning path, **core works without it** | `503 feature_disabled` when off; no key needed to boot; degrades to deterministic steps | `app/ml/learning_path.py`; `test_learning_path.py` (28) | ✅ |
+| LLM turns the gap into a learning path, **core works without it** | `503 feature_disabled` when off; no key needed to boot; degrades to deterministic steps | `app/ml/learning_path.py`; `test_learning_path.py` (26) | ✅ |
+| **Context signals** — recency, depth and level fit | `app/ml/signals.py`; folded into the coverage component, with the adjustments reported alongside the score | `test_signals.py` (29); `test_signals_api.py` (10) | ✅ *(beyond the proposal's scope)* |
+| **A community prior from use** | A bounded formula, not a fitted model; gated on a minimum sample size. Outcomes the user reports — applied, interviewed, offered — count for more than opinions, and are still self-reported | `app/services/feedback_service.py`; `test_feedback_loop.py` (14); `test_feedback_outcomes.py` (15) | ✅ *(beyond the proposal's scope)* |
+| **Section-aware CV extraction** | `app/ml/cv_sections.py`; a declared skill and a mentioned one are distinguishable | `test_cv_sections.py` (23) | ✅ *(beyond the proposal's scope)* |
 | Unsupervised similarity + rule-based weighting, **not a trained classifier**, stated openly | no classifier anywhere; disclosed in two documents | no `joblib`/`pickle`/`predict`/`fit` in `app/`; `docs/evaluation_report.md` *Design honesty*; `docs/report.md` §5 | ✅ |
 
 ---
@@ -118,7 +122,7 @@ required as a graded artefact, it is a small piece of work — but producing one
 | Deliverable | Implementation | Evidence | Status |
 |---|---|---|---|
 | Working web application (frontend + API + PostgreSQL) **deployed online** | Everything except the deployment itself | Image builds, container healthy, journey verified against the container | ⬜ *(deployed, not **online** — T165 needs account access)* |
-| Seed dataset: 50–100 job listings **and** the skill taxonomy | **82 roles, 1,043 requirements, 16 families** + 151 skills | `backend/data/job_roles.json`, `backend/data/skills_taxonomy.json`; row counts verified in the database | ✅ |
+| Seed dataset: 50–100 job listings **and** the skill taxonomy | **100 roles, 1,234 requirements, 21 families** + 250 skills | `backend/data/job_roles.json`, `backend/data/skills_taxonomy.json`; row counts verified in the database | ✅ |
 | ML module **with an evaluation summary** | `app/ml/*` + a generated, committed report | `docs/evaluation_report.md`; `docs/api.md` admin endpoint serves the committed JSON | ✅ |
 | Source repository, final report, user manual, presentation | all four | this repository; `docs/report.md`, `docs/user_manual.md`, `docs/presentation_outline.md` | ✅ |
 
@@ -142,11 +146,11 @@ required as a graded artefact, it is a small piece of work — but producing one
 
 | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|
-| Curated taxonomy of ~150 skills with aliases | 151 skills, 555 declared aliases → 756 surface forms | `test_taxonomy.py::test_taxonomy_has_at_least_150_skills`, `::test_every_skill_has_at_least_two_aliases`, `::test_every_alias_resolves_to_exactly_one_skill` | ✅ |
-| 50–100 job listings with required skills and weights | 82 roles | `data/job_roles.json`; verified in the database | ✅ |
+| Curated taxonomy of ~150 skills with aliases | 250 skills, 852 declared aliases → 1,016 surface forms | `test_taxonomy.py::test_taxonomy_has_at_least_150_skills`, `::test_every_skill_has_at_least_two_aliases`, `::test_every_alias_resolves_to_exactly_one_skill` | ✅ |
+| 50–100 job listings with required skills and weights | 100 roles | `data/job_roles.json`; verified in the database | ✅ |
 | Sample CVs and 20+ labelled profiles; **only consented or anonymised** | 3 **fully synthetic** CVs; 26 synthetic profiles. No real personal data anywhere | `app/ml/evaluation/sample_cvs/`; `test_extraction_pipeline.py::test_no_real_contact_details_in_the_fixtures` (asserts the reserved `.invalid`/`example.com` convention) | ✅ |
-| Agile, six two-week sprints, shared backlog | git history; **no external project board** | 6 commits, one per phase group | ⬜ *(T002 — needs GitHub account ownership)* |
-| Database creation with PostgreSQL schema, migrations, seed data | 15 tables, 3 migrations, 4 seed scripts | `alembic/versions/000{1,2,3}_*.py`; migrations applied and seeds run inside the container | ✅ |
+| Agile, six two-week sprints, shared backlog | git history on a published remote; **no external project board** | 11 commits grouped by phase; `git log --oneline` | ⚠️ *(the board is the open half of T002 — the repository itself is published)* |
+| Database creation with PostgreSQL schema, migrations, seed data | 20 tables, 12 migrations, 4 seed scripts | `alembic/versions/000*.py`; migrations applied and seeds run inside the container | ✅ |
 
 **On the samples.** The proposal permits consented **or anonymised** samples. The
 three committed CVs are stronger than anonymised: they are generated by
@@ -183,7 +187,7 @@ Each claim must be **demonstrably true in the shipped product**.
 
 | Claim | Where it is demonstrated | Evidence | Status |
 |---|---|---|---|
-| "Specialised for AI/ML roles" | 151 skills across 8 categories, all in the ML/data/AI domain; 82 of 82 roles require at least one such skill | `data/skills_taxonomy.json`; `scripts/verify_compliance.py` asserts every role's skills exist in the taxonomy | ✅ |
+| "Specialised for AI/ML roles" | 250 skills across 14 categories. **The claim is met but no longer describes the whole system**: six non-technical families (teaching, healthcare, accounting and finance, civil and electrical engineering, marketing, human resources) were added so that a teacher, a nurse and an accountant are real roles. 92 of the 100 job roles are AI/ML; 8 are not. The widening was deliberate and is stated in `report.md` §6.1 rather than left for a reader to discover. Every role still requires at least one AI/ML skill where the role genuinely calls for one | `data/skills_taxonomy.json`; `scripts/verify_compliance.py` asserts every role's skills exist in the taxonomy and that the non-technical families are present; `docs/report.md` §6.1 | ⚠️ *(met for AI/ML, widened beyond it — the proposal's §3.4 wording is now narrower than the product)* |
 | "Recommends roles from a full profile" | the journey builds profile → skills → projects → education → CV, *then* ranks | `docs/deployment.md:§11` steps 1–4; verified live against the container | ✅ |
 | "Skill-gap report for a target role" | reachable for any role by id | `app/api/routes/skill_gap.py`; `test_gap_analysis.py` (13) | ✅ |
 | "Skill extraction from CV" | upload → 17 proposals → per-item confirmation | `app/(app)/resume/page.tsx`; live run recorded in `IMPLEMENTATION_PROGRESS.md` | ✅ |
@@ -196,7 +200,7 @@ Each claim must be **demonstrably true in the shipped product**.
 
 | Excluded item | Verification | Status |
 |---|---|---|
-| Applying to jobs, employer accounts, chat, payments, job-portal scraping | no routes, no tables, no UI | ✅ absent — `grep -riE "payment\|stripe\|chat\|employer\|apply" backend/app/api/routes/*.py` → no matches |
+| Applying to jobs, employer accounts, chat, payments, job-portal scraping | no routes, no tables, no UI | ✅ absent — `grep -riE "payment\|stripe\|chat\|employer\|apply" backend/app/api/routes/*.py` → no matches. The feedback loop records what a user *reports* about their own job search — "I applied", "I got an interview" — as a signal about a role. The application never applies anywhere: there is no route, no table and no outbound call that submits anything to an employer |
 | A RAG chatbot | no vector store, no retrieval endpoints | ✅ absent — `grep -riE "vector_store\|faiss\|pinecone\|chroma\|retriev" backend/app` → no matches. `faiss` and `vector-databases` appear only as *skill names in the taxonomy*, not as code |
 | A trained deep-learning ranking model | no classifier, no model file, no `predict` | ✅ absent — `grep -riE "joblib\|pickle\|\.predict\|sklearn.*fit\(" backend/app` → no matches; disclosed in `docs/report.md` §5 |
 
@@ -213,8 +217,35 @@ Four items, all with the reason stated rather than left for a reader to find.
 | **Agile board (T002)** | Needs a GitHub account and a project board | T002 — account ownership |
 | **Second-person journey on a phone and a desktop viewport (T167)** | Needs a person who did not build it, and a deployed URL | T167 — a teammate, plus T165 |
 
-Two further rows are marked ⚠️ because the implementation is present but verified
-by a weaker means than §18 asks for: responsive layout and CRUD/journey testing
-were exercised over HTTP against the running container, and the frontend is
-Tailwind-responsive by construction, but no real-browser pass at 375/768/1280 px
-has been performed. That is recorded rather than claimed.
+Three further rows are marked ⚠️ because the implementation is present but
+verified by a weaker means than §18 asks for:
+
+- **Responsive layout and CRUD/journey testing** were exercised over HTTP
+  against the running container, and the frontend is Tailwind-responsive by
+  construction, but no real-browser pass at 375/768/1280 px has been performed.
+- **Accessibility** is enforced statically — `eslint-plugin-jsx-a11y` fails the
+  build — and the manual review is written down in
+  [`accessibility-audit.md`](accessibility-audit.md). A machine pass *has* been
+  made since: `axe-core` over every route in both colour schemes, a keyboard
+  walkthrough of the tab order, focus indicator, focus trap and focus return,
+  and a reflow check at 320 CSS pixels and at 200% zoom. There has been no
+  screen-reader pass, so no WCAG conformance claim is made.
+- **Rate limiting** is shared across workers and replicas (the counters live in
+  the database), and the **SMTP transport** is exercised end to end against a
+  live mail server in the test suite. Both are recorded in
+  [`limitations.md`](limitations.md#5-how-it-runs) rather than claimed as done.
+- **The client address the rate limiter counts on** is the peer address
+  unless the request arrived from a proxy listed in `TRUSTED_PROXY_CIDRS`. The
+  header is client-supplied, and a server that believed it unconditionally
+  would let a caller rotate it and get an unlimited number of password
+  attempts. A deployment that forgets to set the variable counts every
+  request as one address, which is the safe direction.
+
+One further limitation is not a §18 requirement at all, and is stated here so
+that it is not left for a reader to discover: **the evaluation measures the
+engine's internal consistency, not career outcomes.** The 26 labels were
+assigned by reading the same knowledge base the engine scores against, and the
+new context signals — experience, level, recency, depth and the community
+prior — are declared by none of them, so the evaluation is silent about all
+five. Independent labelling is the missing piece, and it needs people outside
+this project.

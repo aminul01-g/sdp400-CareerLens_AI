@@ -4,7 +4,7 @@ Base URL in production: `https://<api-host>`
 Local: `http://localhost:8000`  
 Interactive schema: `/docs` (Swagger UI), `/redoc`, `/openapi.json`
 
-**45 paths, 67 operations.** Generated from the live OpenAPI schema by `backend/scripts/generate_api_docs.py`, so this page cannot describe an API the application does not have. Re-run that script after changing a route.
+**56 paths, 80 operations.** Generated from the live OpenAPI schema by `backend/scripts/generate_api_docs.py`, so this page cannot describe an API the application does not have. Re-run that script after changing a route.
 
 ## Conventions
 
@@ -50,6 +50,17 @@ Service banner
 
 - Auth: public
 - Success: `200`
+
+#### `GET /api/admin/audit`
+
+The audit trail, newest first
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `401, 403, 422`
+- Query: `action, entity_type, actor_id, page, page_size`
+
+Who changed what, when, and from where.
 
 #### `GET /api/admin/evaluation`
 
@@ -122,11 +133,13 @@ Delete a job role
 
 #### `PUT /api/admin/jobs/{role_id}/skills`
 
-Atomically replace a role's weighted skill set
+Atomically replace a role's weighted required-skill set
 
 - Auth: bearer token
 - Success: `200`
-- Errors: `422`
+- Errors: `404, 422`
+
+Full replacement, not a diff.
 
 #### `GET /api/admin/overview`
 
@@ -187,13 +200,23 @@ Promote or demote
 
 An admin cannot demote themselves.
 
+#### `POST /api/auth/forgot-password`
+
+Ask for a password-reset link
+
+- Auth: public
+- Success: `202`
+- Errors: `422, 429`
+
+Start a password reset.
+
 #### `POST /api/auth/login`
 
 Exchange credentials for an access token
 
 - Auth: public
 - Success: `200`
-- Errors: `401, 422`
+- Errors: `401, 422, 429`
 
 #### `POST /api/auth/logout`
 
@@ -245,9 +268,38 @@ Create an account and start a session
 
 - Auth: public
 - Success: `201`
-- Errors: `409, 422`
+- Errors: `409, 422, 429`
 
 Register a new user. Returns a token so the session starts immediately.
+
+#### `POST /api/auth/resend-verification`
+
+Send another verification email
+
+- Auth: bearer token
+- Success: `202`
+
+Send a fresh verification email to the signed-in user.
+
+#### `POST /api/auth/reset-password`
+
+Set a new password with a reset token
+
+- Auth: public
+- Success: `200`
+- Errors: `422`
+
+Consume a reset token and set a new password.
+
+#### `POST /api/auth/verify-email`
+
+Confirm an email address
+
+- Auth: public
+- Success: `200`
+- Errors: `422`
+
+Consume a verification token and mark the address as verified.
 
 #### `GET /api/certifications`
 
@@ -305,7 +357,7 @@ Upload a CV, extract its text, and detect skills
 
 - Auth: bearer token
 - Success: `201`
-- Errors: `401, 413, 415, 422`
+- Errors: `401, 413, 415, 422, 429`
 
 Extraction runs on upload; nothing is written to ``user_skill`` here.
 
@@ -507,7 +559,7 @@ Generate a ranked, explainable set of recommendations
 
 - Auth: bearer token
 - Success: `201`
-- Errors: `401, 409, 422`
+- Errors: `401, 409, 422, 429`
 
 Runs the deterministic engine and persists the run.
 
@@ -529,6 +581,26 @@ A persisted run, read from the database
 - Errors: `404, 422`
 
 Read-only, and never recomputed — a stored run is a historical record.
+
+#### `GET /api/recommendations/runs/{run_id}/feedback`
+
+What the caller said about the roles in a run
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `422`
+
+``job_role_id -> action`` for one of the caller's runs.
+
+#### `POST /api/recommendations/runs/{run_id}/roles/{job_role_id}/feedback`
+
+Record what the user did with a recommended role
+
+- Auth: bearer token
+- Success: `201`
+- Errors: `401, 404, 422`
+
+Say whether a role is worth keeping.
 
 #### `GET /api/skill-gap/{job_role_id}`
 
@@ -588,6 +660,15 @@ Search the skill taxonomy by name or alias
 
 Searching ``sklearn`` finds ``Scikit-learn`` — the alias feature made visible.
 
+#### `GET /api/skills/taxonomy/categories`
+
+The taxonomy's categories, for a filter that does not depend on the user
+
+- Auth: bearer token
+- Success: `200`
+
+The distinct categories in the skill taxonomy.
+
 #### `PATCH /api/skills/{skill_id}`
 
 Update proficiency, years used, or confirmed state
@@ -603,6 +684,47 @@ Remove a skill
 - Auth: bearer token
 - Success: `204`
 - Errors: `404, 422`
+
+#### `GET /api/work-history`
+
+The caller's work history
+
+- Auth: bearer token
+- Success: `200`
+
+#### `POST /api/work-history`
+
+Add a role to the work history
+
+- Auth: bearer token
+- Success: `201`
+- Errors: `422`
+
+#### `PATCH /api/work-history/{entry_id}`
+
+Update Work History
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422`
+
+#### `DELETE /api/work-history/{entry_id}`
+
+Delete Work History
+
+- Auth: bearer token
+- Success: `204`
+- Errors: `404, 422`
+
+#### `POST /api/work-history/{entry_id}/confirm`
+
+Accept a role the CV pipeline proposed
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422`
+
+Accept a proposal.
 
 #### `GET /health`
 
@@ -628,7 +750,7 @@ Exchange credentials for an access token
 
 - Auth: public
 - Success: `200`
-- Errors: `401, 422`
+- Errors: `401, 422, 429`
 
 #### `POST /api/auth/logout`
 
@@ -680,7 +802,7 @@ Create an account and start a session
 
 - Auth: public
 - Success: `201`
-- Errors: `409, 422`
+- Errors: `409, 422, 429`
 
 Register a new user. Returns a token so the session starts immediately.
 
@@ -763,6 +885,15 @@ Search the skill taxonomy by name or alias
 - Query: `q, category, limit, offset`
 
 Searching ``sklearn`` finds ``Scikit-learn`` — the alias feature made visible.
+
+#### `GET /api/skills/taxonomy/categories`
+
+The taxonomy's categories, for a filter that does not depend on the user
+
+- Auth: bearer token
+- Success: `200`
+
+The distinct categories in the skill taxonomy.
 
 #### `PATCH /api/skills/{skill_id}`
 
@@ -928,7 +1059,7 @@ Upload a CV, extract its text, and detect skills
 
 - Auth: bearer token
 - Success: `201`
-- Errors: `401, 413, 415, 422`
+- Errors: `401, 413, 415, 422, 429`
 
 Extraction runs on upload; nothing is written to ``user_skill`` here.
 
@@ -968,7 +1099,7 @@ Generate a ranked, explainable set of recommendations
 
 - Auth: bearer token
 - Success: `201`
-- Errors: `401, 409, 422`
+- Errors: `401, 409, 422, 429`
 
 Runs the deterministic engine and persists the run.
 
@@ -990,6 +1121,26 @@ A persisted run, read from the database
 - Errors: `404, 422`
 
 Read-only, and never recomputed — a stored run is a historical record.
+
+#### `GET /api/recommendations/runs/{run_id}/feedback`
+
+What the caller said about the roles in a run
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `422`
+
+``job_role_id -> action`` for one of the caller's runs.
+
+#### `POST /api/recommendations/runs/{run_id}/roles/{job_role_id}/feedback`
+
+Record what the user did with a recommended role
+
+- Auth: bearer token
+- Success: `201`
+- Errors: `401, 404, 422`
+
+Say whether a role is worth keeping.
 
 ### Skill gap
 
@@ -1150,11 +1301,13 @@ Delete a job role
 
 #### `PUT /api/admin/jobs/{role_id}/skills`
 
-Atomically replace a role's weighted skill set
+Atomically replace a role's weighted required-skill set
 
 - Auth: bearer token
 - Success: `200`
-- Errors: `422`
+- Errors: `404, 422`
+
+Full replacement, not a diff.
 
 #### `GET /api/admin/overview`
 

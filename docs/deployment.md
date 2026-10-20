@@ -47,7 +47,7 @@ though `JWT_SECRET_KEY` genuinely is, and must be generated per environment.
                             │  Render private network
                             ▼
                  ┌──────────────────────┐
-                 │  Render Postgres 16  │  16 tables + alembic_version
+                 │  Render Postgres 16  │  20 tables + alembic_version
                  └──────────────────────┘
 
   Optional, off by default and off the critical path:
@@ -95,6 +95,21 @@ valid session for any account.
 | `LLM_ENABLED` | `false` | Leave `false`. Proposal §4.2 makes it optional. |
 | `SKILL_COVERAGE_WEIGHT` | `0.6` | Must sum to 1.0 with `TFIDF_WEIGHT`. |
 | `TFIDF_WEIGHT` | `0.4` | See the sweep in the evaluation report. |
+| `RATE_LIMIT_ENABLED` | `true` | Per process, not shared across replicas. See the limitations. |
+| `RATE_LIMIT_AUTH_REQUESTS` | `10` | Sign-in, registration and password-reset attempts per window. |
+| `RATE_LIMIT_AUTH_WINDOW_SECONDS` | `60` | |
+| `RATE_LIMIT_GENERATE_REQUESTS` | `30` | Recommendation runs per window. |
+| `RATE_LIMIT_UPLOAD_REQUESTS` | `10` | CV uploads per window. |
+| `SMTP_HOST` | — | Empty means the message is written to `MAIL_DIR` instead of being sent. **Set it in production**, or the verification and password-reset flows never reach anybody. |
+| `SMTP_PORT` | `587` | |
+| `SMTP_USERNAME` | — | |
+| `SMTP_PASSWORD` | — | |
+| `SMTP_USE_TLS` | `true` | |
+| `MAIL_FROM` | `no-reply@careerlens.dev` | Must be a domain you can send from, or the mail will be rejected. |
+| `PUBLIC_BASE_URL` | `http://localhost:3000` | The front end's public URL. The verification and reset links are built from it, so it must be the address a user can actually open. |
+| `REQUIRE_EMAIL_VERIFICATION` | `false` | Leave `false`. Locking out a user who has not clicked a link in an email reads as a broken product. |
+| `FEEDBACK_PRIOR_STRENGTH` | `0.10` | How much the community prior may move a score. `0` switches it off. |
+| `FEEDBACK_PRIOR_MIN_SAMPLES` | `5` | How many observations a role needs before its prior is used at all. |
 | `LOG_LEVEL` | `INFO` | |
 | `LOG_JSON` | `false` | `true` for machine-readable logs. |
 | `ADMIN_EMAIL` | — | Read by `scripts/seed_admin.py`, not the API. |
@@ -231,8 +246,8 @@ alembic revision --autogenerate -m "add x to y"
 
 ```bash
 cd backend
-python -m scripts.seed_taxonomy     # 151 skills, 756 aliases
-python -m scripts.seed_job_roles    # 82 roles, 1,043 requirements
+python -m scripts.seed_taxonomy     # 250 skills, 1,159 aliases
+python -m scripts.seed_job_roles    # 100 roles, 1,234 requirements
 python -m scripts.seed_admin        # reads ADMIN_EMAIL / ADMIN_PASSWORD
 python -m scripts.seed_dev_users    # optional, development only
 ```
@@ -240,10 +255,10 @@ python -m scripts.seed_dev_users    # optional, development only
 Verify:
 
 ```sql
-SELECT count(*) FROM skill;       -- 151
-SELECT count(*) FROM skill_alias;  -- 756
-SELECT count(*) FROM job_role;     -- 82
-SELECT count(*) FROM job_role_skill; -- 1043
+SELECT count(*) FROM skill;       -- 250
+SELECT count(*) FROM skill_alias;  -- 1,159
+SELECT count(*) FROM job_role;     -- 100
+SELECT count(*) FROM job_role_skill; -- 1234
 ```
 
 `pg_trgm` must exist for the trigram indexes:
@@ -342,8 +357,8 @@ curl -s -i -H 'Origin: https://<frontend-host>' \
      -H 'Origin: https://evil.example' https://<api-host>/api/jobs | grep -i access-control-allow-origin
 
 # 4. The knowledge base is seeded.
-curl -s https://<api-host>/api/jobs | jq '.total'          # 82
-curl -s https://<api-host>/api/jobs/families | jq 'length' # 16
+curl -s https://<api-host>/api/jobs | jq '.total'          # 100
+curl -s https://<api-host>/api/jobs/families | jq 'length' # 21
 
 # 5. Anonymous writes are refused.
 curl -s -o /dev/null -w '%{http_code}\n' -X POST https://<api-host>/api/recommendations   # 401
@@ -371,6 +386,24 @@ cd ../.. && python scripts/verify_compliance.py
 cd backend && python -m pytest -q
 cd ../frontend && npm run build && npx eslint .
 ```
+
+There is also a browser suite, which is the only part of the verification that
+exercises the application as a person would use it — the accessibility of every
+route in both colour schemes, the keyboard, the layout at 320 CSS pixels, and
+the whole journey. It needs the API running:
+
+```bash
+# terminal one
+cd backend && python -m uvicorn app.main:app --port 8000
+
+# terminal two
+cd frontend && npx playwright install chromium   # once
+npm run test:e2e
+```
+
+The administrator specs are skipped unless `E2E_ADMIN_EMAIL` and
+`E2E_ADMIN_PASSWORD` are exported, because a repository should not carry an
+administrator's password.
 
 ---
 

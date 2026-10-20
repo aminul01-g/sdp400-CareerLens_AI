@@ -97,7 +97,7 @@ indefinitely.
 
 ## 5. How the compliance checks keep the legacy out
 
-`scripts/verify_compliance.py` runs 31 assertions over the repository. The ones
+`scripts/verify_compliance.py` runs 34 assertions over the repository. The ones
 that guard this decision:
 
 - **No legacy Flask module remains tracked.** Any `.py` at `backend/*.py` outside

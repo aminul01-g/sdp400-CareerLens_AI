@@ -46,12 +46,12 @@ know what they are defending against.
              │ SQLAlchemy                       │ pure function calls
 ┌────────────▼─────────────┐        ┌───────────▼──────────────────┐
 │ PostgreSQL 16            │        │ data/skills_taxonomy.json    │
-│ 15 tables, pg_trgm       │        │ data/job_roles.json          │
+│ 20 tables, pg_trgm       │        │ data/job_roles.json          │
 └──────────────────────────┘        └──────────────────────────────┘
 ```
 
-Roughly 10,000 lines of Python across 76 modules, 12,900 lines of TypeScript
-across 121 files, and 419 tests in 20 files.
+Roughly 18,700 lines of Python across 108 modules, 12,700 lines of TypeScript
+across 110 files, 702 tests in 38 files, and 38 browser tests in 6 files.
 
 ---
 
@@ -147,8 +147,8 @@ capped at 0.4 so it can never outvote a clear difference in skills.
 
 | File | Contents | Loaded |
 |---|---|---|
-| `data/skills_taxonomy.json` | 151 skills, 555 declared aliases, 8 categories | At startup, cached |
-| `data/job_roles.json` | 82 roles, 16 families, 1,043 weighted requirements | At startup, cached |
+| `data/skills_taxonomy.json` | 250 skills, 852 declared aliases, 14 categories | At startup, cached |
+| `data/job_roles.json` | 100 roles, 21 families, 1,234 weighted requirements | At startup, cached |
 
 Both are seeded into PostgreSQL, which is what the application reads at request
 time. The JSON is the source of truth for a rebuild; the database is the source
@@ -270,7 +270,7 @@ a boot-time check looks for near-misses and names the variable that was meant.
 
 ## 8. Frontend
 
-Next.js 16 App Router. Twenty routes, all rendering, no mock data anywhere.
+Next.js 16 App Router. Twenty-seven routes, all rendering, no mock data anywhere.
 
 **Route groups mirror the authorisation model.** `(public)`, `(app)` and
 `(admin)` are filesystem groups, so `/dashboard` and `/admin/jobs` share a URL
@@ -300,7 +300,7 @@ Stated as an acceptance criterion, and enforced in `test_determinism.py`:
 
 - Ranking sorts by `(-compatibility, job_role_id)`, so equal scores resolve the
   same way on every run and in every process.
-- TF-IDF is fitted **once per request across all 82 roles**, not per role. Fitting
+- TF-IDF is fitted **once per request across all 100 roles**, not per role. Fitting
   per role would make each role's vector space differ and the similarities
   incomparable.
 - No `random`, no clock, no `set` iteration in any scoring path.
@@ -351,6 +351,13 @@ returned to the client.
 | What exactly is the formula? | `app/ml/matcher.py::combined_score` |
 | Where do the weights come from? | `app/core/config.py`, `data/job_roles.json` |
 | How is a skill extracted from a CV? | `app/ml/extractor.py` |
+| How are recency, depth and level used? | `app/ml/signals.py` |
+| How is a CV split into sections? | `app/ml/cv_sections.py` |
+| How is a work history read out of a CV? | `app/ml/work_history.py` |
+| How does the engine learn from use? | `app/services/feedback_service.py` |
+| What is written to the audit log? | `app/services/audit_service.py` |
+| How are requests rate limited? | `app/core/rate_limit.py` |
+| How do verification and reset tokens work? | `app/core/tokens.py`, `app/services/account_service.py` |
 | How is ownership enforced? | `app/services/*_service.py`, `app/api/deps.py` |
 | What is the API surface? | [`api.md`](api.md) — generated from the live schema |
 | What does the data look like? | [`erd.md`](erd.md) — generated from the live catalogue |

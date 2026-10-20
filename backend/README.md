@@ -54,8 +54,8 @@ Then:
 
 ```bash
 alembic upgrade head
-python -m scripts.seed_taxonomy       # 151 skills, 756 alias surface forms
-python -m scripts.seed_job_roles      # 82 roles, 1,043 weighted requirements
+python -m scripts.seed_taxonomy       # 181 skills, 804 alias surface forms
+python -m scripts.seed_job_roles      # 100 roles, 1,234 weighted requirements
 python -m scripts.seed_admin          # reads ADMIN_EMAIL / ADMIN_PASSWORD
 ```
 
@@ -84,7 +84,7 @@ that will fail on its first real request.
 ## Tests
 
 ```bash
-python -m pytest                                  # 419 tests, ~80s
+python -m pytest                                  # 552 tests, ~140s
 python -m pytest tests/test_ranker.py -v
 python -m pytest -k ownership
 python -m pytest --cov=app --cov-report=term-missing
@@ -120,7 +120,7 @@ app/
 alembic/          Migrations. Never edit one that has been applied.
 data/             The knowledge base. skills_taxonomy.json, job_roles.json.
 scripts/          Seeds, doc generators, fixture generator.
-tests/            20 files, 419 tests.
+tests/            29 files, 552 tests.
 ```
 
 Dependencies point downwards. A route that contains an `if` statement is a route
@@ -177,6 +177,8 @@ whole candidate set. Re-run the evaluation afterwards.
 | Deployment, including the offline fallback | [`../docs/deployment.md`](../docs/deployment.md) |
 | Task-oriented tutorials | [`../docs/tutorials.md`](../docs/tutorials.md) |
 | What this cannot do | [`../docs/limitations.md`](../docs/limitations.md) |
+| What a proficiency number means | [`../docs/proficiency-rubric.md`](../docs/proficiency-rubric.md) |
+| What was checked for accessibility, and what was not | [`../docs/accessibility-audit.md`](../docs/accessibility-audit.md) |
 | The legacy tree we replaced, and why | [`../docs/legacy-freeze.md`](../docs/legacy-freeze.md) |
 
 ## Regenerating the generated documents

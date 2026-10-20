@@ -26,7 +26,7 @@ Do not start with the technology. Start with the user's problem.
 
 A graduate with a CV full of tools has no way to answer three questions:
 
-1. Which of the 82 roles in our taxonomy am I actually a candidate for?
+1. Which of the 100 roles in our taxonomy am I actually a candidate for?
 2. Why that role and not the one next to it?
 3. What is the single highest-value thing I could learn next?
 
@@ -42,7 +42,7 @@ answers none of them either — and that second failure is the common one.
 | Proposal requirement | Where it lives |
 |---|---|
 | Nine modules, full CRUD | Profile, skills, projects, education, certifications, CV, recommendations, skill gap, admin |
-| Weighted skill matching | 82 roles, 1,043 weighted requirements |
+| Weighted skill matching | 100 roles, 1,234 weighted requirements |
 | Explainable scoring | Both components stored and shown |
 | CV extraction with confirmation | PDF/DOCX → proposals → user accepts |
 | 20+ labelled evaluation profiles | 26 profiles, top-3 hit rate 1.000 |
@@ -76,9 +76,21 @@ Put the formula on the screen. All of it.
 ```
 compatibility = 0.6 × weighted_skill_coverage + 0.4 × tfidf_cosine
 
-weighted_skill_coverage = Σ(weight × proficiency_factor) / Σ(weight)
+weighted_skill_coverage = Σ(weight × strength) / Σ(weight)
+strength                = proficiency_factor × recency_factor × depth_factor
 proficiency_factor      = (proficiency − 1) / 4
 ```
+
+and the coverage component is then scaled by how close the user's level is to
+the role's:
+
+```
+compatibility = 0.6 × (weighted_skill_coverage × level_fit) + 0.4 × tfidf_cosine
+```
+
+`recency_factor`, `depth_factor` and `level_fit` are all **1.000 when the user
+has not stated anything**, so a profile that fills in none of the extra fields
+scores exactly what it scored before any of this existed.
 
 Three points, in this order:
 
@@ -90,6 +102,9 @@ Three points, in this order:
    number and assert it.
 3. **Text similarity is capped at 0.4** so it can break ties between equally
    skilled candidates but never outvote a real difference in skills.
+4. **The context signals are bounded.** A stale *and* shallow skill keeps at
+   least 70% of its strength; a level mismatch costs at most 35%. The signals
+   reorder, they never exclude.
 
 **If asked "why not machine learning?"** — that is slide 8. Say so and move on;
 do not defend it twice.
@@ -184,13 +199,27 @@ is worth more than one you get caught on.
 
 1. **The recommendations are not career advice.** No labour-market data. A 92% is
    a similarity score, not a job offer.
-2. **The evaluation is circular.** Covered on slide 8.
-3. **Skills are the only real signal.** A junior and a principal engineer with the
-   same declared skills score identically. This is the biggest *engineering* gap.
-4. **Proficiency is self-reported and coarse**, and systematically biased upward.
-5. **151 skills and 82 roles** is a demonstration taxonomy, not a career taxonomy.
-6. **Nothing is learned from use.** No feedback loop, by design — and it is a real
-   cost.
+2. **The evaluation is circular.** Covered on slide 8. And it is *more* circular
+   now: the engine reads five signals the 26 profiles declare none of, so the
+   evaluation is silent about all five.
+3. **The new signals are self-declared.** Experience, level, recency and depth
+   are all things the user states. A junior and a principal with the same
+   declared skills now score differently — but the engine cannot check that the
+   claim is true, and nothing here measures whether the signals help.
+4. **Proficiency is self-reported and biased upward.** There is a rubric now, so
+   "4" means the same thing to everyone. It does not make it true.
+5. **250 skills and 100 roles** is a demonstration taxonomy, not a career
+   taxonomy.
+6. **The community prior is thin.** A user can say a role is worth keeping and
+   the aggregate moves future rankings by at most 10% — but the sample is small,
+   self-selected, and measures interest rather than outcomes.
+
+**Say what was closed**, because the list above is only credible if the
+improvements are stated too: the experience, level, recency and depth signals; a
+written proficiency rubric; section-aware CV extraction and a work history read
+out of the document; a bounded community prior; rate limiting; email
+verification and password reset; and an audit log. All of it is in
+`docs/limitations.md` with the test that proves it.
 
 **The line to say:** "If you want one number to judge this project by: the
 evaluation proves the engine does what we said. It does not prove the role
@@ -201,7 +230,7 @@ and we know exactly who should provide them."
 
 ## Slide 11 — Engineering (12:00)
 
-- **419 tests, 0 failures.** 92% statement coverage.
+- **702 tests, 0 failures.** 92% statement coverage, plus 38 browser tests.
 - **Security:** refuses to boot without a 32-character signing key; ownership
   violations return 404, not 403, so the API is not an enumeration oracle;
   mass assignment of `role` is impossible.
@@ -241,9 +270,14 @@ Ordered by value per unit of effort, and be specific:
 
 1. **Independent labels** from career practitioners. The largest gap, and it
    needs no new code.
-2. **A written proficiency rubric**, so "4" means the same thing to everyone.
-3. **Experience and recency** — the two missing signals.
-4. **A real feedback loop**, so the system can improve rather than merely run.
+2. **A measurement of the new signals.** They are implemented, tested and
+   explained, and nothing measures whether they make a shortlist better.
+3. **Real usage data.** The instrument now exists — a user can say a role is
+   worth keeping — but nobody has used it, and outcome data is the only thing
+   that would settle question 1 empirically.
+4. **A screen-reader, contrast and reflow pass.** The structural accessibility
+   work is done and linted; the perceptual work is not, and it is what a WCAG
+   claim would rest on.
 
 ---
 
@@ -256,7 +290,9 @@ Anticipated, with the honest answer ready:
 | "Why not train a model?" | No labelled data. §4.2 makes it optional. We chose explainability, and the evaluation documents what that costs. |
 | "Top-3 of 1.000 — isn't that just testing yourself?" | Yes, partly. The labels come from the same knowledge base. That is the single biggest limitation and we have said so. |
 | "How do you know the weights are right?" | We do not know they are optimal. The sweep is flat, so we held the default rather than retune on noise. |
-| "What if a user lies about their skills?" | Nothing detects it. It is a self-assessment tool, not a credential check. |
+| "What if a user lies about their skills?" | Nothing detects it. It is a self-assessment tool, not a credential check. The same is true of the years of experience and the level — they are stated, not verified. |
+| "How does the system know anything the user did not type?" | It does not. Every signal the engine reads beyond declared proficiency is either stated by the user or read out of a document the user supplied, and the latter is confirmed by them before it counts. |
+| "Is it a trained model that got better with more data?" | No. It is a formula, and the one thing that is learned — the community prior — is a bounded ratio of saves to dismissals, capped at a 10% effect and switched off below five observations. |
 | "Is the data safe?" | bcrypt hashes, per-user ownership, cascade delete, CV never exposed to another user, and admin responses never contain a password hash. There are tests for each. |
 | "Does it work offline?" | Yes — `docker compose up`. |
 

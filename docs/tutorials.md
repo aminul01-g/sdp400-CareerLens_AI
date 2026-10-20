@@ -60,8 +60,8 @@ python -c "import secrets; print(secrets.token_urlsafe(48))"
 
 ```bash
 alembic upgrade head
-python -m scripts.seed_taxonomy        # 151 skills, 756 aliases
-python -m scripts.seed_job_roles       # 82 roles, 1,043 requirements
+python -m scripts.seed_taxonomy        # 250 skills, 1,159 aliases
+python -m scripts.seed_job_roles       # 100 roles, 1,234 requirements
 ```
 
 > Use `python -m scripts.seed_x`, **not** `python scripts/seed_x.py`. Run by path,
@@ -106,7 +106,7 @@ rebuild, not just a restart.
 
 ```bash
 cd backend
-python -m pytest                    # 419 tests, about 80 seconds
+python -m pytest                    # 702 tests, about 200 seconds
 python -m pytest tests/test_ranker.py -v
 python -m pytest -k "ownership"     # by keyword
 python -m pytest --cov=app --cov-report=term-missing
@@ -121,7 +121,7 @@ real regression:
 | Command | What it protects |
 |---|---|
 | `python -m app.ml.evaluation --check` | Exits non-zero if the top-3 hit rate falls below 0.75. The evaluation is a **gate**, not a number. |
-| `python scripts/verify_compliance.py` | 31 repository-level assertions: no legacy code, no tracked secrets, no mock data, ML purity. |
+| `python scripts/verify_compliance.py` | 32 repository-level assertions: no legacy code, no tracked secrets, no mock data, ML purity. |
 | `python scripts/generate_api_docs.py && git diff --exit-code docs/api.md` | The API reference still matches the routes. |
 | `cd frontend && npm run build && npx eslint .` | The frontend still compiles and lints. |
 
@@ -189,6 +189,7 @@ taxonomy, so there is no separate pattern file to keep in sync.
   "slug": "rust-systems-engineer",
   "family": "Software Engineering",
   "seniority": "Mid",
+  "min_years_experience": 3,
   "description": "Build memory-safe services and CLIs where predictability matters more than iteration speed.",
   "responsibilities": [
     "Own latency-sensitive services",
@@ -211,6 +212,7 @@ taxonomy, so there is no separate pattern file to keep in sync.
 | Every `skill_slug` in the taxonomy | A dangling slug raises a hard error — it would silently lower the denominator and *inflate* coverage for that role. |
 | 8–18 required skills | Where the knowledge base settled. Enforced by `verify_compliance.py`, not by the API, which accepts as few as one. |
 | A non-empty `description` | It is the text the TF-IDF component compares against. An empty description means the role can only ever be matched by skills. |
+| `min_years_experience` | The experience the role typically expects. It is display context, and the fallback source for the role's band when `seniority` is blank. The engine derives the band from `seniority` first. |
 
 3. Seed and check:
 
@@ -229,6 +231,15 @@ python -m app.ml.evaluation --check
 If the top-3 hit rate drops, the new role is competing with a labelled profile for
 a slot. That is a real signal, not noise — investigate before adjusting labels.
 **Never change a label to make a number look better.**
+
+Adding a role also changes the **committed evaluation report**, because the
+per-family statistics move. The report is a golden artefact: a test regenerates
+it and fails if the committed copy differs. So regenerate and commit it in the
+same change:
+
+```bash
+python -m app.ml.evaluation
+```
 
 ---
 
