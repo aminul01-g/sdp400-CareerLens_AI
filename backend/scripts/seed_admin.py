@@ -8,7 +8,9 @@ fail the application's own registration policy — so the seeded admin is one th
 rest of the system would accept.
 
 Idempotent: re-running resets the password and role rather than creating a
-duplicate, which is what makes it safe as a deployment step.
+duplicate, which is what makes it safe as a deployment step. It is run as part
+of the start command, so a deployment with no admin configured logs a warning
+and carries on rather than failing to boot.
 """
 
 from __future__ import annotations
@@ -83,6 +85,18 @@ def seed(db: Session) -> User:
 
 def main() -> int:
     logger.info("Seeding the admin account")
+    settings = get_settings()
+    if not settings.admin_email.strip() or not settings.admin_password:
+        # Not an error. The admin account is optional: the application works
+        # perfectly well without one, and a deployment that does not want an
+        # administrator should not fail to boot because of it. The seed runs
+        # as part of the start command, so raising here would take the whole
+        # service down.
+        logger.warning(
+            "ADMIN_EMAIL and ADMIN_PASSWORD are not set; no admin account was created. "
+            "Set them and redeploy if this deployment needs an administrator."
+        )
+        return 0
     with session_scope() as db:
         seed(db)
     return 0

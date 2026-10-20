@@ -40,6 +40,7 @@ services:
       alembic upgrade head &&
       python -m scripts.seed_taxonomy &&
       python -m scripts.seed_job_roles &&
+      python -m scripts.seed_admin &&
       uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
     # One worker, not two. The free plan is 512 MB of RAM and the engine's
     # steady resident set is about 220 MB with one worker: two workers would
