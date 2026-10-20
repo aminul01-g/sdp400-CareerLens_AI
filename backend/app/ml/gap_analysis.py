@@ -12,7 +12,10 @@ from __future__ import annotations
 
 from collections.abc import Mapping
 
-from app.ml.matcher import weighted_skill_coverage
+from app.ml.matcher import (
+    weighted_skill_coverage,
+    weighted_skill_coverage_from_factors,
+)
 from app.ml.types import GapReport, MatchedSkill, MissingSkill, RoleSpec, proficiency_factor
 
 #: Tier boundaries. Mirrored by ``schemas.gap.tier_of`` so the API response and
@@ -35,6 +38,8 @@ def analyse(
     role: RoleSpec,
     *,
     skill_names: Mapping[int, tuple[str, str]] | None = None,
+    factors: Mapping[int, float] | None = None,
+    level_fit: float = 1.0,
 ) -> GapReport:
     """Compare a user's skills against one role's weighted requirements.
 
@@ -43,6 +48,12 @@ def analyse(
         role: The target role and its required ``skill_id -> weight`` map.
         skill_names: Optional ``skill_id -> (name, category)`` for readable output.
             The engine itself does not need names; the API layer supplies them.
+        factors: Optional ``skill_id -> strength`` in ``[0, 1]``, the values the
+            ranker actually scores with once recency and depth are folded in.
+            When omitted, proficiency is used on its own, which is the plain
+            declared-coverage view.
+        level_fit: The multiplier for the distance between the user's level and
+            the role's level. ``1.0`` when no level has been declared.
 
     Returns:
         A :class:`GapReport` whose ``missing`` list is sorted by **descending
@@ -50,6 +61,10 @@ def analyse(
         therefore deterministic.
     """
     names = skill_names or {}
+    strengths = factors or {
+        skill_id: proficiency_factor(int(proficiency))
+        for skill_id, proficiency in user_skills.items()
+    }
     matched: list[MatchedSkill] = []
     missing: list[MissingSkill] = []
 
@@ -69,13 +84,16 @@ def analyse(
                 )
             )
         else:
+            strength = strengths.get(skill_id)
+            if strength is None:
+                strength = proficiency_factor(int(proficiency))
             matched.append(
                 MatchedSkill(
                     skill_id=skill_id,
                     name=name,
                     weight=weight_float,
                     proficiency=int(proficiency),
-                    contribution=weight_float * proficiency_factor(int(proficiency)),
+                    contribution=weight_float * strength,
                     category=category,
                 )
             )
@@ -85,11 +103,17 @@ def analyse(
     missing.sort(key=lambda item: (-item.weight, item.skill_id))
     matched.sort(key=lambda item: (-item.weight, item.skill_id))
 
+    declared_coverage = weighted_skill_coverage(user_skills, role.required_skills)
+    signal_coverage = weighted_skill_coverage_from_factors(strengths, role.required_skills)
+
     return GapReport(
         job_role_id=role.job_role_id,
         title=role.title,
         family=role.family,
-        coverage=weighted_skill_coverage(user_skills, role.required_skills),
+        coverage=signal_coverage * level_fit,
         matched=tuple(matched),
         missing=tuple(missing),
+        declared_coverage=declared_coverage,
+        signal_coverage=signal_coverage,
+        level_fit=level_fit,
     )

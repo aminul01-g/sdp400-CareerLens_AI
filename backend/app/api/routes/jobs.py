@@ -87,8 +87,8 @@ def list_jobs_admin(
     summary="Create a job role with its weighted required skills",
     responses={409: {"description": "Title already exists"}},
 )
-def create_job(payload: JobRoleCreate, db: DbSession, _: RequireAdmin) -> JobRoleRead:
-    return job_service.create_role(db, payload)
+def create_job(payload: JobRoleCreate, db: DbSession, admin: RequireAdmin) -> JobRoleRead:
+    return job_service.create_role(db, payload, actor=admin)
 
 
 @admin_router.get(
@@ -104,9 +104,9 @@ def get_job_admin(role_id: int, db: DbSession, _: RequireAdmin) -> JobRoleRead:
     responses={404: {"description": "No such role"}, 409: {"description": "Title clash"}},
 )
 def update_job(
-    role_id: int, payload: JobRoleUpdate, db: DbSession, _: RequireAdmin
+    role_id: int, payload: JobRoleUpdate, db: DbSession, admin: RequireAdmin
 ) -> JobRoleRead:
-    return job_service.update_role(db, role_id, payload)
+    return job_service.update_role(db, role_id, payload, actor=admin)
 
 
 @admin_router.put(
@@ -116,7 +116,7 @@ def update_job(
     responses={404: {"description": "No such role"}, 422: {"description": "Invalid skill set"}},
 )
 def replace_job_skills(
-    role_id: int, payload: JobRoleSkillReplace, db: DbSession, _: RequireAdmin
+    role_id: int, payload: JobRoleSkillReplace, db: DbSession, admin: RequireAdmin
 ) -> JobRoleRead:
     """Full replacement, not a diff.
 
@@ -125,7 +125,7 @@ def replace_job_skills(
     API would need its own compensation logic and would have a much larger space
     of partial-failure states.
     """
-    return job_service.replace_skills(db, role_id, payload)
+    return job_service.replace_skills(db, role_id, payload, actor=admin)
 
 
 @admin_router.delete(
@@ -138,6 +138,6 @@ def replace_job_skills(
         409: {"description": "Referenced by stored results; deactivate instead"},
     },
 )
-def delete_job(role_id: int, db: DbSession, _: RequireAdmin) -> Response:
-    job_service.delete_role(db, role_id)
+def delete_job(role_id: int, db: DbSession, admin: RequireAdmin) -> Response:
+    job_service.delete_role(db, role_id, actor=admin)
     return Response(status_code=status.HTTP_204_NO_CONTENT)

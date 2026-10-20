@@ -58,6 +58,22 @@ def search_taxonomy(
     return skill_service.search_taxonomy(db, q=q, category=category, limit=limit, offset=offset)
 
 
+@router.get(
+    "/taxonomy/categories",
+    response_model=list[str],
+    summary="The taxonomy's categories, for a filter that does not depend on the user",
+)
+def taxonomy_categories(db: DbSession, _: CurrentUser) -> list[str]:
+    """The distinct categories in the skill taxonomy.
+
+    The skills screen filters by category, and a filter built from the
+    *caller's own* skills is empty for anyone who has not added one yet —
+    which is precisely the person who needs the picker. This is the
+    catalogue's own list.
+    """
+    return skill_service.list_taxonomy_categories(db)
+
+
 @router.post(
     "/confirm",
     response_model=ConfirmResult,

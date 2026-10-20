@@ -17,7 +17,13 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 MAX_HEADLINE = 200
 MAX_LOCATION = 120
 MAX_LINKS = 10
+MAX_INDUSTRY = 120
 ALLOWED_LINK_KEYS = {"github", "linkedin", "portfolio", "website", "other"}
+
+#: The seniority bands the engine compares a user against. Kept here rather than
+#: imported from ``app.ml.signals`` because a schema must not depend on the
+#: engine, and the two are cross-checked in ``tests/test_signals.py``.
+SENIORITY_BANDS = ("Entry", "Junior", "Mid", "Senior", "Lead", "Principal")
 
 
 def _validate_links(value: dict[str, Any] | None) -> dict[str, Any]:
@@ -46,7 +52,25 @@ class ProfileBase(BaseModel):
     education_level: Annotated[str | None, Field(max_length=80)] = None
     years_experience: Annotated[int | None, Field(ge=0, le=60)] = None
     preferred_role_family: Annotated[str | None, Field(max_length=80)] = None
+    seniority: Annotated[str | None, Field(max_length=40)] = None
+    industry: Annotated[str | None, Field(max_length=MAX_INDUSTRY)] = None
     links: dict[str, str] = Field(default_factory=dict)
+
+    @field_validator("seniority")
+    @classmethod
+    def _known_band(cls, value: str | None) -> str | None:
+        """Reject a level the engine cannot compare against a role's."""
+        if value is None:
+            return None
+        cleaned = value.strip()
+        if not cleaned:
+            return None
+        for band in SENIORITY_BANDS:
+            if band.casefold() == cleaned.casefold():
+                return band
+        raise ValueError(
+            "Seniority must be one of: " + ", ".join(SENIORITY_BANDS) + "."
+        )
 
     @field_validator("links")
     @classmethod
@@ -55,7 +79,13 @@ class ProfileBase(BaseModel):
 
     @model_validator(mode="after")
     def _trim(self) -> ProfileBase:
-        for field in ("headline", "location", "education_level", "preferred_role_family"):
+        for field in (
+            "headline",
+            "location",
+            "education_level",
+            "preferred_role_family",
+            "industry",
+        ):
             value = getattr(self, field)
             if isinstance(value, str):
                 setattr(self, field, value.strip() or None)
@@ -82,7 +112,24 @@ class ProfileUpdate(BaseModel):
     education_level: Annotated[str | None, Field(max_length=80)] = None
     years_experience: Annotated[int | None, Field(ge=0, le=60)] = None
     preferred_role_family: Annotated[str | None, Field(max_length=80)] = None
+    seniority: Annotated[str | None, Field(max_length=40)] = None
+    industry: Annotated[str | None, Field(max_length=MAX_INDUSTRY)] = None
     links: dict[str, str] | None = None
+
+    @field_validator("seniority")
+    @classmethod
+    def _known_band(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        cleaned = value.strip()
+        if not cleaned:
+            return None
+        for band in SENIORITY_BANDS:
+            if band.casefold() == cleaned.casefold():
+                return band
+        raise ValueError(
+            "Seniority must be one of: " + ", ".join(SENIORITY_BANDS) + "."
+        )
 
     @field_validator("links")
     @classmethod
@@ -104,6 +151,8 @@ class ProfileRead(BaseModel):
     education_level: str | None = None
     years_experience: int | None = None
     preferred_role_family: str | None = None
+    seniority: str | None = None
+    industry: str | None = None
     links: dict[str, Any] = Field(default_factory=dict)
     created_at: datetime | None = None
     updated_at: datetime | None = None

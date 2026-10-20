@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -33,6 +33,7 @@ class UserSkillCreate(BaseModel):
     skill_id: int = Field(..., gt=0)
     proficiency: Proficiency = 3
     years_used: Annotated[float | None, Field(ge=0, le=60)] = None
+    last_used_at: date | None = None
     source: str = Field(default="manual", pattern="^(manual|cv_extracted)$")
 
 
@@ -43,6 +44,7 @@ class UserSkillUpdate(BaseModel):
 
     proficiency: Proficiency | None = None
     years_used: Annotated[float | None, Field(ge=0, le=60)] = None
+    last_used_at: date | None = None
     confirmed: bool | None = None
 
 
@@ -57,6 +59,7 @@ class UserSkillRead(BaseModel):
     category: str = ""
     proficiency: int
     years_used: float | None = None
+    last_used_at: date | None = None
     source: str
     confirmed: bool
     created_at: datetime | None = None

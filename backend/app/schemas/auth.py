@@ -101,6 +101,7 @@ class UserRead(BaseModel):
     email: EmailStr
     role: str
     is_active: bool
+    is_verified: bool = False
     created_at: Any = None
 
 
@@ -143,3 +144,54 @@ class UserUpdateRequest(BaseModel):
     @classmethod
     def _password_policy(cls, value: str | None) -> str | None:
         return validate_password_strength(value) if value is not None else None
+
+
+class ForgotPasswordRequest(BaseModel):
+    """``POST /api/auth/forgot-password``.
+
+    The response is identical whether or not the address is registered, so
+    this endpoint cannot be used to discover who has an account.
+    """
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def _normalise_email(cls, value: str) -> str:
+        return value.strip().lower()
+
+
+class ResetPasswordRequest(BaseModel):
+    """``POST /api/auth/reset-password``."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    token: Annotated[str, Field(min_length=10, max_length=200)]
+    new_password: Annotated[
+        str, Field(min_length=MIN_PASSWORD_LENGTH, max_length=MAX_PASSWORD_LENGTH)
+    ]
+
+    @field_validator("new_password")
+    @classmethod
+    def _password_policy(cls, value: str) -> str:
+        return validate_password_strength(value)
+
+
+class VerifyEmailRequest(BaseModel):
+    """``POST /api/auth/verify-email``."""
+
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    token: Annotated[str, Field(min_length=10, max_length=200)]
+
+
+class AcceptedResponse(BaseModel):
+    """A 202: the request was accepted, and deliberately says nothing more.
+
+    Used by the two endpoints that must not reveal whether an address exists.
+    """
+
+    status: str = "accepted"
+    message: str

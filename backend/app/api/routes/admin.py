@@ -24,20 +24,19 @@ from app.ml.evaluation.harness import DEFAULT_JSON_REPORT
 from app.models.project import Project
 from app.models.user import User, UserRole
 from app.models.user_skill import UserSkill
+from app.schemas.audit import AuditEntryRead
 from app.schemas.dashboard import (
     AdminOverview,
     AdminUserRead,
     RoleUpdateRequest,
 )
 from app.schemas.job import (
-    JobRoleRead,
-    JobRoleSkillReplace,
     TaxonomyCreate,
     TaxonomyUpdate,
 )
 from app.schemas.pagination import PageParamsDep, build_page
 from app.schemas.skill import SkillRead
-from app.services import dashboard_service, job_service
+from app.services import audit_service, dashboard_service, job_service
 
 logger = logging.getLogger("app.routes.admin")
 
@@ -129,7 +128,19 @@ def update_user_role(
             code="cannot_demote_self",
         )
 
+    previous = target.role.value
     target.role = UserRole(payload.role)
+    # Staged before the commit, so the promotion and the record of it are
+    # written together.
+    audit_service.record(
+        db,
+        action="user.role_changed",
+        entity_type="user",
+        entity_id=target.id,
+        summary=f"Changed {target.email}'s role from {previous} to {payload.role}",
+        actor=admin,
+        changes={"before": previous, "after": payload.role},
+    )
     db.commit()
     db.refresh(target)
     logger.info("Admin %s set user %s role to %s", admin.id, target.id, payload.role)
@@ -137,17 +148,14 @@ def update_user_role(
 
 
 # ---------------------------------------------------------------------------
-# Job roles (delegated to job_service; see jobs.py for the route definitions)
+# Job roles
 # ---------------------------------------------------------------------------
-@router.put(
-    "/jobs/{role_id}/skills",
-    response_model=JobRoleRead,
-    summary="Atomically replace a role's weighted skill set",
-)
-def replace_skills_admin(
-    role_id: int, payload: JobRoleSkillReplace, db: DbSession, _: RequireAdmin
-) -> JobRoleRead:
-    return job_service.replace_skills(db, role_id, payload)
+# The job-role routes live in jobs.py, which splits them into a public
+# read-only router and an admin write router. They used to be duplicated
+# here as well, which meant the same path and method were registered twice
+# and the second registration was unreachable: jobs.py is included first
+# (app/api/router.py), so its handler always won. The route lives in one
+# place now.
 
 
 # ---------------------------------------------------------------------------
@@ -176,8 +184,8 @@ def list_taxonomy(
     summary="Add a skill to the taxonomy",
     responses={409: {"description": "Name, slug, or an alias is already taken"}},
 )
-def create_skill(payload: TaxonomyCreate, db: DbSession, _: RequireAdmin) -> SkillRead:
-    skill, aliases = job_service.create_skill(db, payload)
+def create_skill(payload: TaxonomyCreate, db: DbSession, admin: RequireAdmin) -> SkillRead:
+    skill, aliases = job_service.create_skill(db, payload, actor=admin)
     return job_service.skill_to_read(skill, aliases)
 
 
@@ -187,9 +195,9 @@ def create_skill(payload: TaxonomyCreate, db: DbSession, _: RequireAdmin) -> Ski
     responses={404: {"description": "No such skill"}, 409: {"description": "Alias collision"}},
 )
 def update_skill(
-    skill_id: int, payload: TaxonomyUpdate, db: DbSession, _: RequireAdmin
+    skill_id: int, payload: TaxonomyUpdate, db: DbSession, admin: RequireAdmin
 ) -> SkillRead:
-    skill, aliases = job_service.update_skill(db, skill_id, payload)
+    skill, aliases = job_service.update_skill(db, skill_id, payload, actor=admin)
     return job_service.skill_to_read(skill, aliases)
 
 
@@ -198,9 +206,44 @@ def update_skill(
     status_code=status.HTTP_204_NO_CONTENT,
     responses={404: {"description": "No such skill"}, 409: {"description": "Still referenced"}},
 )
-def delete_skill(skill_id: int, db: DbSession, _: RequireAdmin) -> Response:
-    job_service.delete_skill(db, skill_id)
+def delete_skill(skill_id: int, db: DbSession, admin: RequireAdmin) -> Response:
+    job_service.delete_skill(db, skill_id, actor=admin)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+# ---------------------------------------------------------------------------
+# Audit log
+# ---------------------------------------------------------------------------
+@router.get(
+    "/audit",
+    summary="The audit trail, newest first",
+    responses={401: {"description": "Not signed in"}, 403: {"description": "Not an admin"}},
+)
+def list_audit(
+    params: PageParamsDep,
+    db: DbSession,
+    _: RequireAdmin,
+    action: Annotated[str | None, Query(max_length=60)] = None,
+    entity_type: Annotated[str | None, Query(max_length=60)] = None,
+    actor_id: Annotated[int | None, Query(gt=0)] = None,
+) -> Any:
+    """Who changed what, when, and from where.
+
+    The log is written in the same transaction as the change it describes, so
+    it cannot disagree with the data. Filter on ``action`` and ``entity_type``
+    — the stable identifiers — rather than on ``summary``, which is prose.
+    """
+    total, rows = audit_service.list_entries(
+        db,
+        limit=params.limit,
+        offset=params.offset,
+        action=action,
+        entity_type=entity_type,
+        actor_id=actor_id,
+    )
+    return build_page(
+        [AuditEntryRead.model_validate(row) for row in rows], total, params
+    )
 
 
 # ---------------------------------------------------------------------------

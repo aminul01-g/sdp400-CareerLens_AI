@@ -20,6 +20,7 @@ import re
 from functools import lru_cache
 from typing import TYPE_CHECKING
 
+from app.ml.cv_sections import Section, section_for_offset, split_sections
 from app.ml.taxonomy import Taxonomy, load, normalise_surface
 from app.ml.types import DetectedSkill
 
@@ -100,8 +101,8 @@ def get_nlp():
 def get_matcher() -> tuple[PhraseMatcher, Taxonomy]:
     """Build the ``PhraseMatcher`` once per process.
 
-    The 9.9 performance budget allows 500 ms for this; at 671 patterns it costs a
-    few milliseconds, so building it per request would be pure waste.
+    The 9.9 performance budget allows 500 ms for this; at 1,016 patterns it
+    costs a few milliseconds, so building it per request would be pure waste.
     """
     from spacy.matcher import PhraseMatcher
 
@@ -148,7 +149,12 @@ if TYPE_CHECKING:  # pragma: no cover - typing only
     from app.ml.taxonomy import SkillEntry
 
 
-def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[DetectedSkill]:
+def extract_skills(
+    text: str,
+    *,
+    taxonomy: Taxonomy | None = None,
+    sections: list[Section] | None = None,
+) -> list[DetectedSkill]:
     """Find every taxonomy skill mentioned in ``text``.
 
     Returns skills de-duplicated by id, sorted by descending occurrence count then
@@ -158,6 +164,12 @@ def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[Detec
     overlapping spans (an alias and its own canonical name), the **longer** match
     wins, because it carries more specific information. Short matches fully
     contained in a longer match are discarded.
+
+    ``sections`` is the document's section structure, as produced by
+    :func:`app.ml.cv_sections.split_sections`. When it is not supplied the
+    sections are computed here, which costs a little time but keeps the
+    caller's life simple. Each detection records the section it was found in,
+    and whether that section is one where the person *declares* their skills.
     """
     if not text or not text.strip():
         return []
@@ -223,6 +235,9 @@ def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[Detec
             if len(surface) > len(record["surface"]):
                 record["surface"] = surface
 
+    if sections is None:
+        sections = split_sections(text)
+
     results = [
         DetectedSkill(
             skill_id=record["entry"].skill_id,
@@ -233,6 +248,8 @@ def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[Detec
             occurrence_count=record["count"],
             match_start=record["start"],
             match_end=record["end"],
+            section=_section_kind_at(sections, record["start"]),
+            is_declared=_is_declared_at(sections, record["start"]),
         )
         for record in aggregated.values()
     ]
@@ -241,6 +258,18 @@ def extract_skills(text: str, *, taxonomy: Taxonomy | None = None) -> list[Detec
         "Extracted %d skills from %d characters of text", len(results), len(text)
     )
     return results
+
+
+def _section_kind_at(sections: list[Section], offset: int) -> str:
+    """The kind of the section containing a character offset."""
+    section = section_for_offset(sections, offset)
+    return section.kind if section is not None else ""
+
+
+def _is_declared_at(sections: list[Section], offset: int) -> bool:
+    """Whether a character offset falls inside a section where skills are declared."""
+    section = section_for_offset(sections, offset)
+    return section is not None and section.is_declared_skills
 
 
 def extract_skill_slugs(text: str) -> list[str]:

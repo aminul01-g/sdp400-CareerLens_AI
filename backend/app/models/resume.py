@@ -29,6 +29,7 @@ from sqlalchemy import (
     Text,
     func,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
@@ -74,6 +75,13 @@ class ResumeUpload(Base):
     content_type: Mapped[str] = mapped_column(String(100), nullable=False)
     size_bytes: Mapped[int] = mapped_column(Integer, nullable=False)
     extracted_text: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # The quantified claims found in the document, and who the document says
+    # did them. Stored as JSON because the shape is a list of small records
+    # that is only ever read whole, and because the alternative -- a table
+    # with a row per claim -- would be a table for a rule's output.
+    achievements: Mapped[list[dict[str, object]]] = mapped_column(
+        JSONB, nullable=False, default=list, server_default="[]"
+    )
     status: Mapped[str] = mapped_column(
         String(20), nullable=False, default=ResumeStatus.UPLOADED.value,
         server_default=ResumeStatus.UPLOADED.value,
@@ -113,6 +121,14 @@ class ResumeDetectedSkill(Base):
         Integer, nullable=False, default=1, server_default="1"
     )
     accepted: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    # The section of the CV the match was found in — "skills", "experience",
+    # "projects" and so on. It is what tells a declared skill from a mention.
+    section: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # Whether the match was found in a section where the person declares
+    # their skills, as opposed to one where it is merely mentioned.
+    is_declared: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=False, server_default="false"
     )
 

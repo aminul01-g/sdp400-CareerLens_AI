@@ -54,6 +54,18 @@ class RoleRecommendation(BaseModel):
     missing_skills: list[SkillContribution] = Field(default_factory=list)
     coverage_contribution: float = 0.0
     tfidf_contribution: float = 0.0
+    # The coverage the user declared, before recency and depth were applied.
+    declared_coverage: float = 0.0
+    # That coverage after the recency and depth adjustments.
+    signal_coverage: float = 0.0
+    # The multiplier for the distance between the user's level and the role's.
+    # 1.0 when no level has been declared.
+    level_fit: float = 1.0
+    # The community signal for this role, in [-1, 1]. 0.0 when there is not
+    # enough evidence to use one.
+    role_prior: float = 0.0
+    # How many observations the prior is based on.
+    feedback_samples: int = 0
 
 
 class RecommendationWeights(BaseModel):

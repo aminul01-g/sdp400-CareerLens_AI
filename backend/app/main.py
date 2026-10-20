@@ -24,6 +24,7 @@ from app.api.router import api_router
 from app.core.config import Settings, get_settings
 from app.core.exceptions import register_exception_handlers
 from app.core.logging import configure_logging, request_id_var
+from app.core.request_context import client_ip_var, peer_ip_var, resolve_client_ip
 from app.db.session import check_database_connection, engine
 
 logger = logging.getLogger("app.main")
@@ -115,14 +116,35 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     @app.middleware("http")
     async def request_context(request: Request, call_next: Any) -> Any:
-        """Attach a request id and a server-timing header to every response."""
+        """Attach a request id and a server-timing header to every response.
+
+        The client's apparent address is set here too, because the audit log
+        needs it and the service layer must not have to be handed a ``Request``
+        to record one. See ``app/core/request_context.py``.
+
+        The address is only taken from ``X-Forwarded-For`` when the request
+        came from a proxy in ``TRUSTED_PROXY_CIDRS``. The header is
+        client-supplied, and the rate limiter counts on this value: a server
+        that believed it unconditionally would let a caller rotate the
+        header and mint a fresh identity per request, which is what a rate
+        limiter exists to prevent.
+        """
         incoming = request.headers.get("X-Request-ID")
         request_id = incoming or uuid.uuid4().hex[:12]
         token = request_id_var.set(request_id)
+        client_ip, peer_ip = resolve_client_ip(
+            request.client.host if request.client else None,
+            request.headers.get("x-forwarded-for"),
+            settings.trusted_proxy_networks,
+        )
+        client_token = client_ip_var.set(client_ip)
+        peer_token = peer_ip_var.set(peer_ip)
         started = time.perf_counter()
         try:
             response = await call_next(request)
         finally:
+            peer_ip_var.reset(peer_token)
+            client_ip_var.reset(client_token)
             request_id_var.reset(token)
         elapsed_ms = (time.perf_counter() - started) * 1000
         response.headers["X-Request-ID"] = request_id

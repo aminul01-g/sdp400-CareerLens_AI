@@ -59,6 +59,9 @@ class JobRoleBase(BaseModel):
     title: Annotated[str, Field(min_length=1, max_length=MAX_TITLE)]
     family: Annotated[str, Field(min_length=1, max_length=80)]
     seniority: Annotated[str | None, Field(max_length=40)] = None
+    # The experience the role typically expects. Display context, and the
+    # fallback source for a role's band when ``seniority`` is blank.
+    min_years_experience: Annotated[int | None, Field(ge=0, le=60)] = None
     # A role with no description cannot be TF-IDF-matched, so it is refused.
     description: Annotated[str, Field(min_length=1, max_length=8000)]
     responsibilities: Annotated[list[str], Field(max_length=30)] = Field(
@@ -130,6 +133,7 @@ class JobRoleRead(BaseModel):
     slug: str
     family: str
     seniority: str | None = None
+    min_years_experience: int | None = None
     description: str
     responsibilities: list[str] = Field(default_factory=list)
     is_active: bool
@@ -148,6 +152,7 @@ class JobRoleSummary(BaseModel):
     slug: str
     family: str
     seniority: str | None = None
+    min_years_experience: int | None = None
     description: str
     is_active: bool
     required_skills_count: int = 0

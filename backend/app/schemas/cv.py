@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
@@ -30,6 +30,39 @@ class DetectedSkill(BaseModel):
     already_confirmed: bool = Field(
         default=False, description="The user already holds this skill."
     )
+    section: str | None = Field(
+        default=None,
+        description="The section of the CV the match was found in.",
+    )
+    is_declared: bool = Field(
+        default=False,
+        description=(
+            "True when the match was found in a section where the person declares "
+            "their skills, as opposed to one where it is merely mentioned."
+        ),
+    )
+
+
+class AchievementRead(BaseModel):
+    """A quantified claim the document makes.
+
+    The extractor reads a number and a subject out of a sentence; it does not
+    judge whether the claim was impressive, and it does not feed the score.
+    The user sees it on the confirmation screen and decides.
+    """
+
+    text: str = Field(..., description="The sentence the claim was read from.")
+    metric: str = Field(..., description="The quantity as it was written.")
+    value: float | None = Field(default=None, description="The numeric part of the quantity.")
+    unit: str = Field(..., description="What the quantity measures.")
+    direction: str = Field(..., description="Whether the number went up, down, or neither.")
+    attribution: str = Field(
+        ...,
+        description=(
+            "Whether the sentence reads as the candidate's own work ('individual'), "
+            "the team's ('team'), or does not say ('unattributed')."
+        ),
+    )
 
 
 class ResumeUploadRead(BaseModel):
@@ -44,6 +77,24 @@ class ResumeUploadRead(BaseModel):
     created_at: datetime | None = None
     text_length: int | None = None
     detected_skills: list[DetectedSkill] = Field(default_factory=list)
+    achievements: list[AchievementRead] = Field(default_factory=list)
+
+
+class WorkHistoryRead(BaseModel):
+    """One proposed job, read out of a CV.
+
+    A proposal until the user confirms it. ``confirmed`` is false for every row
+    the pipeline stages.
+    """
+
+    id: int
+    employer: str
+    title: str | None = None
+    start_date: date | None = None
+    end_date: date | None = None
+    source: str
+    confirmed: bool
+    raw_text: str | None = None
 
 
 class UploadResponse(BaseModel):
@@ -57,6 +108,10 @@ class UploadResponse(BaseModel):
     page_count: int | None = None
     detected_skills: list[DetectedSkill]
     already_confirmed: list[str] = Field(default_factory=list)
+    # The jobs the experience section proposed. Proposals, not facts.
+    work_history: list[WorkHistoryRead] = Field(default_factory=list)
+    # The quantified claims the document makes. Proposals, not facts.
+    achievements: list[AchievementRead] = Field(default_factory=list)
     message: str
 
 

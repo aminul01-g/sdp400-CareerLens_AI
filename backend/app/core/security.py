@@ -67,11 +67,16 @@ def create_access_token(
     role: str,
     expires_delta: timedelta | None = None,
     extra_claims: dict[str, Any] | None = None,
+    token_version: int = 0,
 ) -> tuple[str, int]:
     """Issue a signed access token.
 
     Returns the token and its lifetime in seconds so the API can tell the client
     when to refresh instead of making it guess.
+
+    ``token_version`` is the user's session counter. A token whose counter does
+    not match the user's current one is refused, which is how a password
+    change invalidates the sessions that were outstanding when it happened.
     """
     settings = get_settings()
     now = datetime.now(UTC)
@@ -85,6 +90,9 @@ def create_access_token(
         "exp": int((now + expires_in).timestamp()),
         "jti": uuid.uuid4().hex,
         "typ": "access",
+        # The session counter. A token issued before this claim existed reads
+        # as version 0, which is the value every account starts at.
+        "ver": int(token_version),
     }
     if extra_claims:
         payload.update(extra_claims)

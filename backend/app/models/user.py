@@ -63,8 +63,34 @@ class User(Base, TimestampMixin):
     is_active: Mapped[bool] = mapped_column(
         Boolean, nullable=False, default=True, server_default="true"
     )
+    # Whether the address has been proven to belong to the person who
+    # registered it. The gate on this is off by default — see
+    # ``Settings.require_email_verification`` — because a product that locks
+    # out a user who has not clicked a link reads as broken.
+    is_verified: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False, server_default="false"
+    )
+    email_verified_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
     last_login_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True
+    )
+    # When the password last changed. Kept for the audit trail and for display.
+    password_changed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    # A counter, bumped whenever the sessions that were outstanding should stop
+    # working. It is embedded in every token, and a token whose counter does not
+    # match the user's is refused.
+    #
+    # A timestamp was the obvious alternative and it is subtly wrong: ``iat`` is
+    # an integer number of seconds, so a token issued in the same second as a
+    # password change cannot be ordered against it. Either the change is missed
+    # or a user who resets their password and signs in immediately is locked
+    # out. A counter has no such ambiguity.
+    token_version: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
     )
 
     # Every child cascades. Deleting a user must remove the whole subtree in one

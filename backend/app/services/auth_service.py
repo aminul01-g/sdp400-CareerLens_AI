@@ -17,11 +17,13 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
+from app.core.config import get_settings
 from app.core.exceptions import ConflictError, ForbiddenError, NotFoundError, UnauthorizedError
 from app.core.security import create_access_token, hash_password, verify_password
 from app.models.profile import Profile
 from app.models.user import User, UserRole
 from app.schemas.auth import RegisterRequest, TokenResponse, UserRead, UserUpdateRequest
+from app.services import audit_service
 
 logger = logging.getLogger("app.auth")
 
@@ -64,6 +66,16 @@ def register_user(db: Session, payload: RegisterRequest) -> User:
     profile = Profile(user=user, education_level=payload.education_level)
 
     db.add_all([user, profile])
+    # Staged before the commit, so the account and the record of its creation
+    # are written in one transaction.
+    audit_service.record(
+        db,
+        action="auth.registered",
+        entity_type="auth",
+        entity_id=email,
+        summary=f"Account registered for {email}",
+        actor=user,
+    )
     try:
         db.commit()
     except IntegrityError as exc:
@@ -75,6 +87,14 @@ def register_user(db: Session, payload: RegisterRequest) -> User:
         ) from exc
 
     db.refresh(user)
+    # The verification email is a courtesy, not a gate: it is sent after the
+    # account exists, and a mail failure must not undo the registration.
+    from app.services import account_service
+
+    try:
+        account_service.send_verification(db, user)
+    except Exception:  # pragma: no cover - the mail service already swallows
+        logger.warning("Could not send the verification email", exc_info=True)
     logger.info("Registered user id=%s", user.id, extra={"kind": "register"})
     return user
 
@@ -85,18 +105,62 @@ def authenticate(db: Session, email: str, password: str) -> User:
 
     if user is None:
         verify_password(password, _DUMMY_HASH)
+        _record_login_failure(db, email)
         raise UnauthorizedError("Email or password is incorrect.", code="invalid_credentials")
 
     if not verify_password(password, user.password_hash):
+        _record_login_failure(db, email)
         raise UnauthorizedError("Email or password is incorrect.", code="invalid_credentials")
 
     if not user.is_active:
+        _record_login_failure(db, email, reason="account_disabled")
         raise UnauthorizedError("This account has been deactivated.", code="account_disabled")
 
+    if get_settings().require_email_verification and not user.is_verified:
+        _record_login_failure(db, email, reason="email_unverified")
+        raise UnauthorizedError(
+            "Please confirm your email address before signing in. "
+            "You can request a new link from the sign-in page.",
+            code="email_unverified",
+        )
+
     user.last_login_at = datetime.now(UTC)
+    audit_service.record(
+        db,
+        action="auth.login_succeeded",
+        entity_type="auth",
+        entity_id=user.email,
+        summary=f"{user.email} signed in",
+        actor=user,
+    )
     db.commit()
     db.refresh(user)
     return user
+
+
+def _record_login_failure(db: Session, email: str, *, reason: str = "invalid_credentials") -> None:
+    """Record a failed sign-in.
+
+    Committed on its own, because the failure path raises — and an exception
+    rolls the session back, which would take the audit row with it.
+
+    The email is stored because knowing *which* address is being brute-forced
+    is the whole point of the record. The attempt is not tied to a user id,
+    because at this point there may not be one.
+    """
+    audit_service.record(
+        db,
+        action="auth.login_failed",
+        entity_type="auth",
+        entity_id=email,
+        summary=f"Failed sign-in for {email} ({reason})",
+        changes={"reason": reason},
+    )
+    try:
+        db.commit()
+    except Exception:  # pragma: no cover - the audit must never mask the 401
+        db.rollback()
+        logger.warning("Could not record a failed sign-in", exc_info=True)
 
 
 def build_token_response(user: User) -> TokenResponse:
@@ -106,7 +170,11 @@ def build_token_response(user: User) -> TokenResponse:
     demoted by an admin cannot keep admin access by replaying an old token until
     it expires.
     """
-    token, expires_in = create_access_token(subject=str(user.id), role=user.role.value)
+    token, expires_in = create_access_token(
+        subject=str(user.id),
+        role=user.role.value,
+        token_version=int(user.token_version or 0),
+    )
     return TokenResponse(
         user=UserRead.model_validate(user),
         access_token=token,
@@ -131,6 +199,18 @@ def update_me(db: Session, user: User, payload: UserUpdateRequest) -> User:
                 "Current password is incorrect.", code="current_password_incorrect"
             )
         user.password_hash = hash_password(payload.password or "")
+        # The counter is what lets a session issued before the change be
+        # rejected without a server-side revocation list.
+        user.password_changed_at = datetime.now(UTC)
+        user.token_version = int(user.token_version or 0) + 1
+        audit_service.record(
+            db,
+            action="auth.password_changed",
+            entity_type="auth",
+            entity_id=user.email,
+            summary=f"{user.email} changed their password",
+            actor=user,
+        )
 
     if "name" in fields and payload.name:
         user.name = payload.name

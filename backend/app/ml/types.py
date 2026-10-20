@@ -13,6 +13,7 @@ speaks both dialects is ``app/services/recommendation_service.py``.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import date
 
 # Proficiency 1..5 mapped onto [0, 1].
 #
@@ -49,12 +50,20 @@ class SkillRef:
 
 @dataclass(frozen=True, slots=True)
 class UserSkillFact:
-    """One confirmed skill the user holds."""
+    """One confirmed skill the user holds.
+
+    ``years_used`` and ``last_used_at`` are the depth and recency signals. Both
+    are optional, and both are *neutral* when absent: a skill with no
+    ``last_used_at`` is treated as recently used, because not knowing is not
+    evidence of staleness.
+    """
 
     skill_id: int
     proficiency: int
     name: str = ""
     slug: str = ""
+    years_used: float | None = None
+    last_used_at: date | None = None
 
     @property
     def factor(self) -> float:
@@ -83,7 +92,15 @@ class CertificationFact:
 
 @dataclass(frozen=True, slots=True)
 class ProfileSnapshot:
-    """Everything the engine knows about one user at one moment in time."""
+    """Everything the engine knows about one user at one moment in time.
+
+    ``years_experience``, ``seniority``, ``industry`` and ``location`` are the
+    context signals. The first two feed the level fit, ``industry`` joins the
+    text the TF-IDF similarity is computed over, and ``location`` is carried
+    for display only — a city name carries no lexical signal about a role, and
+    putting it in the text would dilute the vector for every user who filled
+    the field in.
+    """
 
     user_id: int
     headline: str = ""
@@ -94,6 +111,10 @@ class ProfileSnapshot:
     projects: tuple[ProjectFact, ...] = ()
     education: tuple[EducationFact, ...] = ()
     certifications: tuple[CertificationFact, ...] = ()
+    years_experience: int | None = None
+    seniority: str = ""
+    industry: str = ""
+    location: str = ""
     # Built by ml.text_profile.build_profile_text; empty means "not yet built".
     profile_text: str = field(default="", compare=False)
 
@@ -140,7 +161,27 @@ class MissingSkill:
 
 @dataclass(frozen=True, slots=True)
 class RoleScore:
-    """One role's fully explained score."""
+    """One role's fully explained score.
+
+    The arithmetic between these numbers is published so a reader can
+    reconstruct any percentage by hand:
+
+    .. code-block:: text
+
+        compatibility = w_cov * skill_coverage + w_txt * tfidf_similarity
+
+    * ``declared_coverage`` is the coverage using declared proficiency alone —
+      what the engine scored before recency and depth were modelled.
+    * ``signal_coverage`` is that coverage after the recency and depth
+      adjustments, floored so a stale skill is discounted but never erased.
+    * ``level_fit`` is the multiplier for the distance between the user's level
+      and the role's level. It is ``1.0`` when no level has been declared.
+    * ``skill_coverage`` is what actually enters the formula:
+      ``signal_coverage * level_fit``.
+    * ``role_prior`` is the community signal for this role, in ``[-1, 1]``, and
+      ``0.0`` when there is not enough evidence to use one. It is applied as a
+      bounded multiplier after the two components are combined.
+    """
 
     job_role_id: int
     title: str
@@ -153,6 +194,11 @@ class RoleScore:
     matched: tuple[MatchedSkill, ...]
     missing: tuple[MissingSkill, ...]
     rank: int = 0
+    declared_coverage: float = 0.0
+    signal_coverage: float = 0.0
+    level_fit: float = 1.0
+    role_prior: float = 0.0
+    feedback_samples: int = 0
 
     @property
     def compatibility_pct(self) -> float:
@@ -169,6 +215,9 @@ class GapReport:
     coverage: float
     matched: tuple[MatchedSkill, ...]
     missing: tuple[MissingSkill, ...]
+    declared_coverage: float = 0.0
+    signal_coverage: float = 0.0
+    level_fit: float = 1.0
 
     @property
     def required_count(self) -> int:
@@ -177,7 +226,14 @@ class GapReport:
 
 @dataclass(frozen=True, slots=True)
 class DetectedSkill:
-    """A skill found in raw CV text, before any database round trip."""
+    """A skill found in raw CV text, before any database round trip.
+
+    ``section`` is the kind of section the match was found in — "skills",
+    "experience", "projects" and so on. ``is_declared`` is the thing that
+    matters: a skill under **Skills** is a claim about the person, and the
+    same word inside a project description is a mention that may describe
+    somebody else's work.
+    """
 
     skill_id: int
     canonical_name: str
@@ -187,3 +243,5 @@ class DetectedSkill:
     occurrence_count: int
     match_start: int | None = None
     match_end: int | None = None
+    section: str = ""
+    is_declared: bool = False

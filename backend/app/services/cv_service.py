@@ -22,6 +22,8 @@ from app.core.exceptions import (
     UnprocessableError,
     UnsupportedMediaTypeError,
 )
+from app.ml.achievements import extract_achievements
+from app.ml.cv_sections import split_sections
 from app.ml.extractor import extract_skills
 from app.ml.text_loader import (
     ExtractionFailedError,
@@ -30,12 +32,14 @@ from app.ml.text_loader import (
     extract_text,
     page_count,
 )
+from app.ml.work_history import extract_work_history
 from app.models.resume import ResumeDetectedSkill, ResumeStatus, ResumeUpload
 from app.models.skill import Skill
 from app.models.user import User
 from app.models.user_skill import UserSkill
+from app.models.work_history import WorkHistory, WorkHistorySource
+from app.schemas.cv import AchievementRead, ResumeUploadRead, UploadResponse, WorkHistoryRead
 from app.schemas.cv import DetectedSkill as DetectedSkillSchema
-from app.schemas.cv import ResumeUploadRead, UploadResponse
 
 logger = logging.getLogger("app.services.cv")
 
@@ -107,6 +111,17 @@ def _to_read(upload: ResumeUpload, skills: list[ResumeDetectedSkill] | None = No
             )
             for item in (skills or [])
         ],
+        achievements=[
+            AchievementRead(
+                text=str(item.get("text", "")),
+                metric=str(item.get("metric", "")),
+                value=item.get("value"),
+                unit=str(item.get("unit", "")),
+                direction=str(item.get("direction", "")),
+                attribution=str(item.get("attribution", "")),
+            )
+            for item in (upload.achievements or [])
+        ],
     )
 
 
@@ -173,6 +188,22 @@ def upload_and_extract(
 
     detected = extract_skills(text)
 
+    # The quantified claims the document makes, and who it says made them.
+    # These are proposals for the confirmation screen, in the same way the
+    # detected skills are: nothing here reaches the profile on its own.
+    achievements = extract_achievements(text)
+    upload.achievements = [
+        {
+            "text": achievement.text,
+            "metric": achievement.metric,
+            "value": achievement.value,
+            "unit": achievement.unit,
+            "direction": achievement.direction,
+            "attribution": achievement.attribution,
+        }
+        for achievement in achievements
+    ]
+
     # The extractor returns the taxonomy's synthetic skill ids; they must be
     # remapped onto the database's real ids before anything is persisted.
     skill_by_slug = {
@@ -202,6 +233,8 @@ def upload_and_extract(
                 match_end=found.match_end,
                 occurrence_count=found.occurrence_count,
                 accepted=False,
+                section=found.section or None,
+                is_declared=found.is_declared,
             )
         )
         if match.id in already_held:
@@ -218,16 +251,30 @@ def upload_and_extract(
                 match_end=found.match_end,
                 accepted=False,
                 already_confirmed=match.id in already_held,
+                section=found.section or None,
+                is_declared=found.is_declared,
             )
         )
 
     db.add_all(staged)
+
+    # The work history, read out of the experience section. These are
+    # *proposals*: they are staged with ``confirmed = False`` and the user
+    # accepts them, exactly as they accept a detected skill. Nothing here
+    # reaches the profile on its own.
+    proposed_history = _stage_work_history(db, user, upload, text)
+
     db.commit()
     db.refresh(upload)
 
     logger.info(
-        "Processed upload id=%s user=%s chars=%s detected=%s",
-        upload.id, user.id, len(text), len(response_skills),
+        "Processed upload id=%s user=%s chars=%s detected=%s history=%s achievements=%s",
+        upload.id,
+        user.id,
+        len(text),
+        len(response_skills),
+        len(proposed_history),
+        len(achievements),
     )
     return UploadResponse(
         resume_upload_id=upload.id,
@@ -238,10 +285,71 @@ def upload_and_extract(
         page_count=page_count(stored_path),
         detected_skills=response_skills,
         already_confirmed=sorted(set(already_confirmed)),
+        work_history=proposed_history,
+        achievements=[
+            AchievementRead(
+                text=achievement.text,
+                metric=achievement.metric,
+                value=achievement.value,
+                unit=achievement.unit,
+                direction=achievement.direction,
+                attribution=achievement.attribution,
+            )
+            for achievement in achievements
+        ],
         message=(
             f"Detected {len(response_skills)} skill(s). Review them and confirm the ones "
             "that are accurate before they affect your recommendations."
         ),
+    )
+
+
+def _stage_work_history(
+    db: Session, user: User, upload: ResumeUpload, text: str
+) -> list[WorkHistoryRead]:
+    """Read the experience section and stage what it proposes.
+
+    Only the *experience* section is read. Passing the whole document finds
+    the university, the client's name and the product, and proposes all three
+    as employers.
+    """
+    sections = split_sections(text)
+    experience = next(
+        (section for section in sections if section.kind == "experience"), None
+    )
+    if experience is None:
+        return []
+
+    entries = extract_work_history(experience.text)
+    rows: list[WorkHistory] = []
+    for entry in entries:
+        row = WorkHistory(
+            user_id=user.id,
+            employer=entry.employer[:160],
+            start_date=entry.start_date,
+            end_date=entry.end_date,
+            source=WorkHistorySource.CV_EXTRACTED.value,
+            # A proposal, not a fact.
+            confirmed=False,
+            resume_upload_id=upload.id,
+            raw_text=entry.raw_text[:2000] or None,
+        )
+        db.add(row)
+        rows.append(row)
+    db.flush()
+    return [_work_history_to_read(row) for row in rows]
+
+
+def _work_history_to_read(row: WorkHistory) -> WorkHistoryRead:
+    return WorkHistoryRead(
+        id=row.id,
+        employer=row.employer,
+        title=row.title,
+        start_date=row.start_date,
+        end_date=row.end_date,
+        source=row.source,
+        confirmed=row.confirmed,
+        raw_text=row.raw_text,
     )
 
 
@@ -316,3 +424,43 @@ def delete_upload(db: Session, user: User, upload_id: int) -> None:
     db.delete(upload)
     db.commit()
     logger.info("Deleted upload id=%s user=%s", upload_id, user.id)
+
+
+def purge_user_files(db: Session, user: User) -> int:
+    """Unlink every CV file belonging to a user. Returns how many were removed.
+
+    The database cascades the ``resume_upload`` rows when the account is
+    deleted, but a row is not a file: the CV itself would still be sitting
+    in the upload directory afterwards, holding the user's name, contact
+    details and employment history in plain text on disk.
+
+    Proposal section 6.4 lists "allow deletion of files and profile" as the
+    mitigation for the privacy of uploaded CVs, and section 7.5 lists it
+    again as a requirement. Deleting the account is the strongest form of
+    that request, so it has to take the files with it.
+
+    Called before the user row is deleted, while the uploads are still
+    reachable through the relationship. A file that cannot be removed is
+    logged and skipped rather than raised: failing the account deletion
+    because one file is locked would leave the user unable to delete their
+    account at all, which is worse than the file remaining.
+    """
+    settings = get_settings()
+    upload_dir = Path(settings.upload_dir)
+    removed = 0
+    for upload in list(user.resume_uploads):
+        path = upload_dir / upload.stored_filename
+        try:
+            if path.exists():
+                path.unlink()
+                removed += 1
+        except OSError as exc:  # pragma: no cover - filesystem dependent
+            logger.warning(
+                "Could not unlink %s during account deletion: %s",
+                path,
+                exc,
+                extra={"kind": "cv"},
+            )
+    if removed:
+        logger.info("Removed %d CV file(s) for user=%s", removed, user.id, extra={"kind": "cv"})
+    return removed

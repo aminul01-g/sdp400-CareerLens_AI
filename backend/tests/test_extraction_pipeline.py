@@ -197,10 +197,22 @@ def test_extraction_is_a_pure_function_over_text_and_taxonomy() -> None:
     confirmation gate stops being the only route into the profile.
     """
     signature = inspect.signature(extractor_module.extract_skills)
-    assert list(signature.parameters) == ["text", "taxonomy"], (
+    parameters = list(signature.parameters)
+    assert parameters[:2] == ["text", "taxonomy"], (
         "extract_skills gained a parameter; if it now persists state, the confirmation "
         "gate in the UI is no longer the only write path"
     )
+    # The only other parameter is the document's section structure, which is
+    # an *input* — computed by the caller, or by the extractor when it is not
+    # supplied. It is not a session, a profile or a write path.
+    for extra in parameters[2:]:
+        assert extra == "sections", (
+            f"extract_skills gained the parameter {extra!r}; if it now persists state, "
+            "the confirmation gate in the UI is no longer the only write path"
+        )
+        assert signature.parameters[extra].default is None, (
+            "a mutable default would make the extractor stateful"
+        )
     source = inspect.getsource(extractor_module.extract_skills)
     for forbidden in ("commit", "flush", "session", "execute", "query("):
         assert forbidden not in source, (

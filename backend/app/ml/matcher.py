@@ -14,27 +14,29 @@ from app.ml.types import RoleSpec, proficiency_factor
 logger = logging.getLogger("app.ml.matcher")
 
 
-def weighted_skill_coverage(
-    user_skills: Mapping[int, int],
+def weighted_skill_coverage_from_factors(
+    factors: Mapping[int, float],
     required: Mapping[int, float],
 ) -> float:
     """How much of a role's weighted requirement set the user satisfies.
 
     .. code-block:: text
 
-        coverage = SUM(role_weight * proficiency_factor) / SUM(role_weight)
+        coverage = SUM(role_weight * strength) / SUM(role_weight)
 
-    where ``proficiency_factor = (proficiency - 1) / 4``.
+    where ``strength`` is an already-computed number in ``[0, 1]`` for the
+    skill. :func:`weighted_skill_coverage` is the special case where strength
+    is the proficiency factor and nothing else; this function is the general
+    form the ranker uses once recency and depth are folded in.
 
-    Properties this function guarantees, each asserted in ``test_matcher.py``:
+    The properties this function guarantees, each asserted in ``test_matcher.py``:
 
-    * **Bounds.** Always in ``[0, 1]`` for any input, because the numerator is a
-      subset of the denominator's terms and every factor is in ``[0, 1]``.
-    * **Superset.** A user holding every required skill at proficiency 5 scores
+    * **Bounds.** Always in ``[0, 1]`` for any input, because the numerator is
+      a subset of the denominator's terms and every factor is in ``[0, 1]``.
+    * **Superset.** A user holding every required skill at full strength scores
       exactly ``1.0``.
     * **Disjoint.** No overlap scores exactly ``0.0``.
-    * **Monotonic.** Adding a skill or raising a proficiency never lowers the
-      score.
+    * **Monotonic.** Raising a factor never lowers the score.
     * **Scale invariance.** Halving every weight leaves the score unchanged —
       correct, because only the *relative* importance of a role's requirements
       matters, not their absolute scale.
@@ -52,15 +54,41 @@ def weighted_skill_coverage(
 
     numerator = 0.0
     for skill_id, weight in required.items():
-        proficiency = user_skills.get(skill_id)
-        if proficiency is None:
+        factor = factors.get(skill_id)
+        if factor is None:
             continue
-        numerator += float(weight) * proficiency_factor(int(proficiency))
+        numerator += float(weight) * float(factor)
 
     coverage = numerator / denominator
     # Guard against floating-point drift pushing a mathematically in-range value
     # to 1.0000000000000002 and breaking a database CHECK constraint.
     return max(0.0, min(1.0, coverage))
+
+
+def weighted_skill_coverage(
+    user_skills: Mapping[int, int],
+    required: Mapping[int, float],
+) -> float:
+    """How much of a role's weighted requirement set the user satisfies.
+
+    .. code-block:: text
+
+        coverage = SUM(role_weight * proficiency_factor) / SUM(role_weight)
+
+    where ``proficiency_factor = (proficiency - 1) / 4``.
+
+    This is the declared-proficiency view, with no recency or depth adjustment.
+    The ranker uses :func:`weighted_skill_coverage_from_factors` so that both
+    views can be reported side by side; this function remains the plain
+    proficiency-only contract that the matcher tests pin down.
+    """
+    return weighted_skill_coverage_from_factors(
+        {
+            skill_id: proficiency_factor(int(proficiency))
+            for skill_id, proficiency in user_skills.items()
+        },
+        required,
+    )
 
 
 def tfidf_cosine(

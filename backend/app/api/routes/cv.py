@@ -8,9 +8,9 @@ sequential integer id. Both are findings S4 and S5.
 
 from __future__ import annotations
 
-from fastapi import APIRouter, File, Response, UploadFile, status
+from fastapi import APIRouter, Depends, File, Response, UploadFile, status
 
-from app.api.deps import CurrentUser, DbSession
+from app.api.deps import CurrentUser, DbSession, rate_limit
 from app.schemas.cv import ExtractedTextResponse, ResumeUploadRead, UploadResponse
 from app.schemas.pagination import PageParamsDep, build_page
 from app.services import cv_service
@@ -23,11 +23,13 @@ router = APIRouter(prefix="/cv", tags=["cv"])
     response_model=UploadResponse,
     status_code=status.HTTP_201_CREATED,
     summary="Upload a CV, extract its text, and detect skills",
+    dependencies=[Depends(rate_limit("upload"))],
     responses={
         401: {"description": "Authentication required"},
         413: {"description": "File too large"},
         415: {"description": "Unsupported file type"},
         422: {"description": "Empty file, or a scanned PDF (OCR is out of scope)"},
+        429: {"description": "Too many uploads from this address"},
     },
 )
 async def upload_cv(

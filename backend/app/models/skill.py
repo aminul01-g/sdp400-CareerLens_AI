@@ -23,16 +23,18 @@ if TYPE_CHECKING:  # pragma: no cover
     from app.models.resume import ResumeDetectedSkill
     from app.models.user_skill import UserSkill
 
-SKILL_CATEGORIES: tuple[str, ...] = (
-    "Programming & Core",
-    "Data Engineering",
-    "Statistics & Mathematics",
-    "ML Frameworks",
-    "Deep Learning",
-    "NLP & LLM",
-    "MLOps & Cloud",
-    "Analytics & Communication",
-)
+SKILL_CATEGORIES: tuple[str, ...] = ()
+"""Deprecated. The catalogue's categories are data, not code.
+
+This constant listed the eight original AI/ML categories and was never
+enforced anywhere -- no ``CHECK`` constraint, no validation, no use. The
+catalogue has since grown to fourteen categories, so the constant was not
+merely unenforced but wrong, and a reader would reasonably take it for the
+set of valid categories. The authoritative list is
+``data/skills_taxonomy.json``; ``GET /api/skills/taxonomy/categories``
+serves it from the database. Kept as an empty tuple so that an import of it
+does not break, and so that the absence is visible rather than silent.
+"""
 
 
 class Skill(Base, TimestampMixin):

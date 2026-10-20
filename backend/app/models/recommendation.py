@@ -90,6 +90,12 @@ class RecommendationResult(Base):
         CheckConstraint("skill_coverage BETWEEN 0 AND 1", name="skill_coverage_range"),
         CheckConstraint("tfidf_similarity BETWEEN 0 AND 1", name="tfidf_similarity_range"),
         CheckConstraint("rank >= 1", name="rank_positive"),
+        CheckConstraint(
+            "declared_coverage BETWEEN 0 AND 1", name="declared_coverage_range"
+        ),
+        CheckConstraint("signal_coverage BETWEEN 0 AND 1", name="signal_coverage_range"),
+        CheckConstraint("level_fit BETWEEN 0 AND 1", name="level_fit_range"),
+        CheckConstraint("role_prior BETWEEN -1 AND 1", name="role_prior_range"),
         # Stable paging over a ranked list.
         Index("uq_result_rank", "run_id", "rank", unique=True),
     )
@@ -106,6 +112,26 @@ class RecommendationResult(Base):
     compatibility_score: Mapped[Decimal] = mapped_column(Numeric(5, 4), nullable=False)
     skill_coverage: Mapped[Decimal] = mapped_column(Numeric(6, 5), nullable=False)
     tfidf_similarity: Mapped[Decimal] = mapped_column(Numeric(6, 5), nullable=False)
+    # The two intermediate coverages, so a stored run can be explained months
+    # later without re-running the engine: what the user declared, and what it
+    # was worth once recency, depth and level fit were applied.
+    declared_coverage: Mapped[Decimal] = mapped_column(
+        Numeric(6, 5), nullable=False, default=0, server_default="0"
+    )
+    signal_coverage: Mapped[Decimal] = mapped_column(
+        Numeric(6, 5), nullable=False, default=0, server_default="0"
+    )
+    level_fit: Mapped[Decimal] = mapped_column(
+        Numeric(4, 3), nullable=False, default=1, server_default="1"
+    )
+    # The community prior applied to this row, and the number of observations
+    # behind it. Stored, so a run explains itself months later.
+    role_prior: Mapped[Decimal] = mapped_column(
+        Numeric(4, 3), nullable=False, default=0, server_default="0"
+    )
+    feedback_samples: Mapped[int] = mapped_column(
+        Integer, nullable=False, default=0, server_default="0"
+    )
     matched_skill_ids: Mapped[list[int]] = mapped_column(
         JSONB, nullable=False, default=list, server_default="[]"
     )

@@ -25,3 +25,7 @@ data/*.upload
 # Legacy artefacts frozen before cutover (see docs/legacy-freeze.md)
 instance/
 pathfinder.db
+
+# The development mailbox. It holds live reset links, so it must never be
+# committed.
+mailbox/

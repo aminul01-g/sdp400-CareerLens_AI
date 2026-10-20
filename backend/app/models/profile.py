@@ -47,6 +47,13 @@ class Profile(Base, TimestampMixin):
     education_level: Mapped[str | None] = mapped_column(String(80), nullable=True)
     years_experience: Mapped[int | None] = mapped_column(Integer, nullable=True)
     preferred_role_family: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    # The level the user is at. One of Entry/Junior/Mid/Senior/Lead/Principal;
+    # compared against the role's own seniority when the engine scores a match.
+    # ``None`` means "not stated", which the engine treats as neutral.
+    seniority: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # The sector the user works in. Topical, so it joins the profile text the
+    # TF-IDF similarity is computed over.
+    industry: Mapped[str | None] = mapped_column(String(120), nullable=True)
     # {"github": ..., "linkedin": ..., "portfolio": ...}
     links: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=dict, server_default="{}"

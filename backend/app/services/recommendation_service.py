@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 import time
+from datetime import date
 from decimal import Decimal
 from typing import Any
 
@@ -28,6 +29,8 @@ from app.core.config import get_settings
 from app.core.exceptions import ConflictError, NotFoundError
 from app.ml.gap_analysis import analyse
 from app.ml.ranker import rank
+from app.ml.signals import level_fit as compute_level_fit
+from app.ml.signals import normalise_band, signal_factor, user_level_band
 from app.ml.text_profile import build_profile_text
 from app.ml.types import (
     CertificationFact,
@@ -36,6 +39,7 @@ from app.ml.types import (
     ProjectFact,
     RoleSpec,
     UserSkillFact,
+    proficiency_factor,
 )
 from app.models.education import Certification, EducationRecord
 from app.models.job import JobRole, JobRoleSkill
@@ -53,6 +57,7 @@ from app.schemas.recommendation import (
     RunSummary,
     SkillContribution,
 )
+from app.services import feedback_service, work_history_service
 
 logger = logging.getLogger("app.services.recommendations")
 
@@ -85,18 +90,34 @@ def _load_user_snapshot(db: Session, user: User) -> ProfileSnapshot:
         select(Certification).where(Certification.user_id == user.id)
     ).all()
 
+    # The experience signal. A declared figure wins; otherwise the work
+    # history the user has confirmed is used. "None" and "0" are different
+    # answers, and only one of them should override a declared figure.
+    declared_years = profile.years_experience if profile else None
+    if declared_years is None:
+        observed_years = work_history_service.observed_years(db, user)
+    else:
+        observed_years = None
+
     snapshot = ProfileSnapshot(
         user_id=user.id,
         headline=profile.headline or "" if profile else "",
         career_goal=profile.career_goal or "" if profile else "",
         bio=profile.bio or "" if profile else "",
         preferred_role_family=profile.preferred_role_family or "" if profile else "",
+        # The context signals. All optional, all neutral when absent.
+        years_experience=declared_years if declared_years is not None else observed_years,
+        seniority=profile.seniority or "" if profile else "",
+        industry=profile.industry or "" if profile else "",
+        location=profile.location or "" if profile else "",
         skills=tuple(
             UserSkillFact(
                 skill_id=row.skill_id,
                 proficiency=row.proficiency,
                 name=skill.name,
                 slug=skill.slug,
+                years_used=float(row.years_used) if row.years_used is not None else None,
+                last_used_at=row.last_used_at,
             )
             for row, skill in skill_rows
         ),
@@ -196,6 +217,12 @@ def generate(
             "No active job roles are available. Ask an administrator to add the knowledge base."
         )
 
+    # The community prior. Computed here, in the service layer, so that the
+    # engine stays a pure function of plain values.
+    priors = feedback_service.compute_priors(db)
+    prior_by_role = feedback_service.prior_values(priors)
+    samples_by_role = feedback_service.prior_samples(priors)
+
     scored = rank(
         snapshot,
         specs,
@@ -204,6 +231,13 @@ def generate(
         top_n=None,  # persist everything, so the run is complete
         skill_names=skill_names,
         role_seniorities=seniorities,
+        # The reference date for the recency signal. Supplied here rather than
+        # read inside the engine, so the engine stays a pure function.
+        today=date.today(),
+        # The community signal, bounded and evidence-gated. See
+        # app/services/feedback_service.py.
+        role_priors=prior_by_role,
+        prior_strength=settings.feedback_prior_strength,
     )
 
     if min_score is not None:
@@ -245,6 +279,11 @@ def generate(
                 compatibility_score=Decimal(str(round(score.compatibility, 6))),
                 skill_coverage=Decimal(str(round(score.skill_coverage, 6))),
                 tfidf_similarity=Decimal(str(round(score.tfidf_similarity, 6))),
+                declared_coverage=Decimal(str(round(score.declared_coverage, 6))),
+                signal_coverage=Decimal(str(round(score.signal_coverage, 6))),
+                level_fit=Decimal(str(round(score.level_fit, 4))),
+                role_prior=Decimal(str(round(score.role_prior, 4))),
+                feedback_samples=samples_by_role.get(score.job_role_id, 0),
                 matched_skill_ids=[m.skill_id for m in score.matched],
                 missing_skill_ids=[m.skill_id for m in score.missing],
             )
@@ -271,11 +310,14 @@ def generate(
         ),
         generated_at=run.created_at,
         total_candidates=len(scored),
-        results=[_to_recommendation(score, settings) for score in scored[:limit]],
+        results=[
+            _to_recommendation(score, settings, samples_by_role)
+            for score in scored[:limit]
+        ],
     )
 
 
-def _to_recommendation(score, settings) -> RoleRecommendation:
+def _to_recommendation(score, settings, samples_by_role: dict[int, int]) -> RoleRecommendation:
     return RoleRecommendation(
         rank=score.rank,
         job_role_id=score.job_role_id,
@@ -312,6 +354,11 @@ def _to_recommendation(score, settings) -> RoleRecommendation:
             settings.skill_coverage_weight * score.skill_coverage, 6
         ),
         tfidf_contribution=round(settings.tfidf_weight * score.tfidf_similarity, 6),
+        declared_coverage=round(score.declared_coverage, 6),
+        signal_coverage=round(score.signal_coverage, 6),
+        level_fit=round(score.level_fit, 4),
+        role_prior=round(score.role_prior, 4),
+        feedback_samples=samples_by_role.get(score.job_role_id, 0),
     )
 
 
@@ -474,6 +521,11 @@ def _stored_to_recommendation(
         missing_skills=[contribution(sid) for sid in (result.missing_skill_ids or [])],
         coverage_contribution=round(coverage_weight * coverage, 6),
         tfidf_contribution=round(tfidf_weight * cosine, 6),
+        declared_coverage=round(float(result.declared_coverage), 6),
+        signal_coverage=round(float(result.signal_coverage), 6),
+        level_fit=round(float(result.level_fit), 4),
+        role_prior=round(float(result.role_prior), 4),
+        feedback_samples=int(result.feedback_samples or 0),
     )
 
 
@@ -510,14 +562,32 @@ def analyse_gap(db: Session, user: User, job_role_id: int) -> Any:
 
     # Confirmed skills only. An unconfirmed CV extraction can therefore neither
     # appear as matched nor suppress a genuine gap.
-    user_skills = {
-        row.skill_id: row.proficiency
-        for row in db.scalars(
-            select(UserSkill).where(
-                UserSkill.user_id == user.id, UserSkill.confirmed.is_(True)
-            )
-        ).all()
+    rows = db.scalars(
+        select(UserSkill).where(
+            UserSkill.user_id == user.id, UserSkill.confirmed.is_(True)
+        )
+    ).all()
+    user_skills = {row.skill_id: row.proficiency for row in rows}
+
+    # The same strengths the ranker would use, so the gap report and the
+    # shortlist agree on what the user actually meets.
+    today = date.today()
+    factors = {
+        row.skill_id: proficiency_factor(row.proficiency)
+        * signal_factor(
+            float(row.years_used) if row.years_used is not None else None,
+            row.last_used_at,
+            today,
+        )
+        for row in rows
     }
 
-    report = analyse(user_skills, spec, skill_names=skill_names)
+    profile = db.scalar(select(Profile).where(Profile.user_id == user.id))
+    user_band = user_level_band(
+        profile.seniority if profile else None,
+        profile.years_experience if profile else None,
+    )
+    fit = compute_level_fit(user_band, normalise_band(role.seniority))
+
+    report = analyse(user_skills, spec, skill_names=skill_names, factors=factors, level_fit=fit)
     return role, report

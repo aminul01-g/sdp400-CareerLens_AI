@@ -22,6 +22,7 @@ from app.api.routes import (
     recommendations,
     skill_gap,
     skills,
+    work_history,
 )
 
 api_router = APIRouter()
@@ -38,6 +39,7 @@ api_router.include_router(jobs.admin_router)
 api_router.include_router(cv.router)
 api_router.include_router(recommendations.router)
 api_router.include_router(skill_gap.router)
+api_router.include_router(work_history.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(feedback.router)
 api_router.include_router(admin.router)

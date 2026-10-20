@@ -18,7 +18,7 @@ them is how the legacy IDOR at ``guidance.py:31`` happened:
 from __future__ import annotations
 
 from collections.abc import Callable
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import Depends, Request
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
@@ -72,7 +72,34 @@ def get_current_user(
         raise UnauthorizedError(
             "This account has been deactivated.", code="account_disabled"
         )
+    _reject_stale_session(user, payload)
     return user
+
+
+def _reject_stale_session(user: User, payload: dict[str, Any]) -> None:
+    """Refuse a token whose session counter is out of date.
+
+    A password change has to invalidate the sessions that were outstanding
+    when it happened, or "change your password because you think it is
+    compromised" is not much of a remedy.
+
+    The check is **stateless**. The token carries the user's session counter
+    as ``ver``; the user row carries the current one; and a mismatch is
+    refused. No revocation list, no Redis, and it works across replicas —
+    which is the property a local blacklist would not have.
+
+    A token issued before the ``ver`` claim existed reads as version 0, which
+    is the value every account starts at, so an old token is refused exactly
+    when the counter has moved on.
+    """
+    token_version = payload.get("ver")
+    if token_version is None:
+        token_version = 0
+    if int(token_version) != int(user.token_version):
+        raise UnauthorizedError(
+            "Your password has changed since this session started. Please sign in again.",
+            code="session_stale",
+        )
 
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
@@ -110,13 +137,75 @@ RequireAdmin = Annotated[User, Depends(require_role(UserRole.ADMIN))]
 RequireUser = Annotated[User, Depends(require_active_user)]
 
 
-def get_client_ip(request: Request) -> str:
-    """Best-effort client IP for audit logging.
+# ---------------------------------------------------------------------------
+# Rate limiting
+# ---------------------------------------------------------------------------
+def rate_limit(bucket: str) -> Callable[[], None]:
+    """Build a dependency that rate-limits a route.
 
-    ``X-Forwarded-For`` is honoured because the deployment target sits behind a
-    proxy, but only its first hop, which is the value the proxy itself recorded.
+    Used as ``dependencies=[Depends(rate_limit("auth"))]``. The bucket decides
+    which limit applies; the client address decides who is counted.
+
+    The client address comes from the ambient request context, which the
+    middleware in ``app/main.py`` sets. Reading it from there rather than from
+    the ``Request`` means the dependency works the same whether it is applied
+    to a route or a router.
+
+    The address is only taken from ``X-Forwarded-For`` when the request came
+    from a proxy in ``TRUSTED_PROXY_CIDRS``; otherwise it is the peer
+    address. That matters here specifically: this limit is what stands
+    between the password endpoints and a guessing attack, and a
+    client-supplied header that the server believed unconditionally would
+    let the caller rotate it and get an unlimited number of attempts.
     """
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+
+    def _dependency() -> None:
+        from app.core.config import get_settings
+        from app.core.rate_limit import check
+        from app.core.request_context import current_client_ip
+
+        settings = get_settings()
+        if not settings.rate_limit_enabled:
+            return
+
+        limits = {
+            "auth": (settings.rate_limit_auth_requests, settings.rate_limit_auth_window_seconds),
+            "generate": (
+                settings.rate_limit_generate_requests,
+                settings.rate_limit_generate_window_seconds,
+            ),
+            "upload": (
+                settings.rate_limit_upload_requests,
+                settings.rate_limit_upload_window_seconds,
+            ),
+        }
+        limit, window = limits.get(bucket, (0, 0))
+        if limit <= 0:
+            return
+        check(
+            f"{bucket}:{current_client_ip()}",
+            limit=limit,
+            window=float(window),
+            bucket=bucket,
+        )
+
+    _dependency.__name__ = f"rate_limit_{bucket}"
+    return _dependency
+
+
+def get_client_ip(request: Request) -> str:
+    """Best-effort client IP.
+
+    The implementation lives in ``app.core.request_context`` so that the audit
+    log can read the same value the middleware set, instead of re-deriving it
+    and possibly disagreeing with it.
+    """
+    from app.core.config import get_settings
+    from app.core.request_context import resolve_client_ip
+
+    client, _peer = resolve_client_ip(
+        request.client.host if request.client else None,
+        request.headers.get("x-forwarded-for"),
+        get_settings().trusted_proxy_networks,
+    )
+    return client

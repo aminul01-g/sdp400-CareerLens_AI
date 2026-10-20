@@ -25,6 +25,7 @@ from sqlalchemy import (
     Index,
     Integer,
     Numeric,
+    SmallInteger,
     String,
     Text,
 )
@@ -46,6 +47,10 @@ class JobRole(Base, TimestampMixin):
         # A role with no description cannot be TF-IDF-matched, so the database
         # refuses to hold one.
         CheckConstraint("length(trim(description)) > 0", name="description_not_blank"),
+        CheckConstraint(
+            "min_years_experience IS NULL OR min_years_experience BETWEEN 0 AND 60",
+            name="min_years_experience_range",
+        ),
         Index("ix_job_role_family", "family"),
         Index("ix_job_role_active", "is_active"),
     )
@@ -55,6 +60,9 @@ class JobRole(Base, TimestampMixin):
     slug: Mapped[str] = mapped_column(String(140), nullable=False, unique=True)
     family: Mapped[str] = mapped_column(String(80), nullable=False)
     seniority: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # The experience a role typically expects. Display context for the user,
+    # and the fallback source for a role's band when ``seniority`` is blank.
+    min_years_experience: Mapped[int | None] = mapped_column(SmallInteger, nullable=True)
     # This is the TF-IDF corpus document for the role.
     description: Mapped[str] = mapped_column(Text, nullable=False)
     responsibilities: Mapped[list[str]] = mapped_column(

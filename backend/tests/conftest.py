@@ -35,6 +35,16 @@ if str(BACKEND_ROOT) not in sys.path:
 # Set before app modules are imported so Settings picks up the test database.
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key-that-is-definitely-long-enough-123456")
+# The rate limiter is a process-wide singleton, so its state accumulates across
+# the whole suite and every test would be throttling the ones after it. It is
+# therefore off by default here, and exercised properly — including the route
+# wiring — in tests/test_rate_limit.py, which turns it back on deliberately.
+os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
+# The rate limiter has two backends: the in-process one and the shared,
+# database-backed one. The suite runs the in-process one by default because
+# the shared one commits real rows, and the route-level wiring is exercised
+# deliberately in tests/test_rate_limit_shared.py.
+os.environ.setdefault("RATE_LIMIT_BACKEND", "memory")
 
 import logging
 
@@ -153,6 +163,25 @@ def _isolated_session(engine: Engine) -> Generator[Session, None, None]:
 def db(_isolated_session: Session) -> Session:
     """Direct database access for a test."""
     return _isolated_session
+
+
+@pytest.fixture
+def db_session_factory(engine: Engine) -> sessionmaker[Session]:
+    """A session factory bound to the test database.
+
+    The shared rate limiter opens **its own** session rather than borrowing the
+    request's, because it needs to commit the attempt it records and to hold a
+    PostgreSQL advisory lock for the duration of its own transaction. A test
+    that exercises it therefore needs a factory pointing at the test database
+    rather than at the development one.
+    """
+    return sessionmaker(
+        bind=engine,
+        autoflush=False,
+        autocommit=False,
+        expire_on_commit=False,
+        future=True,
+    )
 
 
 @pytest.fixture

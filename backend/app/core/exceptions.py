@@ -115,6 +115,31 @@ class BadRequestError(APIError):
     message = "The request is malformed."
 
 
+class TooManyRequestsError(APIError):
+    """The caller is going too fast.
+
+    ``retry_after`` is the number of seconds the caller should wait, and it is
+    sent as the standard ``Retry-After`` header so a well-behaved client does
+    not have to guess.
+    """
+
+    status_code = status.HTTP_429_TOO_MANY_REQUESTS
+    code = "rate_limited"
+    message = "Too many requests. Please wait a moment and try again."
+
+    def __init__(
+        self,
+        message: str | None = None,
+        *,
+        code: str | None = None,
+        status_code: int | None = None,
+        errors: list[dict[str, str]] | None = None,
+        retry_after: int = 60,
+    ) -> None:
+        super().__init__(message, code=code, status_code=status_code, errors=errors)
+        self.retry_after = max(1, int(retry_after))
+
+
 def _error_response(
     *,
     status_code: int,
@@ -151,6 +176,10 @@ def register_exception_handlers(app: FastAPI) -> None:
     @app.exception_handler(APIError)
     async def _api_error_handler(_: Request, exc: APIError) -> JSONResponse:
         headers = {"WWW-Authenticate": "Bearer"} if exc.status_code == 401 else None
+        if isinstance(exc, TooManyRequestsError):
+            # The standard header, so a client knows how long to wait without
+            # parsing the message.
+            headers = {**(headers or {}), "Retry-After": str(exc.retry_after)}
         return _error_response(
             status_code=exc.status_code,
             code=exc.code,

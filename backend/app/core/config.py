@@ -17,10 +17,15 @@ import difflib
 import logging
 import os
 from functools import lru_cache
+from ipaddress import IPv4Network, IPv6Network, ip_network
 from pathlib import Path
 
 from pydantic import Field, field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+#: The union of the two network classes, for annotations. ``ip_network`` is the
+#: *constructor*; these are the *types* it returns.
+IPNetwork = IPv4Network | IPv6Network
 
 BACKEND_ROOT = Path(__file__).resolve().parents[2]
 DATA_DIR = BACKEND_ROOT / "data"
@@ -36,7 +41,18 @@ logger = logging.getLogger("app.core.config")
 #: read is silently swallowed and the default is used instead: set
 #: ``JWT_EXPIRE_MINUTES`` and the token lifetime quietly stays at its default.
 #: These prefixes narrow the search to names plausibly aimed at us.
-_APP_ENV_PREFIXES = ("CAREERLENS_", "JWT_", "LLM_", "DATABASE_", "ADMIN_", "ALLOWED_", "CORS_")
+_APP_ENV_PREFIXES = (
+    "CAREERLENS_",
+    "JWT_",
+    "LLM_",
+    "DATABASE_",
+    "ADMIN_",
+    "ALLOWED_",
+    "CORS_",
+    "RATE_LIMIT_",
+    "SMTP_",
+    "MAIL_",
+)
 
 
 class Settings(BaseSettings):
@@ -48,6 +64,12 @@ class Settings(BaseSettings):
         extra="ignore",
         case_sensitive=False,
     )
+
+    #: Cache for :attr:`trusted_proxy_networks`, keyed on the raw setting
+    #: string. ``None`` means "not parsed yet"; a pydantic model field would
+    #: be validated as configuration, so this is a private attribute rather
+    #: than a declared field.
+    _trusted_proxy_networks: tuple[str, list[IPNetwork]] | None = None
 
     # ---- Application -------------------------------------------------
     app_name: str = "careerlens-api"
@@ -89,6 +111,83 @@ class Settings(BaseSettings):
     tfidf_weight: float = 0.40
     engine_version: str = "1.0.0"
 
+    # ---- Email ---------------------------------------------------------
+    # When SMTP_HOST is empty the mail falls back to the file transport, which
+    # writes the message to MAIL_DIR and logs the path. That is what makes the
+    # verification and password-reset flows exercisable end to end without a
+    # mail provider.
+    smtp_host: str = ""
+    smtp_port: int = 587
+    smtp_username: str = ""
+    smtp_password: str = ""
+    smtp_use_tls: bool = True
+    # Whether the SMTP server's certificate is verified. On by default, and it
+    # is what makes STARTTLS worth having: without it the connection is
+    # encrypted but the server is not authenticated, which is a worse position
+    # than no encryption because it looks secure. Turn it off only against a
+    # server with a self-signed certificate, and only in a test.
+    smtp_tls_verify: bool = True
+    # A PEM bundle to trust instead of the system store. Needed when the mail
+    # provider uses a private certificate authority.
+    smtp_ca_file: str = ""
+    mail_from: str = "no-reply@careerlens.dev"
+    mail_from_name: str = "CareerLens AI"
+    # "file" or "console". Ignored when SMTP_HOST is set.
+    mail_transport: str = "file"
+    mail_dir: str = "./mailbox"
+    # Whether an unverified address may sign in. Off by default: a product
+    # that locks out a user who has not clicked a link reads as broken, and
+    # the audit trail records the unverified addresses either way.
+    require_email_verification: bool = False
+    # How long the two kinds of token stay valid.
+    email_verification_ttl_minutes: int = 1440
+    password_reset_ttl_minutes: int = 30
+    # The public base URL, used to build the links in the emails.
+    public_base_url: str = "http://localhost:3000"
+
+    # ---- The feedback prior ---------------------------------------------
+    # How much the community prior may move a score, as a fraction. 0.10 means
+    # a role everybody dismissed loses at most 10% of its score — it is still
+    # shown, still ranked and still explained. Set to 0 to switch the prior off.
+    feedback_prior_strength: float = 0.10
+    # How many observations a role needs before its prior is used at all.
+    # Below this the prior is exactly zero: three users' opinions are noise.
+    feedback_prior_min_samples: int = 5
+
+    # ---- Rate limiting ------------------------------------------------
+    # The limit is shared by every worker and every replica. The counters live
+    # in the database, not in a process's memory, because the shipped image
+    # runs uvicorn with two workers and a per-process counter would have given
+    # the caller twice the allowance configured here. "memory" selects the
+    # in-process limiter, which is what the test suite runs against.
+    rate_limit_enabled: bool = True
+    rate_limit_backend: str = "postgres"
+    # Authentication: sign-in, registration and password reset.
+    rate_limit_auth_requests: int = 10
+    rate_limit_auth_window_seconds: int = 60
+    # Generation: running the recommendation engine.
+    rate_limit_generate_requests: int = 30
+    rate_limit_generate_window_seconds: int = 60
+    # Upload: CV submission.
+    rate_limit_upload_requests: int = 10
+    rate_limit_upload_window_seconds: int = 300
+    # Networks whose ``X-Forwarded-For`` header may be believed, as a
+    # comma-separated list of CIDR blocks or bare addresses. Empty — the
+    # default — means believe none of them.
+    #
+    # ``X-Forwarded-For`` is client-supplied. A server that believes it
+    # unconditionally lets any caller mint a fresh identity per request,
+    # which is exactly what a rate limiter exists to prevent: the limit
+    # protects the password endpoints from guessing, and a forged header
+    # turns a 10-per-minute cap into an unlimited one. Only a proxy whose
+    # address is in this list is allowed to speak for its client.
+    #
+    # Render and Vercel both terminate TLS in front of the service, so the
+    # peer address on a deployed instance is the platform's proxy, not the
+    # user's. Set this to the platform's published egress ranges there. Left
+    # empty in development, where the peer *is* the client.
+    trusted_proxy_cidrs: str = ""
+
     # ---- Optional LLM (proposal 4.2: the core must work without it) ---
     llm_enabled: bool = False
     llm_api_key: str = ""
@@ -115,6 +214,25 @@ class Settings(BaseSettings):
     def _resolve_upload_dir(cls, value: str) -> str:
         path = Path(value)
         return str(path if path.is_absolute() else (BACKEND_ROOT / path).resolve())
+
+    @field_validator("mail_dir")
+    @classmethod
+    def _resolve_mail_dir(cls, value: str) -> str:
+        path = Path(value)
+        return str(path if path.is_absolute() else (BACKEND_ROOT / path).resolve())
+
+    @field_validator("rate_limit_backend")
+    @classmethod
+    def _validate_rate_limit_backend(cls, value: str) -> str:
+        allowed = {"postgres", "memory"}
+        backend = value.strip().lower()
+        if backend not in allowed:
+            raise ValueError(
+                f"RATE_LIMIT_BACKEND must be one of {sorted(allowed)}; got {value!r}. "
+                "'postgres' shares the limit across every worker and replica; "
+                "'memory' keeps it inside one process."
+            )
+        return backend
 
     @model_validator(mode="after")
     def _warn_on_misspelt_env_vars(self) -> Settings:
@@ -189,6 +307,35 @@ class Settings(BaseSettings):
     @property
     def allowed_origin_list(self) -> list[str]:
         return [origin.strip() for origin in self.allowed_origins.split(",") if origin.strip()]
+
+    @property
+    def trusted_proxy_networks(self) -> list[IPNetwork]:
+        """The networks whose ``X-Forwarded-For`` header may be believed.
+
+        Parsed once per distinct value and cached, so the hot path does not
+        re-parse a string on every request. A malformed entry is skipped
+        rather than raising: a typo in a deployment variable should not stop
+        the API from booting, and skipping it is the safe direction — an
+        unparseable proxy is not a trusted proxy.
+
+        The cache is keyed on the raw string, so a copied or updated
+        settings object re-parses rather than returning a stale answer.
+        """
+        raw = self.trusted_proxy_cidrs
+        cached = self._trusted_proxy_networks
+        if cached is not None and cached[0] == raw:
+            return cached[1]
+        networks: list[IPNetwork] = []
+        for entry in raw.split(","):
+            entry = entry.strip()
+            if not entry:
+                continue
+            try:
+                networks.append(ip_network(entry, strict=False))
+            except ValueError:
+                logger.warning("Ignoring unparseable trusted proxy entry", extra={"kind": "config"})
+        self._trusted_proxy_networks = (raw, networks)
+        return networks
 
     @property
     def allowed_extension_list(self) -> tuple[str, ...]:

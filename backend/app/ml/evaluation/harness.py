@@ -45,11 +45,18 @@ import json
 import statistics
 from collections.abc import Mapping, Sequence
 from dataclasses import asdict, dataclass, field
+from datetime import date
 from pathlib import Path
 from typing import Any
 
-from app.ml.evaluation import tuning
+from app.ml.evaluation import signal_study, tuning
 from app.ml.evaluation.metrics import Metrics, compute_metrics
+from app.ml.evaluation.signal_study import (
+    EVALUATION_TODAY,
+    SignalPair,
+    SignalStudyResult,
+    SilenceCheck,
+)
 from app.ml.ranker import DEFAULT_TFIDF_WEIGHT, ProfileSnapshot, RoleSpec, rank
 from app.ml.taxonomy import Taxonomy
 from app.ml.taxonomy import load as load_taxonomy
@@ -57,6 +64,7 @@ from app.ml.text_profile import with_profile_text
 from app.ml.types import EducationFact, ProjectFact, UserSkillFact
 
 DEFAULT_PROFILES_PATH = Path(__file__).with_name("labelled_profiles.jsonl")
+DEFAULT_SIGNAL_PROFILES_PATH = Path(__file__).with_name("signal_profiles.jsonl")
 _BACKEND_ROOT = Path(__file__).resolve().parents[3]
 DEFAULT_ROLES_PATH = _BACKEND_ROOT / "data" / "job_roles.json"
 DEFAULT_TAXONOMY_PATH = _BACKEND_ROOT / "data" / "skills_taxonomy.json"
@@ -72,7 +80,7 @@ GENERATED_AT = "2026-09-30"
 #: Recorded from `pytest --cov=app` on 2026-09-30 and asserted by
 #: tests/test_evaluation.py::test_reported_figures_are_not_drifted, so the report
 #: cannot quietly go stale against the suite.
-TEST_SUITE_SIZE = 392
+TEST_SUITE_SIZE = 656
 TEST_COVERAGE_PCT = 92
 HARNESS_COVERAGE_PCT = 95
 LEARNING_PATH_COVERAGE_PCT = 93
@@ -395,8 +403,17 @@ def evaluate(
     skill_ids: Mapping[str, int] | None = None,
     roles_path: Path = DEFAULT_ROLES_PATH,
     taxonomy_path: Path = DEFAULT_TAXONOMY_PATH,
+    today: date | None = None,
 ) -> EvaluationResult:
-    """Score every profile and aggregate the metrics."""
+    """Score every profile and aggregate the metrics.
+
+    ``today`` is the reference date for the recency signal. It is ``None`` by
+    default, which leaves the recency half of the signal machinery neutral.
+    The evaluation passes a fixed date so that two runs produce byte-identical
+    output; because the label set declares no recency, the result is the same
+    either way, which is itself checked by the silence test in
+    ``app/ml/evaluation/signal_study.py``.
+    """
     if coverage_weight < 0.0 or tfidf_weight < 0.0:
         raise EvaluationDataError("weights must be non-negative")
     if coverage_weight + tfidf_weight <= 0.0:
@@ -431,6 +448,7 @@ def evaluate(
             top_n=None,
             skill_names=skill_names,
             role_seniorities=seniorities,
+            today=today,
         )
         if not ranked:
             raise EvaluationDataError("ranker returned no roles; knowledge base is empty")
@@ -546,6 +564,70 @@ def sweep(
 
 
 # --------------------------------------------------------------------------- #
+# context signals
+# --------------------------------------------------------------------------- #
+
+
+def run_signal_study(
+    pairs: Sequence[SignalPair],
+    role_specs: Sequence[RoleSpec],
+    *,
+    skill_ids: Mapping[str, int],
+    taxonomy: Taxonomy,
+    role_seniorities: Mapping[int, str],
+    coverage_weight: float = tuning.DEFAULT_COVERAGE_WEIGHT,
+    tfidf_weight: float = DEFAULT_TFIDF_WEIGHT,
+    today: date = EVALUATION_TODAY,
+) -> SignalStudyResult:
+    """Run the matched-pair study over the context signals.
+
+    The study lives in ``app/ml/evaluation/signal_study.py``; this wrapper only
+    supplies the knowledge base and the weights the rest of the harness uses,
+    so that both halves of the evaluation agree on the same numbers.
+    """
+    return signal_study.run_study(
+        pairs,
+        role_specs,
+        skill_ids=skill_ids,
+        taxonomy=taxonomy,
+        role_seniorities=role_seniorities,
+        coverage_weight=coverage_weight,
+        tfidf_weight=tfidf_weight,
+        today=today,
+    )
+
+
+def run_silence_check(
+    profiles: Sequence[LabelledProfile],
+    role_specs: Sequence[RoleSpec],
+    *,
+    skill_ids: Mapping[str, int],
+    taxonomy: Taxonomy,
+    role_seniorities: Mapping[int, str],
+    today: date = EVALUATION_TODAY,
+) -> SilenceCheck:
+    """Prove that a user who states nothing is scored exactly as before.
+
+    The engine's rule is that absence is neutral. This checks it numerically
+    over the whole label set: every profile is scored with the recency half of
+    the signal machinery off and on, and the two rankings must be identical.
+    """
+    skill_names = {entry.skill_id: (entry.name, entry.category) for entry in taxonomy.skills}
+
+    def build(profile: LabelledProfile) -> ProfileSnapshot:
+        return _build_snapshot(profile, skill_ids, taxonomy)
+
+    return signal_study.check_silence(
+        profiles,
+        role_specs,
+        build=build,
+        skill_names=skill_names,
+        role_seniorities=role_seniorities,
+        today=today,
+    )
+
+
+# --------------------------------------------------------------------------- #
 # reporting
 # --------------------------------------------------------------------------- #
 
@@ -554,6 +636,8 @@ def render_markdown(
     result: EvaluationResult,
     sweep_points: Sequence[tuning.TuningPoint] = (),
     *,
+    signal_result: SignalStudyResult | None = None,
+    silence: SilenceCheck | None = None,
     generated_at: str = GENERATED_AT,
 ) -> str:
     """Render ``docs/evaluation_report.md``.
@@ -702,6 +786,165 @@ def render_markdown(
         )
     add("")
 
+    add("## Context signals: a matched-pair measurement")
+
+    add("")
+    if signal_result is None:
+        add("_Not run._")
+    else:
+        add(
+            "The evaluation above scores every profile on declared proficiency "
+            "alone, because the label set declares no years of experience, no "
+            "level, and no per-skill recency or depth. That is a deliberate "
+            "choice — the headline numbers stay comparable — but it left the "
+            "context signals **unmeasured**, and an unmeasured feature is one "
+            "nobody can say anything true about."
+        )
+        add("")
+        add(
+            f"This section is that measurement. It runs {signal_result.n_pairs} "
+            "**matched pairs** of profiles. Each pair is one candidate described "
+            "twice: the two descriptions declare identical skills, identical "
+            "proficiencies and identical text, and differ only in whether the "
+            "candidate declares a level, years of experience, and per-skill "
+            "recency and depth. Because a level is not a word in the profile "
+            "text, the two descriptions produce the same TF-IDF vector — so "
+            "**every difference in the outcome is attributable to the signals** "
+            "and nothing else moved."
+        )
+        add("")
+        add(
+            "Each pair names the role the signals *should* favour and the role "
+            "they should beat. The quantity measured is the **margin** between "
+            "the two: a larger margin means the signals moved the ranking "
+            "toward the expected role. The margin is used rather than the raw "
+            "rank because it is continuous, so a pair that does not change the "
+            "order can still show the scores moving the right way."
+        )
+        add("")
+        add(signal_study.render_table(signal_result))
+        add("")
+        add("| Measurement | Value |")
+        add("| --- | --- |")
+        add(
+            f"| Pairs where the signals moved the margin toward the expected "
+            f"role | {signal_result.directional_successes}/{signal_result.n_pairs} |"
+        )
+        add(
+            f"| Pairs where the expected role's rank improved | "
+            f"{signal_result.rank_improvements}/{signal_result.n_pairs} |"
+        )
+        add(
+            f"| Pairs where the expected role's rank got worse | "
+            f"{signal_result.rank_regressions}/{signal_result.n_pairs} |"
+        )
+        add(f"| Mean margin change | {signal_result.mean_margin_delta:+.3f} |")
+        add(
+            f"| Mean change in the expected role's compatibility | "
+            f"{signal_result.mean_expected_compatibility_with - signal_result.mean_expected_compatibility_without:+.3f} |"
+        )
+        add(
+            f"| Mean change in the competing role's compatibility | "
+            f"{signal_result.mean_competing_compatibility_change:+.3f} |"
+        )
+        add(
+            f"| Mean compatibility of the expected role, with signals | "
+            f"{signal_result.mean_expected_compatibility_with:.3f} |"
+        )
+        add(
+            f"| Mean compatibility of the expected role, silent | "
+            f"{signal_result.mean_expected_compatibility_without:.3f} |"
+        )
+        add("")
+        for kind in sorted(signal_result.per_kind):
+            stats = signal_result.per_kind[kind]
+            add(
+                f"- **{kind}** — {int(stats['n'])} pairs, "
+                f"{int(stats['directional_successes'])} moved toward the expected role, "
+                f"mean margin change {stats['mean_margin_delta']:+.3f}."
+            )
+        add("")
+        add(
+            "**The direction is a property of the construction, and that is not "
+            "the finding.** Each pair was built so that the signal *must* favour "
+            "the expected role — a level pair puts the candidate at the "
+            "expected role's band, a recency pair makes the competing role's "
+            "exclusive skills stale. A study whose pairs are designed to come "
+            "out one way cannot tell you the direction is right; it can only "
+            "tell you the mechanism does what it claims. What it does tell you "
+            "is the **magnitude**, and the magnitude is the number nobody had."
+        )
+        add("")
+        add(
+            f"The expected role's compatibility moved by "
+            f"{signal_result.mean_expected_compatibility_with - signal_result.mean_expected_compatibility_without:+.3f} "
+            f"on average, and the competing role's by "
+            f"{signal_result.mean_competing_compatibility_change:+.3f}. The "
+            "signals do not boost anything. They **discount**, and the whole "
+            "effect is a redistribution: a role that matches the declared "
+            "level and the skills still in use keeps its score, and a role that "
+            "does not is marked down. That is a property of the arithmetic — "
+            "the level fit and the recency and depth factors are all "
+            "multipliers of at most 1.0 — and it is worth stating plainly, "
+            "because it means **declaring more can never inflate a user's own "
+            "score**. It can only change which of their roles is ranked "
+            "highest."
+        )
+        add("")
+        add(
+            f"The margin moved by {signal_result.mean_margin_delta:+.3f} on "
+            f"average, and the expected role's **rank** improved in "
+            f"{signal_result.rank_improvements} of {signal_result.n_pairs} "
+            f"pairs and got worse in {signal_result.rank_regressions}. A level "
+            "declaration is therefore a tie-breaker rather than a decider: it "
+            "narrows the gap between adjacent bands without ever hiding a "
+            "role, which is what the engine's own documentation says it is "
+            "for. The recency and depth signals are the ones that move a "
+            "role's score materially, because a skill the candidate has not "
+            "touched in eleven years is worth less than one they used last "
+            "month."
+        )
+        add("")
+        add(
+            "**What this establishes, and what it does not.** It establishes "
+            "that the signals do what their documentation says they do, and it "
+            "quantifies how far they move a score. It does **not** establish "
+            "that they improve anyone's career: the pairs are synthetic and "
+            "purpose-built, so this is a correctness check on a mechanism, not "
+            "evidence about the world. Independent labels, observed hiring "
+            "outcomes and profiles from real users are what would be needed for "
+            "that, and none of them exists here."
+        )
+
+    if silence is not None:
+        add("")
+        add("### Silence is neutral")
+        add("")
+        add(
+            f"Every one of the {silence.n_profiles} labelled profiles was scored "
+            "twice -- once with the recency half of the signal machinery "
+            "switched off and once with it on. The two rankings must be "
+            "identical, down to the sixth decimal, because a skill with no "
+            "recency has a recency factor of exactly 1.0 and a user with no "
+            "declared level has a level fit of exactly 1.0."
+        )
+        add("")
+        if silence.is_neutral:
+            add(
+                f"**Result: {silence.identical}/{silence.n_profiles} profiles "
+                "identical.** A candidate who states nothing is scored exactly "
+                "as the engine scored them before the signals existed."
+            )
+        else:
+            add(
+                f"**Result: {silence.identical}/{silence.n_profiles} profiles "
+                f"identical; {len(silence.mismatches)} differed "
+                f"({', '.join(silence.mismatches)}).** This is a defect: a user "
+                "who states nothing must not be penalised for stating nothing."
+            )
+
+    add("")
+
     add("## Design honesty: no trained classifier")
     add("")
     add(
@@ -765,16 +1008,35 @@ def render_markdown(
     )
     add("")
     add(
-        "**Skills are the only strong signal.** Real candidates signal seniority through "
-        "years of experience, industry context and role history, none of which the engine "
-        "models. Two profiles with identical skills and different real-world seniority are "
-        "indistinguishable here."
+        "**The context signals are self-declared, and the measurement of them is "
+        "narrow.** The engine reads years of experience, a declared level, "
+        "per-skill recency and per-skill depth, and it compares the user's level "
+        "with the role's. The matched-pair study above measures what those "
+        "signals do to a ranking, and the silence check proves that a user who "
+        "states nothing is not penalised. Two limits remain. The study's pairs "
+        "are synthetic and purpose-built, so it is a correctness check on a "
+        "mechanism rather than evidence that the mechanism helps anybody. And "
+        "the signals are still self-report: a candidate can claim thirty years "
+        "of experience and the engine has no way to check. The "
+        f"{result.n_profiles} profiles in the headline evaluation declare none "
+        "of it, so the metrics above remain a measurement of declared "
+        "proficiency alone."
     )
     add("")
     add(
         "**Proficiency is self-reported and coarse.** A 1-5 integer is a weak signal, and the "
-        "`(p - 1) / 4` factor is a linear assumption with no evidence behind it. Self-"
-        "reported proficiency is also systematically biased upward."
+        "`(p - 1) / 4` factor is a linear assumption. The factor now rests on a written "
+        "rubric (`docs/proficiency-rubric.md`) rather than on nothing, which is a better "
+        "foundation but not evidence. Self-reported proficiency is also systematically "
+        "biased upward, and the rubric does not remove that bias."
+    )
+    add("")
+    add(
+        "**The community prior is not exercised here either.** The ranking applies a small "
+        "adjustment from what users have said about a role, and that adjustment is bounded "
+        "and needs a minimum number of observations before it is used at all. The "
+        f"{result.n_profiles} profiles here carry no feedback, so the prior is exactly zero "
+        "in every row of this report."
     )
     add("")
     add(
@@ -818,11 +1080,13 @@ def write_reports(
     *,
     json_path: Path = DEFAULT_JSON_REPORT,
     markdown_path: Path = DEFAULT_MARKDOWN_REPORT,
+    signal_result: SignalStudyResult | None = None,
+    silence: SilenceCheck | None = None,
     generated_at: str = GENERATED_AT,
 ) -> None:
     """Write both report formats for committing alongside the labels."""
     payload: dict[str, Any] = {
-        "schema_version": "1.0.0",
+        "schema_version": "1.1.0",
         "generated_at": generated_at,
         "target_top3_hit_rate": TARGET_TOP3_HIT_RATE,
         "weights": {
@@ -840,12 +1104,21 @@ def write_reports(
         ),
         "noise_floor": round(1.0 / result.n_profiles, 6),
         "outcomes": [asdict(outcome) for outcome in result.outcomes],
+        "signal_study": signal_result.to_dict() if signal_result is not None else None,
+        "silence_check": silence.to_dict() if silence is not None else None,
     }
     json_path.parent.mkdir(parents=True, exist_ok=True)
     json_path.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     markdown_path.parent.mkdir(parents=True, exist_ok=True)
     markdown_path.write_text(
-        render_markdown(result, sweep_points, generated_at=generated_at), encoding="utf-8"
+        render_markdown(
+            result,
+            sweep_points,
+            signal_result=signal_result,
+            silence=silence,
+            generated_at=generated_at,
+        ),
+        encoding="utf-8",
     )
 
 
@@ -860,6 +1133,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         description="Evaluate the matching engine against the hand-labelled profile set.",
     )
     parser.add_argument("--profiles", type=Path, default=DEFAULT_PROFILES_PATH)
+    parser.add_argument("--signal-profiles", type=Path, default=DEFAULT_SIGNAL_PROFILES_PATH)
     parser.add_argument("--roles", type=Path, default=DEFAULT_ROLES_PATH)
     parser.add_argument("--taxonomy", type=Path, default=DEFAULT_TAXONOMY_PATH)
     parser.add_argument("--json-report", type=Path, default=DEFAULT_JSON_REPORT)
@@ -869,6 +1143,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     parser.add_argument("--tfidf-weight", type=float, default=DEFAULT_TFIDF_WEIGHT)
     parser.add_argument("--no-sweep", action="store_true")
+    parser.add_argument(
+        "--no-signal-study",
+        action="store_true",
+        help="skip the matched-pair measurement of the context signals",
+    )
     parser.add_argument(
         "--probes",
         type=float,
@@ -887,6 +1166,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     taxonomy = load_taxonomy(str(args.taxonomy))
     skill_ids = load_taxonomy_index(args.taxonomy)
     role_specs = load_role_specs(args.roles, skill_ids=skill_ids)
+    seniorities = load_seniorities(args.roles)
     shared = {
         "taxonomy": taxonomy,
         "skill_ids": skill_ids,
@@ -899,6 +1179,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         role_specs,
         coverage_weight=args.coverage_weight,
         tfidf_weight=args.tfidf_weight,
+        today=EVALUATION_TODAY,
         **shared,
     )
 
@@ -908,11 +1189,34 @@ def main(argv: Sequence[str] | None = None) -> int:
         weights.sort()
     sweep_points = sweep(profiles, role_specs, weights=weights, **shared)
 
+    signal_result: SignalStudyResult | None = None
+    silence: SilenceCheck | None = None
+    if not args.no_signal_study:
+        signal_pairs = signal_study.load_signal_profiles(args.signal_profiles)
+        signal_result = run_signal_study(
+            signal_pairs,
+            role_specs,
+            taxonomy=taxonomy,
+            skill_ids=skill_ids,
+            role_seniorities=seniorities,
+            coverage_weight=args.coverage_weight,
+            tfidf_weight=args.tfidf_weight,
+        )
+        silence = run_silence_check(
+            profiles,
+            role_specs,
+            taxonomy=taxonomy,
+            skill_ids=skill_ids,
+            role_seniorities=seniorities,
+        )
+
     write_reports(
         result,
         sweep_points,
         json_path=args.json_report,
         markdown_path=args.markdown_report,
+        signal_result=signal_result,
+        silence=silence,
     )
 
     m = result.metrics
@@ -930,6 +1234,22 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     if result.misses:
         print(f"outside top-3     : {', '.join(result.misses)}")
+    if signal_result is not None:
+        print(
+            f"signal pairs      : {signal_result.n_pairs} "
+            f"({signal_result.directional_successes} directional, "
+            f"{signal_result.rank_regressions} rank regressions)"
+        )
+        print(
+            f"mean margin delta : {signal_result.mean_margin_delta:+.3f}  "
+            f"mean |compat| delta: "
+            f"{signal_result.mean_absolute_compatibility_change:.3f}"
+        )
+    if silence is not None:
+        print(
+            f"silence neutral   : {silence.identical}/{silence.n_profiles} "
+            "profiles identical with the signal machinery on"
+        )
     print(f"reports           : {args.markdown_report}, {args.json_report}")
 
     if args.check and not result.meets_target:

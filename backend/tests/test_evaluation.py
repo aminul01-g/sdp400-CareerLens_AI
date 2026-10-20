@@ -423,6 +423,42 @@ def test_markdown_report_marks_the_default_weight(result) -> None:
     assert "Recommendation:" in markdown
 
 
+def test_the_committed_report_is_a_golden_artifact(tmp_path) -> None:
+    """The committed report must be exactly what the current engine produces.
+
+    This is the guard that makes the other assertions in this file meaningful.
+    A change to the ranker, the matcher or the knowledge base changes the
+    numbers, and the numbers are published in ``docs/evaluation_report.md`` and
+    served by ``GET /api/admin/evaluation``. If the committed artefact can
+    drift away from the live engine, then a reader of the report is reading
+    history, not the system.
+
+    So the report is regenerated from scratch and compared byte for byte. An
+    intentional engine change must regenerate the artefact in the same commit;
+    an accidental one fails here.
+    """
+    json_path = tmp_path / "report.json"
+    md_path = tmp_path / "report.md"
+    harness.main(
+        [
+            "--json-report", str(json_path),
+            "--markdown-report", str(md_path),
+        ]
+    )
+
+    committed_json = Path(harness.DEFAULT_JSON_REPORT).read_text(encoding="utf-8")
+    assert json_path.read_text(encoding="utf-8") == committed_json, (
+        "the committed report.json no longer matches the engine; regenerate it with "
+        "`python -m app.ml.evaluation` and commit the result in the same change"
+    )
+
+    committed_md = harness.DEFAULT_MARKDOWN_REPORT.read_text(encoding="utf-8")
+    assert md_path.read_text(encoding="utf-8") == committed_md, (
+        "the committed docs/evaluation_report.md no longer matches the engine; "
+        "regenerate it with `python -m app.ml.evaluation`"
+    )
+
+
 def test_json_report_is_written_and_machine_readable(result, tmp_path) -> None:
     import json as json_module
 

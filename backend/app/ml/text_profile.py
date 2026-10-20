@@ -39,7 +39,23 @@ def build_profile_text(snapshot: ProfileSnapshot) -> str:
     parts: list[str] = []
 
     # 1. Narrative fields, once each.
-    for value in (snapshot.headline, snapshot.career_goal, snapshot.bio, snapshot.preferred_role_family):
+    #
+    # ``industry`` is here because it is topical: "fintech" and "e-commerce"
+    # are words a role description also contains, so they carry real lexical
+    # signal about which roles a profile belongs with.
+    #
+    # ``location`` is deliberately **not** here. A city name does not describe a
+    # role, and adding it to the document would add a token that matches no
+    # role description while diluting the vector for every user who filled the
+    # field in — quietly lowering their text similarity. The field is read and
+    # carried, but it is not scored against a market that does not exist.
+    for value in (
+        snapshot.headline,
+        snapshot.career_goal,
+        snapshot.bio,
+        snapshot.preferred_role_family,
+        snapshot.industry,
+    ):
         if value and value.strip():
             parts.append(value.strip())
 

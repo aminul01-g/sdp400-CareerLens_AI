@@ -118,7 +118,11 @@ class Taxonomy:
         patterns: list[str] = []
         for skill in self.skills:
             for form in (skill.name, skill.slug, *skill.aliases):
-                if form in self.extraction_exclusions:
+                # The exclusion table is keyed on the *normalised* form, so the
+                # lookup has to normalise too. Comparing the raw form would
+                # silently never match, and an exclusion that does not exclude
+                # is worse than no exclusion at all.
+                if normalise_surface(form) in self.extraction_exclusions:
                     continue
                 patterns.append(form)
         # De-duplicate on the normalised form but keep a display-friendly original.

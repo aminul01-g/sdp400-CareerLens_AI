@@ -40,7 +40,13 @@ services:
       alembic upgrade head &&
       python -m scripts.seed_taxonomy &&
       python -m scripts.seed_job_roles &&
-      uvicorn app.main:app --host 0.0.0.0 --port $PORT
+      uvicorn app.main:app --host 0.0.0.0 --port $PORT --workers 1
+    # One worker, not two. The free plan is 512 MB of RAM and the engine's
+    # steady resident set is about 220 MB with one worker: two workers would
+    # need roughly 440 MB and the service would be killed for memory. The
+    # Dockerfile keeps two workers, because a container's memory is not the
+    # 512 MB the free tier gives. Raise the plan and the worker count
+    # together.
     healthCheckPath: /health
     # /health returns non-200 when the database is unreachable, so this is a real
     # readiness check rather than a liveness ping.
@@ -92,6 +98,24 @@ services:
         value: "0.6"
       - key: TFIDF_WEIGHT
         value: "0.4"
+      # The rate limit's counters live in the database, so the limit is shared
+      # by every worker and every replica. "memory" would give each process
+      # its own allowance, which is twice the intended one on a two-worker
+      # deployment.
+      - key: RATE_LIMIT_BACKEND
+        value: postgres
+      - key: RATE_LIMIT_ENABLED
+        value: "true"
+      # The networks whose X-Forwarded-For header may be believed. The header
+      # is client-supplied, and the rate limiter counts on the address it
+      # produces, so believing it from an arbitrary peer would let a caller
+      # rotate the header and get an unlimited number of password attempts.
+      # Render terminates TLS in front of the service, so the peer is the
+      # platform's proxy: set this to Render's published egress ranges, or
+      # leave it empty and every request counts as one address (safe, but
+      # shared). See docs/limitations.md.
+      - key: TRUSTED_PROXY_CIDRS
+        sync: false
       - key: LOG_LEVEL
         value: INFO
       - key: LOG_JSON

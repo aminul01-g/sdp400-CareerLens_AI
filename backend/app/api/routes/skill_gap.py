@@ -79,6 +79,9 @@ def skill_gap(job_role_id: int, db: DbSession, user: CurrentUser) -> SkillGapRes
         ],
         tiers=tiers,
         learning_path_available=get_settings().llm_enabled,
+        declared_coverage=round(report.declared_coverage, 6),
+        signal_coverage=round(report.signal_coverage, 6),
+        level_fit=round(report.level_fit, 4),
     )
 
 

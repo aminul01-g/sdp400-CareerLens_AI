@@ -47,6 +47,7 @@ def _to_read(row: UserSkill) -> UserSkillRead:
         category=skill.category if skill else "",
         proficiency=row.proficiency,
         years_used=float(row.years_used) if row.years_used is not None else None,
+        last_used_at=row.last_used_at,
         source=row.source,
         confirmed=row.confirmed,
         created_at=row.created_at,
@@ -98,6 +99,7 @@ def add_skill(db: Session, user: User, payload: UserSkillCreate) -> UserSkillRea
         proficiency=payload.proficiency,
         source=payload.source,
         years_used=Decimal(str(payload.years_used)) if payload.years_used is not None else None,
+        last_used_at=payload.last_used_at,
         confirmed=True,
     )
     db.add(row)
@@ -109,7 +111,7 @@ def add_skill(db: Session, user: User, payload: UserSkillCreate) -> UserSkillRea
 def update_skill(
     db: Session, user: User, skill_id: int, payload: UserSkillUpdate
 ) -> UserSkillRead:
-    """Update proficiency / years used / confirmed, scoped to the owner."""
+    """Update proficiency / years used / last used / confirmed, scoped to the owner."""
     row = db.get(UserSkill, (user.id, skill_id))
     if row is None:
         # 404, not 403: a 403 would confirm the skill exists for *someone*.
@@ -146,6 +148,17 @@ def _aliases_for(db: Session, skill_ids: list[int]) -> dict[int, list[str]]:
     return grouped
 
 
+def list_taxonomy_categories(db: Session) -> list[str]:
+    """The distinct categories in the taxonomy, alphabetically.
+
+    Read from the catalogue rather than from the caller's own skills: a
+    category filter built from the user's list is empty for a user who has
+    not added a skill yet, which is exactly the user who needs the picker.
+    """
+    rows = db.scalars(select(Skill.category).distinct().order_by(Skill.category.asc())).all()
+    return [row for row in rows if row]
+
+
 def search_taxonomy(
     db: Session,
     *,
@@ -158,23 +171,29 @@ def search_taxonomy(
 
     Matching aliases is what makes typing ``sklearn`` find ``Scikit-learn`` — the
     alias feature made visible, and a small lesson in the system's vocabulary.
-    The trigram index on ``skill.name`` supports the substring case.
+
+    Matching is case-insensitive via ``ILIKE``. The database runs with
+    ``--locale=C`` (docker-compose.yml) for deterministic collation, which makes
+    ``LIKE`` case-*sensitive*; ten aliases carry uppercase by design (``AP``,
+    ``BIM``, ``CRO``, ``L&D``), so a case-sensitive search would silently not
+    reach them. ``ILIKE`` on the raw column also lets the trigram index on
+    ``skill.name`` serve the query, which a ``lower(name) LIKE`` cannot.
     """
     limit = max(1, min(limit, MAX_RESULTS))
     offset = max(0, offset)
 
     conditions = []
     if q and q.strip():
-        needle = f"%{q.strip().lower()}%"
+        needle = f"%{q.strip()}%"
         alias_match = (
             select(SkillAlias.skill_id)
-            .where(SkillAlias.alias.like(needle))
+            .where(SkillAlias.alias.ilike(needle))
             .correlate(None)
         )
         conditions.append(
             or_(
-                func.lower(Skill.name).like(needle),
-                func.lower(Skill.slug).like(needle),
+                Skill.name.ilike(needle),
+                Skill.slug.ilike(needle),
                 Skill.id.in_(alias_match),
             )
         )

@@ -15,6 +15,7 @@ representable:
 
 from __future__ import annotations
 
+from datetime import date
 from decimal import Decimal
 from enum import StrEnum
 from typing import TYPE_CHECKING
@@ -22,6 +23,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import (
     Boolean,
     CheckConstraint,
+    Date,
     ForeignKey,
     Index,
     Numeric,
@@ -80,6 +82,9 @@ class UserSkill(Base, TimestampMixin):
         server_default=SkillSource.MANUAL.value,
     )
     years_used: Mapped[Decimal | None] = mapped_column(Numeric(3, 1), nullable=True)
+    # When the skill was last used. ``None`` means "not stated", which the engine
+    # treats as neutral — a skill with no date is not treated as a stale one.
+    last_used_at: Mapped[date | None] = mapped_column(Date, nullable=True)
     # Distinguishes "extracted from a CV" from "the user confirmed this".
     # Together with `source` this implements the proposal's "show detected skills
     # for user confirmation" as *data*, not as transient UI state.

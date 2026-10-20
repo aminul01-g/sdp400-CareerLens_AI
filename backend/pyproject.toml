@@ -30,8 +30,15 @@ ignore = [
     "E501",    # line length is handled by the formatter, not the linter
     "B008",    # FastAPI's Depends()/File() in defaults is the documented pattern
     "SIM117",  # nested `with` is clearer than a combined one for readability
+    "SIM103",  # a sequence of guard clauses each with its own reason reads better
     "RUF012",  # ClassVar annotations on Pydantic-adjacent constants
     "UP038",
+    # The ambiguous-unicode rules flag the en dash and the typographic quotes
+    # that this codebase uses on purpose: the CV parser has to recognise an
+    # en dash in a date range, and the documentation quotes what it means to.
+    "RUF001",
+    "RUF002",
+    "RUF003",
 ]
 
 [tool.ruff.lint.per-file-ignores]

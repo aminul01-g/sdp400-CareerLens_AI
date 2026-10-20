@@ -11,6 +11,10 @@ httpx==0.28.1                     # required by fastapi.testclient
 # binary fixture and cannot silently drift from the text they assert on.
 reportlab==4.2.5
 
+# aiosmtpd runs a real SMTP server in the test process, so the SMTP transport
+# is exercised against an actual mail server rather than only written.
+aiosmtpd==1.4.6
+
 # ---- Static analysis ----
 ruff==0.8.6
 mypy==1.14.1

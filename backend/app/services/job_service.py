@@ -22,6 +22,7 @@ from app.ml.taxonomy import normalise_surface
 from app.models.job import JobRole, JobRoleSkill
 from app.models.recommendation import RecommendationResult
 from app.models.skill import Skill, SkillAlias
+from app.models.user import User
 from app.schemas.job import (
     FamilyCount,
     JobRoleAdminSummary,
@@ -36,6 +37,7 @@ from app.schemas.job import (
     TaxonomyUpdate,
     slugify,
 )
+from app.services import audit_service
 
 logger = logging.getLogger("app.services.jobs")
 
@@ -108,6 +110,7 @@ def list_roles(
             slug=r.slug,
             family=r.family,
             seniority=r.seniority,
+            min_years_experience=r.min_years_experience,
             description=r.description,
             is_active=r.is_active,
             required_skills_count=counts.get(r.id, 0),
@@ -158,7 +161,9 @@ def _validate_skill_ids(db: Session, entries: list[SkillWeightIn]) -> list[Skill
     return [skills[i] for i in ids]
 
 
-def create_role(db: Session, payload: JobRoleCreate) -> JobRoleRead:
+def create_role(
+    db: Session, payload: JobRoleCreate, *, actor: User | None = None
+) -> JobRoleRead:
     if db.scalar(select(JobRole).where(JobRole.title == payload.title)) is not None:
         raise ConflictError(
             f"A job role titled '{payload.title}' already exists.", code="role_title_exists"
@@ -175,6 +180,7 @@ def create_role(db: Session, payload: JobRoleCreate) -> JobRoleRead:
         slug=slug,
         family=payload.family,
         seniority=payload.seniority,
+        min_years_experience=payload.min_years_experience,
         description=payload.description,
         responsibilities=payload.responsibilities,
         is_active=payload.is_active,
@@ -184,6 +190,21 @@ def create_role(db: Session, payload: JobRoleCreate) -> JobRoleRead:
         for entry in payload.skills
     ]
     db.add(role)
+    audit_service.record(
+        db,
+        action="job_role.created",
+        entity_type="job_role",
+        entity_id=role.id,
+        summary=f"Created job role '{role.title}'",
+        actor=actor,
+        changes={
+            "title": role.title,
+            "family": role.family,
+            "seniority": role.seniority,
+            "min_years_experience": role.min_years_experience,
+            "skills": len(payload.skills),
+        },
+    )
     try:
         db.commit()
     except IntegrityError as exc:
@@ -196,11 +217,15 @@ def create_role(db: Session, payload: JobRoleCreate) -> JobRoleRead:
     return to_read(db, role)
 
 
-def update_role(db: Session, role_id: int, payload: JobRoleUpdate) -> JobRoleRead:
+def update_role(
+    db: Session, role_id: int, payload: JobRoleUpdate, *, actor: User | None = None
+) -> JobRoleRead:
     role = get_role(db, role_id)
     changes = payload.model_dump(exclude_unset=True)
     if not changes:
         return to_read(db, role)
+
+    before = {field: getattr(role, field, None) for field in changes}
 
     if "title" in changes and changes["title"] and changes["title"] != role.title:
         clash = db.scalar(
@@ -215,6 +240,15 @@ def update_role(db: Session, role_id: int, payload: JobRoleUpdate) -> JobRoleRea
 
     for field, value in changes.items():
         setattr(role, field, value)
+    audit_service.record(
+        db,
+        action="job_role.updated",
+        entity_type="job_role",
+        entity_id=role.id,
+        summary=f"Updated job role '{role.title}'",
+        actor=actor,
+        changes={"before": before, "after": changes},
+    )
     try:
         db.commit()
     except IntegrityError as exc:
@@ -224,7 +258,9 @@ def update_role(db: Session, role_id: int, payload: JobRoleUpdate) -> JobRoleRea
     return to_read(db, role)
 
 
-def replace_skills(db: Session, role_id: int, payload: JobRoleSkillReplace) -> JobRoleRead:
+def replace_skills(
+    db: Session, role_id: int, payload: JobRoleSkillReplace, *, actor: User | None = None
+) -> JobRoleRead:
     """Atomically replace a role's weighted requirement set.
 
     **Validation happens before the DELETE.** A request naming an unknown skill
@@ -255,6 +291,22 @@ def replace_skills(db: Session, role_id: int, payload: JobRoleSkillReplace) -> J
             )
     _validate_skill_ids(db, payload.skills)
 
+    previous = {
+        str(requirement.skill_id): float(requirement.weight)
+        for requirement in role.skill_requirements
+    }
+    audit_service.record(
+        db,
+        action="job_role.skills_replaced",
+        entity_type="job_role",
+        entity_id=role.id,
+        summary=f"Replaced the required skill set of '{role.title}'",
+        actor=actor,
+        changes={
+            "before": previous,
+            "after": {str(entry.skill_id): float(entry.weight) for entry in payload.skills},
+        },
+    )
     try:
         db.execute(delete(JobRoleSkill).where(JobRoleSkill.job_role_id == role.id))
         db.flush()
@@ -281,7 +333,7 @@ def replace_skills(db: Session, role_id: int, payload: JobRoleSkillReplace) -> J
     return to_read(db, role)
 
 
-def delete_role(db: Session, role_id: int) -> None:
+def delete_role(db: Session, role_id: int, *, actor: User | None = None) -> None:
     """Delete a role, or refuse if history would be destroyed.
 
     ``recommendation_result.job_role_id`` is ``ON DELETE RESTRICT``, so PostgreSQL
@@ -306,6 +358,15 @@ def delete_role(db: Session, role_id: int) -> None:
             "preserved.",
             code="conflict_role_in_use",
         )
+    audit_service.record(
+        db,
+        action="job_role.deleted",
+        entity_type="job_role",
+        entity_id=role_id,
+        summary=f"Deleted job role '{role.title}'",
+        actor=actor,
+        changes={"title": role.title, "family": role.family},
+    )
     db.delete(role)
     db.commit()
     logger.info("Deleted job role id=%s", role_id, extra={"kind": "job"})
@@ -352,6 +413,7 @@ def list_roles_admin(
             slug=r.slug,
             family=r.family,
             seniority=r.seniority,
+            min_years_experience=r.min_years_experience,
             description=r.description,
             is_active=r.is_active,
             required_skills_count=counts.get(r.id, 0),
@@ -380,13 +442,22 @@ def list_taxonomy(
     db: Session, *, q: str | None = None, category: str | None = None,
     limit: int = 50, offset: int = 0,
 ) -> tuple[int, list[tuple[Skill, list[str]]]]:
+    """Browse the taxonomy, optionally filtered by a search term or a category.
 
+    The search matches a skill's name or any of its aliases, so ``sklearn``
+    finds ``Scikit-learn``. Matching is case-insensitive: the database is
+    initialised with ``--locale=C`` (docker-compose.yml) for deterministic
+    collation, which makes ``LIKE`` case-*sensitive*, so ``ILIKE`` is used
+    rather than ``LIKE`` against a lowercased needle. Ten aliases carry
+    uppercase by design (``AP``, ``BIM``, ``CRO``, ``L&D``), and a search
+    that could not reach them would be quietly wrong.
+    """
     conditions: list[ColumnElement[bool]] = []
     if q and q.strip():
-        needle = f"%{q.strip().lower()}%"
-        alias_ids = select(SkillAlias.skill_id).where(SkillAlias.alias.like(needle))
+        needle = f"%{q.strip()}%"
+        alias_ids = select(SkillAlias.skill_id).where(SkillAlias.alias.ilike(needle))
         conditions.append(
-            or_(func.lower(Skill.name).like(needle), Skill.id.in_(alias_ids))
+            or_(Skill.name.ilike(needle), Skill.id.in_(alias_ids))
         )
     if category and category.strip():
         conditions.append(Skill.category == category.strip())
@@ -441,7 +512,9 @@ def _assert_aliases_free(db: Session, aliases: list[str], *, exclude_skill_id: i
         )
 
 
-def create_skill(db: Session, payload: TaxonomyCreate) -> tuple[Skill, list[str]]:
+def create_skill(
+    db: Session, payload: TaxonomyCreate, *, actor: User | None = None
+) -> tuple[Skill, list[str]]:
     if db.scalar(select(Skill).where(Skill.name == payload.name)) is not None:
         raise ConflictError(f"A skill named '{payload.name}' already exists.", code="skill_exists")
     if db.scalar(select(Skill).where(Skill.slug == payload.slug)) is not None:
@@ -459,6 +532,15 @@ def create_skill(db: Session, payload: TaxonomyCreate) -> tuple[Skill, list[str]
     db.add(skill)
     db.flush()
     db.add_all([SkillAlias(alias=a, skill_id=skill.id) for a in aliases])
+    audit_service.record(
+        db,
+        action="taxonomy.skill_created",
+        entity_type="taxonomy",
+        entity_id=skill.id,
+        summary=f"Added '{skill.name}' to the taxonomy",
+        actor=actor,
+        changes={"name": skill.name, "slug": skill.slug, "category": skill.category},
+    )
     try:
         db.commit()
     except IntegrityError as exc:
@@ -470,7 +552,7 @@ def create_skill(db: Session, payload: TaxonomyCreate) -> tuple[Skill, list[str]
 
 
 def update_skill(
-    db: Session, skill_id: int, payload: TaxonomyUpdate
+    db: Session, skill_id: int, payload: TaxonomyUpdate, *, actor: User | None = None
 ) -> tuple[Skill, list[str]]:
     skill = db.get(Skill, skill_id)
     if skill is None:
@@ -478,6 +560,7 @@ def update_skill(
 
     changes = payload.model_dump(exclude_unset=True)
     aliases: list[str] | None = changes.pop("aliases", None)
+    before = {field: getattr(skill, field, None) for field in changes}
 
     for field, value in changes.items():
         if value is not None:
@@ -497,6 +580,15 @@ def update_skill(
             select(SkillAlias).where(SkillAlias.skill_id == skill.id)
         ).all())
 
+    audit_service.record(
+        db,
+        action="taxonomy.skill_updated",
+        entity_type="taxonomy",
+        entity_id=skill.id,
+        summary=f"Updated the taxonomy entry '{skill.name}'",
+        actor=actor,
+        changes={"before": before, "after": changes},
+    )
     try:
         db.commit()
     except IntegrityError as exc:
@@ -506,7 +598,7 @@ def update_skill(
     return skill, kept or []
 
 
-def delete_skill(db: Session, skill_id: int) -> None:
+def delete_skill(db: Session, skill_id: int, *, actor: User | None = None) -> None:
     skill = db.get(Skill, skill_id)
     if skill is None:
         raise NotFoundError("That skill does not exist.")
@@ -522,6 +614,15 @@ def delete_skill(db: Session, skill_id: int) -> None:
             "roles first.",
             code="skill_in_use",
         )
+    audit_service.record(
+        db,
+        action="taxonomy.skill_deleted",
+        entity_type="taxonomy",
+        entity_id=skill_id,
+        summary=f"Removed '{skill.name}' from the taxonomy",
+        actor=actor,
+        changes={"name": skill.name, "slug": skill.slug},
+    )
     db.delete(skill)
     db.commit()
 
