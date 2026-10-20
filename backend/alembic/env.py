@@ -16,17 +16,18 @@ import sys
 from logging.config import fileConfig
 from pathlib import Path
 
-from alembic import context
 from sqlalchemy import engine_from_config, pool
+
+from alembic import context
 
 BACKEND_ROOT = Path(__file__).resolve().parents[1]
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
 # Importing app.models registers every mapper on Base.metadata.
-from app.core.config import get_settings  # noqa: E402
-from app.db.base import Base  # noqa: E402
-import app.models  # noqa: E402,F401  (side effect: populate metadata)
+import app.models  # noqa: F401  (side effect: populate metadata)
+from app.core.config import get_settings
+from app.db.base import Base
 
 config = context.config
 
@@ -40,7 +41,7 @@ config.set_main_option("sqlalchemy.url", DATABASE_URL)
 target_metadata = Base.metadata
 
 
-def include_object(obj, name, type_, reflected, compare_to) -> bool:  # noqa: ANN001
+def include_object(obj, name, type_, reflected, compare_to) -> bool:
     """Keep autogenerate focused on the application's own tables."""
     if type_ == "table" and name in {"alembic_version", "spatial_ref_sys"}:
         return False
@@ -79,7 +80,7 @@ def run_migrations_online() -> None:
     connectable.dispose()
 
 
-def _run(connection) -> None:  # noqa: ANN001
+def _run(connection) -> None:
     context.configure(
         connection=connection,
         target_metadata=target_metadata,

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "updated_at": "2026-09-30",
+  "updated_at": "2026-10-20",
   "description": "Curated AI/ML job-role knowledge base for CareerLens AI. Each role carries a description (the TF-IDF corpus document), responsibilities, and 8-18 required skills with per-(role,skill) importance weights in (0,1]. Weights decay down a fixed ladder from 1.00, so a role has a few genuinely critical requirements and a long tail of desirable ones.",
   "roles": [
     {
@@ -8,6 +8,7 @@
       "slug": "machine-learning-engineer",
       "family": "ML Engineer",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Design, train, evaluate and deploy machine learning models. Work across the full lifecycle: exploratory analysis, feature engineering, model selection, cross-validated evaluation, and packaging the trained model behind an API. Strong Python and Scikit-learn fundamentals are expected, with deep-learning experience in PyTorch for larger problems.",
       "responsibilities": [
         "Design, train, evaluate and deploy machine learning models",
@@ -83,6 +84,7 @@
       "slug": "senior-machine-learning-engineer",
       "family": "ML Engineer",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Lead the design and delivery of machine learning systems. Owns evaluation methodology, model reliability and the technical direction of ML projects. Expected to mentor engineers, review model changes critically, and reason about failure modes rather than only headline accuracy.",
       "responsibilities": [
         "Set the technical direction for ML projects",
@@ -162,6 +164,7 @@
       "slug": "machine-learning-scientist",
       "family": "Research",
       "seniority": "Principal",
+      "min_years_experience": 13,
       "description": "Work on problems where the correct modelling approach is not yet known. Formulate the problem, design controlled experiments, and reason from first principles about optimisation, generalisation and statistical validity. Research output is expected, and negative results are treated as findings rather than failures.",
       "responsibilities": [
         "Formulate research problems from ambiguous goals",
@@ -233,6 +236,7 @@
       "slug": "deep-learning-engineer",
       "family": "Deep Learning",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build and train deep neural networks with PyTorch, from computer vision architectures through to transformer-based sequence models. Expected to select and adapt pretrained checkpoints, implement efficient training loops, and diagnose optimisation instability rather than only tuning hyperparameters.",
       "responsibilities": [
         "Implement and train deep neural architectures",
@@ -308,6 +312,7 @@
       "slug": "ai-engineer",
       "family": "AI Engineer",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build end-to-end AI products: Python services that expose models behind clean REST APIs, containerised with Docker and deployed on cloud infrastructure. Comfortable across the modelling boundary - able to train a baseline model and equally able to productionise it with tests, CI/CD and observability.",
       "responsibilities": [
         "Build end-to-end AI features into production services",
@@ -379,6 +384,7 @@
       "slug": "generative-ai-engineer",
       "family": "LLM Engineer",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build applications on top of large language models. Combines prompt and retrieval design with engineering discipline: chunking strategies, vector search, evaluation harnesses, and cost control. Expected to measure output quality rather than judging by anecdote.",
       "responsibilities": [
         "Build retrieval-augmented and tool-using LLM applications",
@@ -454,6 +460,7 @@
       "slug": "llm-engineer",
       "family": "LLM Engineer",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Own the architecture of LLM-based systems. Takes a model from prompt baseline through retrieval, fine-tuning and serving, and is responsible for measured quality, latency and cost. Deep familiarity with tokenisation, attention, and inference-time trade-offs is expected.",
       "responsibilities": [
         "Own LLM application architecture end to end",
@@ -529,6 +536,7 @@
       "slug": "nlp-engineer",
       "family": "NLP",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build text-processing systems: normalisation, tokenisation, entity extraction and classification. Comfortable choosing between classical approaches such as regular expressions and CRF-style pipelines and transformer models, and able to justify the trade-off.",
       "responsibilities": [
         "Build and maintain text-processing pipelines",
@@ -604,6 +612,7 @@
       "slug": "computer-vision-engineer",
       "family": "Computer Vision",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build systems that interpret images and video. Trains and fine-tunes convolutional and transformer vision models, designs sensible augmentation, and cares about inference cost and latency rather than only offline accuracy.",
       "responsibilities": [
         "Build and train image and video models",
@@ -675,6 +684,7 @@
       "slug": "reinforcement-learning-engineer",
       "family": "RL",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Work on sequential decision-making: design reward functions that do not invite specification gaming, build realistic simulation environments, and analyse policy behaviour. Statistical rigour matters more here than in almost any other ML setting.",
       "responsibilities": [
         "Design reward functions and evaluation protocols",
@@ -730,6 +740,7 @@
       "slug": "data-scientist",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Bridge statistics and business. Frames questions precisely, designs experiments that can actually detect the effect being looked for, builds validated predictive models, and communicates the result so that a decision can be made from it.",
       "responsibilities": [
         "Frame business questions as statistical questions",
@@ -801,6 +812,7 @@
       "slug": "senior-data-scientist",
       "family": "Data Science",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Lead statistical strategy for a product area. Owns experiment design and causal analysis, mentors analysts, and is trusted to communicate uncertainty honestly rather than overclaiming from a single metric.",
       "responsibilities": [
         "Own the statistical strategy for a product area",
@@ -868,6 +880,7 @@
       "slug": "applied-scientist",
       "family": "Data Science",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Sits between research and product: takes a real product problem, builds a model that works on real data under real constraints, and ships it. Expected to make pragmatic trade-offs between model sophistication and measurable business value.",
       "responsibilities": [
         "Translate product problems into modelling problems",
@@ -947,6 +960,7 @@
       "slug": "analytics-engineer",
       "family": "Data Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build the modelled data layer that analytics depends on. Owns tested, documented transformations, data-quality contracts and lineage, so that analysts can trust the numbers without re-deriving them.",
       "responsibilities": [
         "Build and maintain trustworthy data models",
@@ -1010,6 +1024,7 @@
       "slug": "data-analyst",
       "family": "Data Science",
       "seniority": "Junior",
+      "min_years_experience": 1,
       "description": "Answer business questions using SQL and Python, and present the answer clearly. Expected to validate source data before trusting it and to communicate uncertainty rather than presenting a point estimate as if it were exact.",
       "responsibilities": [
         "Answer business questions with SQL and Python",
@@ -1073,6 +1088,7 @@
       "slug": "business-intelligence-analyst",
       "family": "Data Science",
       "seniority": "Junior",
+      "min_years_experience": 1,
       "description": "Build the dashboards and reports that stakeholders use daily. A large part of the value is in getting metric definitions right and documenting them, so that two people reading the same dashboard agree on what the number means.",
       "responsibilities": [
         "Build dashboards and reports stakeholders rely on",
@@ -1132,6 +1148,7 @@
       "slug": "data-engineer",
       "family": "Data Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build and operate the pipelines the rest of the company depends on. Designs batch and streaming workloads, models data for analytical access, and treats data quality and pipeline cost as first-class concerns.",
       "responsibilities": [
         "Design and operate batch and streaming pipelines",
@@ -1203,6 +1220,7 @@
       "slug": "senior-data-engineer",
       "family": "Data Engineering",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Set strategy for the data platform. Designs reliable observable pipelines, mentors engineers, and owns both platform cost and data governance so that the platform remains usable as it grows.",
       "responsibilities": [
         "Set the data platform strategy",
@@ -1270,6 +1288,7 @@
       "slug": "database-administrator",
       "family": "Data Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Own the production database estate: provisioning, schema and index design, backup and restore, replication and incident response. Prioritises data integrity above availability when the two conflict.",
       "responsibilities": [
         "Provision and tune production databases",
@@ -1317,6 +1336,7 @@
       "slug": "big-data-engineer",
       "family": "Data Engineering",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Build distributed data systems and make them fast and cheap. Comfortable reasoning about partitioning, shuffles, join strategies and storage formats, and able to quantify the cost impact of a design decision.",
       "responsibilities": [
         "Build distributed batch and streaming systems",
@@ -1384,6 +1404,7 @@
       "slug": "mlops-engineer",
       "family": "MLOps",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Own the operational half of machine learning: packaging models into services, automating retraining and promotion, instrumenting them, and managing the infrastructure they run on. The job is as much about reliability as about machine learning.",
       "responsibilities": [
         "Build and maintain model deployment pipelines",
@@ -1459,6 +1480,7 @@
       "slug": "machine-learning-infrastructure-engineer",
       "family": "MLOps",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Design the compute and storage substrate that machine learning runs on. Responsible for scaling training and serving, and for making cost per unit of work a first-class engineering metric rather than an afterthought.",
       "responsibilities": [
         "Design the compute and storage substrate for ML",
@@ -1522,6 +1544,7 @@
       "slug": "data-engineering-manager",
       "family": "Data Engineering",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Lead a data engineering team. Sets the roadmap, grows engineers, and keeps platform work tied to measurable business outcomes rather than to technical preference.",
       "responsibilities": [
         "Set the data platform roadmap",
@@ -1577,6 +1600,7 @@
       "slug": "ml-engineering-manager",
       "family": "ML Engineer",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Lead a team delivering machine learning products. Balances exploratory work against delivery commitments, sets quality standards, and is accountable for outcomes rather than for models in isolation.",
       "responsibilities": [
         "Own a team delivering ML products",
@@ -1636,6 +1660,7 @@
       "slug": "head-of-data-science",
       "family": "Data Science",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Set data science strategy for the organisation: build the function, hold the experimentation bar across teams, and make sure analysis actually changes decisions rather than merely producing reports.",
       "responsibilities": [
         "Set the data science strategy for the organisation",
@@ -1691,6 +1716,7 @@
       "slug": "computer-vision-research-engineer",
       "family": "Computer Vision",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Advance the state of vision modelling on internal problems: design architectures and self-supervised objectives, run reproducible research, and convert findings into shipped capability.",
       "responsibilities": [
         "Advance vision model architectures",
@@ -1766,6 +1792,7 @@
       "slug": "speech-and-audio-engineer",
       "family": "NLP",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build speech and audio systems, from low-latency streaming recognition to audio-conditioned language models. Evaluated on word error rate and behaviour on real, noisy audio rather than on clean benchmarks.",
       "responsibilities": [
         "Build speech recognition and audio understanding systems",
@@ -1829,6 +1856,7 @@
       "slug": "recommender-systems-engineer",
       "family": "ML Engineer",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build the models that decide what a user sees next. Works across retrieval and ranking, designs both offline and online evaluation, and runs controlled experiments on live traffic.",
       "responsibilities": [
         "Build and tune ranking and retrieval models",
@@ -1900,6 +1928,7 @@
       "slug": "search-engineer",
       "family": "ML Engineer",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Improve the relevance of search: lexical and semantic retrieval, ranking, and a genuine offline relevance evaluation set that is not just click-through data.",
       "responsibilities": [
         "Improve ranking and relevance of search results",
@@ -1967,6 +1996,7 @@
       "slug": "knowledge-graph-engineer",
       "family": "NLP",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Model entities and their relationships, build the extraction and reconciliation pipelines that populate the graph, and serve it. Provenance for every fact is a hard requirement, not a nice-to-have.",
       "responsibilities": [
         "Model entities and relationships",
@@ -2030,6 +2060,7 @@
       "slug": "time-series-forecasting-specialist",
       "family": "Data Science",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Build forecasting systems and defend them. The hard part is backtesting without leakage and communicating prediction intervals honestly to people who need a number for planning.",
       "responsibilities": [
         "Build and validate forecasting models",
@@ -2097,6 +2128,7 @@
       "slug": "forecasting-platform-engineer",
       "family": "MLOps",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Operate the shared forecasting infrastructure. Point-in-time correctness of training features is the central concern: a pipeline that leaks future data will report accuracy that never materialises.",
       "responsibilities": [
         "Operate shared forecasting pipelines at scale",
@@ -2176,6 +2208,7 @@
       "slug": "quantitative-researcher",
       "family": "Quantitative",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Research systematic signals and test them rigorously. Look-ahead bias and overfitting are the two failure modes that matter, so evaluation design is the core skill rather than the modelling.",
       "responsibilities": [
         "Research and test systematic trading signals",
@@ -2243,6 +2276,7 @@
       "slug": "risk-analyst",
       "family": "Quantitative",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Quantify and monitor risk. Builds scenario and stress analyses and reports them to people who will act on them, which makes clarity as important as the arithmetic.",
       "responsibilities": [
         "Quantify and monitor risk exposures",
@@ -2314,6 +2348,7 @@
       "slug": "cloud-engineer",
       "family": "MLOps",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Provision and operate cloud infrastructure. Everything is defined in code, security and cost are guardrails rather than afterthoughts, and hand-run configuration is treated as a defect.",
       "responsibilities": [
         "Provision and maintain cloud infrastructure",
@@ -2381,6 +2416,7 @@
       "slug": "site-reliability-engineer",
       "family": "MLOps",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Keep production systems available and improve the systems that make availability sustainable. Expected to lead incident response, write honest postmortems, and alert on symptoms rather than on causes.",
       "responsibilities": [
         "Keep production systems available",
@@ -2440,6 +2476,7 @@
       "slug": "devops-engineer",
       "family": "MLOps",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Automate the path from commit to production. Improves deployment frequency and safety through pipelines, containers and infrastructure as code, and reduces manual steps deliberately.",
       "responsibilities": [
         "Automate build, test and deploy pipelines",
@@ -2515,6 +2552,7 @@
       "slug": "kubernetes-administrator",
       "family": "MLOps",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Operate Kubernetes clusters: upgrades, networking and scheduling problems, security policy, and cluster provisioning. Much of the value is in knowing the failure modes well enough to diagnose them quickly.",
       "responsibilities": [
         "Operate and upgrade Kubernetes clusters",
@@ -2570,6 +2608,7 @@
       "slug": "platform-engineer",
       "family": "MLOps",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Build internal platforms that make product teams faster. Success is measured by whether engineers choose the paved road, which makes developer experience the primary design constraint.",
       "responsibilities": [
         "Build internal platforms that make teams faster",
@@ -2633,6 +2672,7 @@
       "slug": "backend-engineer",
       "family": "Software Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build and maintain backend services. Designs APIs others can consume, models relational data carefully, and treats automated tests as part of the definition of done rather than as an extra step.",
       "responsibilities": [
         "Design and build backend services and APIs",
@@ -2700,6 +2740,7 @@
       "slug": "senior-backend-engineer",
       "family": "Software Engineering",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Set architecture direction for backend systems. Reviews designs, owns the reliability and performance of critical services, and is expected to mentor rather than only to contribute.",
       "responsibilities": [
         "Set backend architecture direction",
@@ -2771,6 +2812,7 @@
       "slug": "frontend-engineer",
       "family": "Software Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build accessible, responsive user interfaces against real APIs, including the loading, empty and error states that most product surfaces forget. Design-system consistency is treated as a feature.",
       "responsibilities": [
         "Build accessible, responsive user interfaces",
@@ -2850,6 +2892,7 @@
       "slug": "full-stack-engineer",
       "family": "Software Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Ship features across the whole stack: interface, API and data model. The value is in keeping those three coherent, so the data model is designed with the interface in mind rather than after it.",
       "responsibilities": [
         "Ship features across the whole stack",
@@ -2917,6 +2960,7 @@
       "slug": "software-engineer",
       "family": "Software Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Implement and maintain software features across a stack. Expected to write real tests, review others' code constructively, and debug systematically rather than by guesswork.",
       "responsibilities": [
         "Implement and maintain software features",
@@ -2984,6 +3028,7 @@
       "slug": "qa-automation-engineer",
       "family": "Software Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Design and maintain automated test suites that the team trusts. A test suite that is flaky gets ignored, so reliability is treated as the primary quality bar rather than coverage percentage.",
       "responsibilities": [
         "Design and maintain automated test suites",
@@ -3043,6 +3088,7 @@
       "slug": "product-analyst",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Instrument the product, analyse funnels, design and read experiments, and translate the result into a decision. Expected to say what the data does not show as well as what it does.",
       "responsibilities": [
         "Instrument and analyse product funnels",
@@ -3102,6 +3148,7 @@
       "slug": "business-intelligence-developer",
       "family": "Data Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build the semantic and reporting layers over modelled data. Metric definitions and documentation are treated as deliverables, not as overhead.",
       "responsibilities": [
         "Build semantic and reporting layers",
@@ -3173,6 +3220,7 @@
       "slug": "research-scientist",
       "family": "Research",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Conduct primary research on problems where the answer is not known. Designs ablations that genuinely isolate a single variable, and keeps every experiment reproducible enough for someone else to re-run it.",
       "responsibilities": [
         "Conduct primary research and publish findings",
@@ -3232,6 +3280,7 @@
       "slug": "ai-ethics-and-governance-specialist",
       "family": "Governance",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Assess AI systems for fairness, harm and compliance, and turn the assessment into documentation and monitoring that a deployment team will actually follow.",
       "responsibilities": [
         "Assess AI systems for fairness and harm",
@@ -3279,6 +3328,7 @@
       "slug": "data-engineer-for-analytics",
       "family": "Data Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build pipelines optimised for analytical query patterns rather than for transaction processing. Data quality contracts matter because analysts cannot wait for a pipeline while investigating a question.",
       "responsibilities": [
         "Build pipelines that serve analytics specifically",
@@ -3354,6 +3404,7 @@
       "slug": "analytics-engineer-manager",
       "family": "Data Engineering",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Lead the analytics engineering function: set modelling standards, mentor engineers, and keep the modelled layer aligned with how the business actually asks questions.",
       "responsibilities": [
         "Lead the analytics engineering function",
@@ -3413,6 +3464,7 @@
       "slug": "junior-data-analyst",
       "family": "Data Science",
       "seniority": "Entry",
+      "min_years_experience": 0,
       "description": "The entry-level analyst role: routine questions answered correctly, simple reports built and maintained, data validated before use, and learning the methods properly under mentorship.",
       "responsibilities": [
         "Answer routine analytical questions",
@@ -3468,6 +3520,7 @@
       "slug": "junior-software-developer",
       "family": "Software Engineering",
       "seniority": "Entry",
+      "min_years_experience": 0,
       "description": "The entry-level developer role: implement well-scoped features under mentorship, test what you write, and learn the codebase's conventions well enough to follow them.",
       "responsibilities": [
         "Implement features under mentorship",
@@ -3527,6 +3580,7 @@
       "slug": "ai-engineering-intern",
       "family": "AI Engineer",
       "seniority": "Entry",
+      "min_years_experience": 0,
       "description": "Supports AI feature development: preparing data, running and documenting experiments, and assisting with evaluation. Work is supervised, and the emphasis is on writing things down so others can continue them.",
       "responsibilities": [
         "Support development of AI features",
@@ -3602,6 +3656,7 @@
       "slug": "technical-program-manager",
       "family": "Product",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Coordinate delivery across teams: track dependencies, surface risks early, and keep stakeholders informed without drowning them in detail.",
       "responsibilities": [
         "Coordinate multi-team delivery",
@@ -3649,6 +3704,7 @@
       "slug": "fraud-analyst",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Detect fraud: engineer features for anomalous behaviour, tune the false-positive/missed-fraud tradeoff against real operational cost, and explain individual decisions to investigators who must act on them.",
       "responsibilities": [
         "Build and tune fraud detection models",
@@ -3728,6 +3784,7 @@
       "slug": "marketing-data-scientist",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Support marketing with rigorous experimentation and honest attribution. Segmentation and lifetime-value modelling are the core deliverables.",
       "responsibilities": [
         "Design and read marketing experiments",
@@ -3803,6 +3860,7 @@
       "slug": "healthcare-data-scientist",
       "family": "Data Science",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Build predictive models on health data under strict governance. Evaluation metrics must be clinically meaningful, and every model must be documented for clinical review rather than judged on accuracy alone.",
       "responsibilities": [
         "Build predictive models on sensitive health data",
@@ -3878,6 +3936,7 @@
       "slug": "fintech-machine-learning-engineer",
       "family": "ML Engineer",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Build real-time decision models in a regulated setting. Features must remain valid under drift, models are monitored for performance *and* fairness, and every model is documented for regulatory review.",
       "responsibilities": [
         "Build real-time decision models in regulated settings",
@@ -3957,6 +4016,7 @@
       "slug": "retail-forecasting-data-scientist",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Forecast demand at product and location granularity for supply-chain planning. Intervals matter more than point estimates, because planners act on the range.",
       "responsibilities": [
         "Forecast demand at product and location granularity",
@@ -4028,6 +4088,7 @@
       "slug": "manufacturing-quality-engineer",
       "family": "Data Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Detect process anomalies and predict equipment failure in a plant. Work is collaborative with plant engineers, and models are deployed close to the equipment.",
       "responsibilities": [
         "Detect process anomalies and predict equipment failure",
@@ -4095,6 +4156,7 @@
       "slug": "autonomous-systems-engineer",
       "family": "Robotics",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Perceive and plan in dynamic environments. Integrates perception, localisation and control, and is evaluated against both simulation and real hardware because simulation alone hides failure modes.",
       "responsibilities": [
         "Perceive and plan in dynamic environments",
@@ -4158,6 +4220,7 @@
       "slug": "edge-ai-engineer",
       "family": "MLOps",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Deploy models onto constrained hardware. Quantisation and compression accuracy loss is measured rather than assumed, and latency and power budgets are treated as hard requirements.",
       "responsibilities": [
         "Optimise and quantise models for constrained hardware",
@@ -4217,6 +4280,7 @@
       "slug": "game-ai-engineer",
       "family": "Robotics",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Design non-player character behaviour, from authored behaviour trees to trained policies, under a hard frame-time budget. Behaviour is judged on how the game plays, not only on a benchmark.",
       "responsibilities": [
         "Design non-player character behaviour",
@@ -4276,6 +4340,7 @@
       "slug": "quantum-machine-learning-researcher",
       "family": "Research",
       "seniority": "Principal",
+      "min_years_experience": 13,
       "description": "Explore quantum approaches to machine learning problems, with the specific discipline of assessing honestly where classical methods remain superior. Negative results are the expected output as often as positive ones.",
       "responsibilities": [
         "Explore quantum approaches to ML problems",
@@ -4335,6 +4400,7 @@
       "slug": "conversational-ai-designer",
       "family": "Product",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Design multi-turn conversations: the flow, the system prompt, and the success criteria by which the dialogue is judged. Works directly with engineers on retrieval and grounding.",
       "responsibilities": [
         "Design multi-turn conversational flows",
@@ -4398,6 +4464,7 @@
       "slug": "responsible-ai-auditor",
       "family": "Governance",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Audit deployed models and track remediation to completion. Produces assessment reports that stand up to external scrutiny rather than internal reassurance.",
       "responsibilities": [
         "Audit deployed models for fairness and transparency",
@@ -4457,6 +4524,7 @@
       "slug": "developer-advocate",
       "family": "Product",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build demos, tutorials and reference applications, and carry developer feedback back to the team. Success is measured by whether developers can succeed using the documentation unaided.",
       "responsibilities": [
         "Build demos and reference applications",
@@ -4508,6 +4576,7 @@
       "slug": "operations-analyst",
       "family": "Data Science",
       "seniority": "Junior",
+      "min_years_experience": 1,
       "description": "Support operational decisions with data and build the recurring reports the team runs on. Anomalies are surfaced for someone else to act on, so precision about uncertainty matters.",
       "responsibilities": [
         "Support operational decisions with data",
@@ -4575,6 +4644,7 @@
       "slug": "supply-chain-analyst",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Forecast demand and optimise inventory, balancing service level against holding cost. The deliverable is usually a set of trade-offs, so the analysis must be presentable to planners.",
       "responsibilities": [
         "Forecast demand and optimise inventory",
@@ -4638,6 +4708,7 @@
       "slug": "pricing-analyst",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Estimate price elasticity and design pricing experiments. The value is in quantifying the revenue impact of a price change and being honest about the uncertainty in that number.",
       "responsibilities": [
         "Estimate price elasticity",
@@ -4705,6 +4776,7 @@
       "slug": "credit-risk-analyst",
       "family": "Quantitative",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build credit scoring models and validate them against realised outcomes. Fairness monitoring and regulatory documentation are requirements, not enhancements.",
       "responsibilities": [
         "Build credit scoring models",
@@ -4784,6 +4856,7 @@
       "slug": "customer-analytics-manager",
       "family": "Data Science",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Own the customer analytics roadmap: lead experiment design across teams, mentor analysts, and turn analysis into commercial decisions.",
       "responsibilities": [
         "Own the customer analytics roadmap",
@@ -4847,6 +4920,7 @@
       "slug": "data-governance-manager",
       "family": "Governance",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Own data policy and standards, and run the quality and lineage programmes that make them real. Coordination across teams is the hard part; policy nobody adopts is worthless.",
       "responsibilities": [
         "Own data policy and standards",
@@ -4894,6 +4968,7 @@
       "slug": "sports-data-analyst",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Model player and team performance and build predictive models for outcomes. The audience is coaches, so the presentation carries as much weight as the model.",
       "responsibilities": [
         "Model player and team performance",
@@ -4961,6 +5036,7 @@
       "slug": "content-data-scientist",
       "family": "Data Science",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Measure content performance, build recommendation and classification models, and run content experiments. The output must be actionable for editorial teams, not just accurate.",
       "responsibilities": [
         "Measure content performance and engagement",
@@ -5032,6 +5108,7 @@
       "slug": "research-data-engineer",
       "family": "Research",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build the data infrastructure research depends on, where dataset provenance and reproducibility are the central requirements rather than nice-to-haves.",
       "responsibilities": [
         "Build research data infrastructure",
@@ -5107,6 +5184,7 @@
       "slug": "analytics-engineer-for-experimentation",
       "family": "Data Engineering",
       "seniority": "Mid",
+      "min_years_experience": 3,
       "description": "Build the assignment and exposure tables that experiments depend on. A subtle error here silently biases every experiment result, so point-in-time correctness is the whole job.",
       "responsibilities": [
         "Build assignment and exposure tables for experiments",
@@ -5178,6 +5256,7 @@
       "slug": "machine-learning-product-manager",
       "family": "Product",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Define ML product requirements and, importantly, decide where machine learning is *not* the right answer. Manages model quality as a product concern rather than a research concern.",
       "responsibilities": [
         "Define ML product requirements and success metrics",
@@ -5233,6 +5312,7 @@
       "slug": "ml-solutions-architect",
       "family": "AI Engineer",
       "seniority": "Senior",
+      "min_years_experience": 6,
       "description": "Design end-to-end ML system architectures and advise on approach. Balances cost, latency and accuracy explicitly, and prototypes reference implementations so the design is grounded in something that ran.",
       "responsibilities": [
         "Design end-to-end ML system architectures",
@@ -5300,6 +5380,7 @@
       "slug": "machine-learning-infrastructure-lead",
       "family": "MLOps",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Lead the ML infrastructure team, owning both reliability and cost at scale. Sets standards the team can apply without asking for approval each time.",
       "responsibilities": [
         "Lead the ML infrastructure team",
@@ -5359,6 +5440,7 @@
       "slug": "data-scientist-manager",
       "family": "Data Science",
       "seniority": "Lead",
+      "min_years_experience": 9,
       "description": "Manage and grow a data science team: allocate work across the portfolio, hold the experimentation bar, and represent the team honestly to leadership.",
       "responsibilities": [
         "Manage and grow a data science team",
@@ -5402,6 +5484,1058 @@
         {
           "skill_slug": "data-visualization",
           "weight": 0.7
+        }
+      ]
+    },
+    {
+      "title": "Data Platform Engineer",
+      "slug": "data-platform-engineer",
+      "family": "Data Engineering",
+      "seniority": "Senior",
+      "min_years_experience": 6,
+      "description": "Build the platform the rest of the data team works on: a warehouse, a streaming backbone, an orchestration layer and a catalogue. Work at the level of schemas, contracts and reliability rather than queries, and treat a broken pipeline as an incident.",
+      "responsibilities": [
+        "Design the ingestion and storage architecture",
+        "Own the orchestration layer and its failure modes",
+        "Set the data contracts the organisation codes against",
+        "Keep the platform within its cost and latency budget"
+      ],
+      "skills": [
+        {
+          "skill_slug": "sql",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "snowflake",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "delta-lake",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "terraform",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "title": "Streaming Systems Engineer",
+      "slug": "streaming-systems-engineer",
+      "family": "Data Engineering",
+      "seniority": "Senior",
+      "min_years_experience": 6,
+      "description": "Build the systems that process data as it arrives. Own the event contracts, the consumers and the state that has to survive a restart, and reason carefully about ordering, duplication and late data.",
+      "responsibilities": [
+        "Design the event contracts and their compatibility rules",
+        "Build and operate the consumers that read them",
+        "Handle replay, late events and exactly-once semantics",
+        "Meet the latency the product actually needs"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "java",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.5
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.5
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.45
+        }
+      ]
+    },
+    {
+      "title": "GPU Performance Engineer",
+      "slug": "gpu-performance-engineer",
+      "family": "MLOps",
+      "seniority": "Senior",
+      "min_years_experience": 6,
+      "description": "Make the model run faster on the hardware it is given. Profile the kernels, fix the bottlenecks, choose the precision, and tell the team why the training is taking as long as it does.",
+      "responsibilities": [
+        "Profile training and inference workloads on accelerators",
+        "Optimise the kernels, memory layout and data pipeline",
+        "Choose the precision and the batch size that fit the budget",
+        "Report the performance characteristics the team plans against"
+      ],
+      "skills": [
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "mlops",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "title": "LLM Platform Engineer",
+      "slug": "llm-platform-engineer",
+      "family": "LLM Engineer",
+      "seniority": "Senior",
+      "min_years_experience": 6,
+      "description": "Build the platform the language-model applications run on: the serving, the evaluation, the prompt and model registries, and the cost controls. Know which parts of a system are the model and which parts are the plumbing around it.",
+      "responsibilities": [
+        "Own the serving layer and its latency and cost",
+        "Build the evaluation harness the team trusts",
+        "Manage the model and prompt registries",
+        "Set the guardrails the applications run inside"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "vllm",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "fastapi",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "redis",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "observability",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.5
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Research Engineer",
+      "slug": "research-engineer",
+      "family": "Research",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "Build the systems that let a research team move faster: the training frameworks, the experiment infrastructure and the evaluation harnesses. Half engineer, half research engineer, and deliberately both.",
+      "responsibilities": [
+        "Build the training and evaluation infrastructure",
+        "Make experiments reproducible from a single command",
+        "Turn a paper's method into working code",
+        "Keep the compute the team depends on available"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "linux",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "testing",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.5
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "title": "Evaluation Scientist",
+      "slug": "evaluation-scientist",
+      "family": "Research",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "Decide whether a change made the system better, and design the measurement that says so. Build the offline evaluations, the online experiments and the analysis that stands behind the decision.",
+      "responsibilities": [
+        "Design the evaluation that a change has to pass",
+        "Build the offline benchmark and keep it honest",
+        "Run the online experiment and analyse the result",
+        "Report the finding, including when it is negative"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "technical-writing",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "title": "Machine Learning Engineer, Platform",
+      "slug": "machine-learning-engineer-platform",
+      "family": "ML Engineer",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "Build the shared platform the machine-learning engineers build on: the training framework, the feature pipeline, the model template and the evaluation that every new model starts with. The work is in making the right thing the easy thing.",
+      "responsibilities": [
+        "Own the training framework and the model templates",
+        "Build the feature pipeline the models share",
+        "Provide the evaluation every new model starts with",
+        "Keep the platform boring and the changes safe"
+      ],
+      "skills": [
+        {
+          "skill_slug": "python",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "pytorch",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "kubernetes",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "mlflow",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "ci-cd",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "aws",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Search Relevance Engineer",
+      "slug": "search-relevance-engineer",
+      "family": "ML Engineer",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "Make search return what the person meant. Own the ranking, the query understanding and the evaluation that says whether a change helped, and be measured in whether people click the right thing.",
+      "responsibilities": [
+        "Own the ranking model and the features it uses",
+        "Improve query understanding and the matching it drives",
+        "Build the offline and online evaluation for relevance",
+        "Work with the product side on what relevance means"
+      ],
+      "skills": [
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "numpy",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "xgboost",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "git",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "title": "Recommendation Systems Engineer",
+      "slug": "recommendation-systems-engineer",
+      "family": "ML Engineer",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "Build the models that decide what somebody sees next. Retrieval, ranking, the feedback loop that keeps them honest, and the evaluation that measures whether the catalogue actually got better.",
+      "responsibilities": [
+        "Build and improve the retrieval and ranking models",
+        "Keep the feedback loop from teaching the model the wrong thing",
+        "Measure the effect on the catalogue and on the user",
+        "Keep the serving fast enough to be invisible"
+      ],
+      "skills": [
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "feature-engineering",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "redis",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "xgboost",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "statistics",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "docker",
+          "weight": 0.5
+        },
+        {
+          "skill_slug": "rest-apis",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "title": "Decision Scientist",
+      "slug": "decision-scientist",
+      "family": "Quantitative",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "Sit between the model and the decision. Frame the decision as a trade-off, model the options, and work out what each one is actually worth — including the option of doing nothing.",
+      "responsibilities": [
+        "Frame the decision and the options in front of it",
+        "Model the value and the uncertainty of each option",
+        "Recommend one, with the reasoning that supports it",
+        "Track what actually happened afterwards"
+      ],
+      "skills": [
+        {
+          "skill_slug": "statistics",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "causal-inference",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "machine-learning",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "data-storytelling",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "bayesian-statistics",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Secondary School Teacher",
+      "slug": "secondary-school-teacher",
+      "family": "Teaching",
+      "seniority": "Mid",
+      "min_years_experience": 2,
+      "description": "Plan and deliver lessons across a subject area, assess what students have understood, and manage a class of thirty-odd teenagers. Expect to write lesson plans against learning outcomes, mark work, keep parents informed, and handle a safeguarding concern correctly the first time. Subject knowledge is assumed; the craft is in the room.",
+      "responsibilities": [
+        "Plan and deliver lessons against agreed learning outcomes",
+        "Assess student work and report progress to parents",
+        "Manage classroom behaviour and maintain a safe learning environment",
+        "Keep records of attainment and adjust teaching to what the class needs"
+      ],
+      "skills": [
+        {
+          "skill_slug": "lesson-planning",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "classroom-management",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "student-assessment",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "curriculum-design",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "behaviour-management",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "differentiated-instruction",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "learning-outcomes",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "parent-communication",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "examination-marking",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "student-safeguarding",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "special-educational-needs",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "educational-technology",
+          "weight": 0.55
+        }
+      ]
+    },
+    {
+      "title": "Registered Nurse",
+      "slug": "registered-nurse",
+      "family": "Healthcare",
+      "seniority": "Mid",
+      "min_years_experience": 1,
+      "description": "Assess patients, plan and deliver their care, administer medication and keep the record that the next shift will rely on. Much of the job is judgement under pressure: spotting a patient who is deteriorating, escalating early, and working infection control properly every time. Ward rounds, handovers and clinical documentation are daily work, not paperwork that can wait.",
+      "responsibilities": [
+        "Assess patients and plan, deliver and review their care",
+        "Administer medication and monitor for adverse effects",
+        "Maintain accurate clinical records and hand over safely",
+        "Escalate deterioration early and work within infection control policy"
+      ],
+      "skills": [
+        {
+          "skill_slug": "patient-assessment",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "clinical-documentation",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "medication-administration",
+          "weight": 0.92
+        },
+        {
+          "skill_slug": "care-planning",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "vital-signs",
+          "weight": 0.88
+        },
+        {
+          "skill_slug": "infection-control",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "patient-monitoring",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "emergency-response",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "clinical-handover",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "ward-management",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "clinical-trials",
+          "weight": 0.5
+        }
+      ]
+    },
+    {
+      "title": "Accountant",
+      "slug": "accountant",
+      "family": "Accounting & Finance",
+      "seniority": "Mid",
+      "min_years_experience": 2,
+      "description": "Keep the books, close the month, and produce the financial statements that the business is run on. Day to day that means payables, receivables and bank reconciliation; periodically it means tax filings, regulatory returns and a variance analysis that explains what moved since the last budget. Accuracy is the job: a ledger that is nearly right is a ledger that is wrong.",
+      "responsibilities": [
+        "Maintain the ledger and reconcile the bank accounts monthly",
+        "Run the payables and receivables cycles to terms",
+        "Prepare the financial statements and support the statutory filings",
+        "Investigate budget variances and report what caused them"
+      ],
+      "skills": [
+        {
+          "skill_slug": "bookkeeping",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "financial-reporting",
+          "weight": 0.95
+        },
+        {
+          "skill_slug": "accounts-payable",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "accounts-receivable",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "bank-reconciliation",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "budgeting",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "tax-compliance",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "internal-controls",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "regulatory-reporting",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "cost-accounting",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "variance-analysis",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.8
+        }
+      ]
+    },
+    {
+      "title": "Financial Analyst",
+      "slug": "financial-analyst",
+      "family": "Accounting & Finance",
+      "seniority": "Mid",
+      "min_years_experience": 2,
+      "description": "Turn the numbers into a decision. Build the model, compare the actuals against the plan, work out what the gap is made of, and say it plainly to people who did not build the model. Strong spreadsheet work and enough SQL to check the figures yourself are the entry requirements; the judgement is in knowing which question the business is actually asking.",
+      "responsibilities": [
+        "Build and maintain the models the business plans against",
+        "Produce the monthly reporting pack and explain the variances",
+        "Test the figures against source data rather than taking them on trust",
+        "Support budgeting and forecasting with analysis"
+      ],
+      "skills": [
+        {
+          "skill_slug": "budgeting",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "variance-analysis",
+          "weight": 0.92
+        },
+        {
+          "skill_slug": "financial-modelling",
+          "weight": 0.88
+        },
+        {
+          "skill_slug": "financial-reporting",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "cash-flow-management",
+          "weight": 0.82
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "cost-accounting",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "tableau",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "internal-controls",
+          "weight": 0.55
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Senior Financial Analyst",
+      "slug": "senior-financial-analyst",
+      "family": "Accounting & Finance",
+      "seniority": "Senior",
+      "min_years_experience": 5,
+      "description": "Own the model and the conversation it supports. A senior financial analyst builds the forecasts the company commits to, signs off the numbers that go to the board, and is the person the business asks when the model and reality disagree. The work is as much about being trusted with the answer as about producing it.",
+      "responsibilities": [
+        "Own the forecasting model and the assumptions behind it",
+        "Present the financial picture to senior stakeholders and the board",
+        "Lead the budgeting cycle and the variance analysis that follows it",
+        "Coach analysts and raise the standard of the reporting pack"
+      ],
+      "skills": [
+        {
+          "skill_slug": "financial-modelling",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "financial-reporting",
+          "weight": 0.92
+        },
+        {
+          "skill_slug": "variance-analysis",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "budgeting",
+          "weight": 0.88
+        },
+        {
+          "skill_slug": "cash-flow-management",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "cost-accounting",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "data-visualization",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "sql",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "internal-controls",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "regulatory-reporting",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "power-bi",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "python",
+          "weight": 0.62
+        },
+        {
+          "skill_slug": "tax-compliance",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.75
+        }
+      ]
+    },
+    {
+      "title": "Civil Engineer",
+      "slug": "civil-engineer",
+      "family": "Civil & Electrical Engineering",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "Design the thing, draw it, and see that what is built matches. Civil engineers work from a survey and a set of constraints towards a drawing and a specification somebody can build from, and then they stay on the site long enough to check. Site safety and the quality of the work are as much the job as the design.",
+      "responsibilities": [
+        "Design structures and produce the drawings and specifications",
+        "Carry out site investigation and assess ground conditions",
+        "Review construction quality and address site safety on the project",
+        "Coordinate with contractors and manage the construction programme"
+      ],
+      "skills": [
+        {
+          "skill_slug": "structural-analysis",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "engineering-drawings",
+          "weight": 0.92
+        },
+        {
+          "skill_slug": "autocad",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "building-information-modelling",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "site-investigation",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "road-design",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "health-and-safety-compliance",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "construction-scheduling",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "construction-quality-assurance",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "technical-specification",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "contract-management",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "procurement",
+          "weight": 0.6
+        }
+      ]
+    },
+    {
+      "title": "Quantity Surveyor",
+      "slug": "quantity-surveyor",
+      "family": "Civil & Electrical Engineering",
+      "seniority": "Mid",
+      "min_years_experience": 3,
+      "description": "The commercial side of construction: what it will cost, what it has cost, and what the contract says about the difference. A quantity surveyor measures work, certifies payment, manages variations and administers the contract. Accuracy of the numbers and clarity of the paperwork are the whole job.",
+      "responsibilities": [
+        "Measure and value the work, and certify payments",
+        "Manage variations, valuations and contract documentation",
+        "Advise on procurement and cost control across the project",
+        "Report on cost against programme and explain the differences"
+      ],
+      "skills": [
+        {
+          "skill_slug": "procurement",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "contract-management",
+          "weight": 0.92
+        },
+        {
+          "skill_slug": "cost-accounting",
+          "weight": 0.88
+        },
+        {
+          "skill_slug": "budgeting",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "technical-specification",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "construction-scheduling",
+          "weight": 0.72
+        },
+        {
+          "skill_slug": "construction-quality-assurance",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "financial-reporting",
+          "weight": 0.68
+        },
+        {
+          "skill_slug": "variance-analysis",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "health-and-safety-compliance",
+          "weight": 0.6
+        },
+        {
+          "skill_slug": "excel",
+          "weight": 0.78
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.7
+        }
+      ]
+    },
+    {
+      "title": "Marketing Manager",
+      "slug": "marketing-manager",
+      "family": "Marketing",
+      "seniority": "Lead",
+      "min_years_experience": 6,
+      "description": "Own the plan and the budget, and be accountable for what they produced. A marketing manager decides who the message is for, sets the position, runs the campaigns across paid, owned and earned channels, and reads the analytics to decide what happens next. Setting a positioning that nobody can execute is the failure mode, not a lack of ideas.",
+      "responsibilities": [
+        "Set the positioning, the channel mix and the marketing budget",
+        "Plan and run campaigns across paid, owned and earned channels",
+        "Measure campaign performance and reallocate spend on the evidence",
+        "Lead the team and hold the agency relationships"
+      ],
+      "skills": [
+        {
+          "skill_slug": "campaign-management",
+          "weight": 1.0
+        },
+        {
+          "skill_slug": "market-research",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "marketing-analytics",
+          "weight": 0.9
+        },
+        {
+          "skill_slug": "content-marketing",
+          "weight": 0.85
+        },
+        {
+          "skill_slug": "brand-positioning",
+          "weight": 0.82
+        },
+        {
+          "skill_slug": "customer-segmentation",
+          "weight": 0.8
+        },
+        {
+          "skill_slug": "conversion-rate-optimisation",
+          "weight": 0.75
+        },
+        {
+          "skill_slug": "search-engine-optimisation",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "email-marketing",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "social-media-marketing",
+          "weight": 0.65
+        },
+        {
+          "skill_slug": "budgeting",
+          "weight": 0.7
+        },
+        {
+          "skill_slug": "communication",
+          "weight": 0.75
         }
       ]
     }

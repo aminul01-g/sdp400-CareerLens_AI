@@ -86,10 +86,14 @@ def main() -> int:
             # Unpacked, not iterated: execute().all() yields one-tuples, and
             # str() of a tuple never startswith("CHECK"), which silently
             # dropped every check constraint from the document.
+            # ORDER BY is not cosmetic. PostgreSQL returns constraints in an
+            # unspecified order, so without it the generated document changes
+            # from run to run and `test_regeneration_is_a_no_op` fails for a
+            # reason that has nothing to do with the schema.
             for (definition,) in connection.execute(
                 text(
                     "select pg_get_constraintdef(oid) from pg_constraint "
-                    "where conrelid = to_regclass(:t)"
+                    "where conrelid = to_regclass(:t) order by conname"
                 ),
                 {"t": table},
             ).all():
@@ -109,11 +113,21 @@ def main() -> int:
                 text(
                     "select indexdef from pg_indexes "
                     "where schemaname = 'public' and tablename = :t "
-                    "and indexname not like '%%_pkey'"
+                    "and indexname not like '%%_pkey' "
+                    "order by indexname"
                 ),
                 {"t": table},
             ).all():
                 indexes.setdefault(table, []).append(str(definition))
+
+    # Defensive: the queries above are ordered, but the document must not
+    # depend on that alone. Sorting here makes the generator's output a pure
+    # function of the schema.
+    for table in tables:
+        foreign_keys[table] = sorted(foreign_keys.get(table, []))
+        checks[table] = sorted(checks.get(table, []))
+        uniques[table] = sorted(uniques.get(table, []))
+        indexes[table] = sorted(indexes.get(table, []))
 
     lines: list[str] = []
     add = lines.append
