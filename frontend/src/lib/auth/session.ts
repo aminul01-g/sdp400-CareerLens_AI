@@ -44,9 +44,16 @@ const ONE_YEAR_SECONDS = 60 * 60 * 24 * 365;
  */
 function writeCookie(name: string, value: string): void {
   if (!isBrowser) return;
-  // SameSite=Lax so the cookie rides same-site navigation but not cross-site
-  // form posts; Secure in production so it never travels over plain HTTP.
-  const secure = process.env.NODE_ENV === "production" ? "; Secure" : "";
+  // The `Secure` attribute is set when — and only when — the page was served
+  // over HTTPS. Marking a cookie `Secure` on a plain-HTTP origin makes the
+  // browser reject it outright, and the consequence is that a production build
+  // served over HTTP (`npm run start`, or a self-hosted deployment without a
+  // terminating proxy) cannot store a session at all: the Edge guard reads no
+  // cookie and bounces every protected page back to `/login`. The browser
+  // suite caught it. The condition is the protocol the page is actually on,
+  // not the build mode, because the build mode does not know how the page
+  // reaches the browser.
+  const secure = window.location.protocol === "https:" ? "; Secure" : "";
   document.cookie = `${name}=${encodeURIComponent(value)}; path=/; max-age=${ONE_YEAR_SECONDS}; SameSite=Lax${secure}`;
 }
 
@@ -101,6 +108,35 @@ export function clearSession(): void {
 
 export function isAuthenticated(): boolean {
   return Boolean(getToken());
+}
+
+/**
+ * A one-shot message for the sign-in page.
+ *
+ * Used when a session ends for a reason the user should know about — a
+ * password change elsewhere, for instance — so the sign-in page can say why
+ * rather than leaving the user wondering why they were signed out.
+ */
+const NOTICE_KEY = "careerlens_notice";
+
+export function setSessionNotice(message: string): void {
+  if (!isBrowser) return;
+  try {
+    window.sessionStorage.setItem(NOTICE_KEY, message);
+  } catch {
+    /* storage unavailable; the notice is a nicety, not a requirement */
+  }
+}
+
+export function takeSessionNotice(): string | null {
+  if (!isBrowser) return null;
+  try {
+    const value = window.sessionStorage.getItem(NOTICE_KEY);
+    window.sessionStorage.removeItem(NOTICE_KEY);
+    return value;
+  } catch {
+    return null;
+  }
 }
 
 export function isAdmin(): boolean {

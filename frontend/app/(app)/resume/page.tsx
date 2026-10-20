@@ -250,6 +250,69 @@ export default function ResumePage() {
               </Alert>
             ) : null}
 
+            {result.work_history.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">We read {result.work_history.length} role{result.work_history.length === 1 ? "" : "s"} from your experience section</p>
+                <ul className="divide-y rounded-md border border-dashed">
+                  {result.work_history.map((entry) => (
+                    <li key={entry.id} className="flex flex-wrap items-center gap-3 p-3 text-sm">
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-medium">{entry.employer}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {[entry.start_date, entry.end_date]
+                            .filter(Boolean)
+                            .join(" – ") || "No dates found"}
+                        </span>
+                      </span>
+                      <Badge variant="outline">Confirm on your profile</Badge>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted-foreground">
+                  These are proposals. Confirm them on your{" "}
+                  <Link href="/profile" className="text-primary hover:underline">
+                    profile
+                  </Link>
+                  , and they will count towards your experience.
+                </p>
+              </div>
+            ) : null}
+
+            {result.achievements.length > 0 ? (
+              <div className="space-y-2">
+                <p className="text-sm font-medium">
+                  We read {result.achievements.length} quantified claim
+                  {result.achievements.length === 1 ? "" : "s"} from your CV
+                </p>
+                <ul className="divide-y rounded-md border border-dashed">
+                  {result.achievements.map((claim, index) => (
+                    <li
+                      key={`${claim.text}-${index}`}
+                      className="flex flex-wrap items-center gap-3 p-3 text-sm"
+                    >
+                      <span className="min-w-0 flex-1">
+                        <span className="block">{claim.text}</span>
+                        <span className="block text-xs text-muted-foreground">
+                          {claim.metric} &middot;{" "}
+                          {claim.attribution === "individual"
+                            ? "reads as your own work"
+                            : claim.attribution === "team"
+                              ? "reads as the team's work"
+                              : "does not say whose work it was"}
+                        </span>
+                      </span>
+                      <Badge variant="outline">{claim.unit}</Badge>
+                    </li>
+                  ))}
+                </ul>
+                <p className="text-xs text-muted-foreground">
+                  These are read by a rule, not by a model, and they do not
+                  change your score. They are here so you can see what the
+                  document claims before you edit your CV to say it better.
+                </p>
+              </div>
+            ) : null}
+
             {result.detected_skills.length === 0 ? (
               <EmptyState
                 title="No taxonomy skills detected"
@@ -299,7 +362,7 @@ export default function ResumePage() {
                     Accept all
                   </Button>
                   {confirmed ? (
-                    <span className="flex items-center gap-1.5 text-sm text-emerald-600 dark:text-emerald-400" role="status">
+                    <span className="flex items-center gap-1.5 text-sm text-emerald-700 dark:text-emerald-400" role="status">
                       <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                       {confirmed}{" "}
                       <Link href="/skills" className="underline">View your skills</Link>
@@ -358,6 +421,11 @@ export default function ResumePage() {
                     <p className="text-xs text-muted-foreground">
                       {upload.detected_skills.length} skill
                       {upload.detected_skills.length === 1 ? "" : "s"} detected
+                      {upload.achievements.length > 0
+                        ? `, ${upload.achievements.length} quantified claim${
+                            upload.achievements.length === 1 ? "" : "s"
+                          }`
+                        : ""}
                     </p>
                   ) : null}
                 </CardContent>
@@ -417,6 +485,15 @@ function DetectedRow({
             <span className="font-medium">{skill.canonical_name}</span>
             <Badge variant="outline" className="font-mono text-xs">“{skill.surface_form}”</Badge>
             {skill.already_confirmed ? <Badge variant="secondary">Already added</Badge> : null}
+            {skill.is_declared ? (
+              <Badge variant="outline" title="Found in a section where you list your skills.">
+                Declared
+              </Badge>
+            ) : skill.section ? (
+              <Badge variant="outline" className="font-normal">
+                Mentioned in {skill.section}
+              </Badge>
+            ) : null}
           </span>
           <span className="mt-0.5 block text-xs text-muted-foreground">
             {skill.category} · seen {skill.occurrence_count} time

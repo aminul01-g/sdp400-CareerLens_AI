@@ -49,7 +49,7 @@ export function tierOf(weight: number): WeightTier {
 }
 
 const TIER_STYLE: Record<WeightTier, string> = {
-  critical: "bg-destructive/15 text-destructive border-destructive/30",
+  critical: "bg-destructive-surface/15 text-destructive border-destructive-surface/30",
   important: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
   desirable: "bg-muted text-muted-foreground",
 };
@@ -71,14 +71,29 @@ export function JobRoleForm({
   onCreated?: (id: number) => void;
 }) {
   const createJob = useCreateJob();
-  const taxonomy = useAdminTaxonomy({ q: "" });
+  const [query, setQuery] = React.useState("");
+  const [debounced, setDebounced] = React.useState("");
+
+  // Debounced so typing does not fire a request per keystroke.
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setDebounced(query.trim()), 250);
+    return () => window.clearTimeout(timer);
+  }, [query]);
+
+  // The taxonomy is searched **server-side**. The catalogue holds 250 skills
+  // across 14 categories, so the first page of an unfiltered list reaches only
+  // four of them: an admin looking for PyTorch or Docker was told "no match"
+  // because the skill had never been fetched, not because it was absent.
+  const taxonomy = useAdminTaxonomy({
+    q: debounced || undefined,
+    enabled: debounced.length > 0,
+  });
 
   const [title, setTitle] = React.useState("");
   const [family, setFamily] = React.useState("");
   const [seniority, setSeniority] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [selected, setSelected] = React.useState<SelectedSkill[]>([]);
-  const [query, setQuery] = React.useState("");
   const [pickerOpen, setPickerOpen] = React.useState(false);
   const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
   const [formError, setFormError] = React.useState<string | null>(null);
@@ -128,16 +143,9 @@ export function JobRoleForm({
   }
 
   const held = new Set(selected.map((s) => s.skill_id));
-  const results = (taxonomy.data?.items ?? []).filter((skill) => {
-    if (held.has(skill.id)) return false;
-    if (!query.trim()) return false;
-    const needle = query.toLowerCase();
-    return (
-      skill.name.toLowerCase().includes(needle) ||
-      skill.slug.toLowerCase().includes(needle) ||
-      skill.aliases.some((alias) => alias.toLowerCase().includes(needle))
-    );
-  });
+  // The server already matched the query, so this only removes the skills
+  // already attached to this role.
+  const results = (taxonomy.data?.items ?? []).filter((skill) => !held.has(skill.id));
 
   return (
     <Dialog
@@ -276,7 +284,11 @@ export function JobRoleForm({
                     />
                     <CommandList>
                       <CommandEmpty>
-                        {query ? `Nothing matches "${query}".` : "Type to search the taxonomy."}
+                        {query
+                          ? taxonomy.isFetching
+                            ? "Searching the taxonomy…"
+                            : `Nothing matches "${query}".`
+                          : "Type to search the taxonomy."}
                       </CommandEmpty>
                       {results.slice(0, 30).map((skill) => (
                         <CommandItem key={skill.id} value={String(skill.id)} onSelect={() => addSkill(skill)}>

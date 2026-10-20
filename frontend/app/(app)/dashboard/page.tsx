@@ -147,7 +147,7 @@ export default function DashboardPage() {
                       className="flex items-start gap-2 rounded-md p-1.5 text-sm hover:bg-accent"
                     >
                       {step.completed ? (
-                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" aria-hidden="true" />
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-700 dark:text-emerald-400" aria-hidden="true" />
                       ) : (
                         <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
                       )}

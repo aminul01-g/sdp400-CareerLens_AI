@@ -10,6 +10,7 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Header } from "@/components/layout/Header";
+import { SkipLink } from "@/components/shared/SkipLink";
 import { Footer } from "@/components/layout/Footer";
 import { API_BASE_URL, TOKEN_COOKIE } from "@/lib/api/config";
 import type { User } from "@/lib/api/types";
@@ -38,8 +39,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
 
   return (
     <div className="flex min-h-screen flex-col">
+      <SkipLink />
       <Header />
-      <main className="container mx-auto flex-1 px-4 py-8">{children}</main>
+      <main id="main-content" tabIndex={-1} className="container mx-auto flex-1 px-4 py-8">
+        {children}
+      </main>
       <Footer />
     </div>
   );

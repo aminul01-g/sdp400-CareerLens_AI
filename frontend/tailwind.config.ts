@@ -35,7 +35,11 @@ export default {
 				},
 				destructive: {
 					DEFAULT: 'hsl(var(--destructive))',
-					foreground: 'hsl(var(--destructive-foreground))'
+					foreground: 'hsl(var(--destructive-foreground))',
+					// The surface colour: what a destructive *fill* is painted
+					// with, which is not the same colour as destructive *text*.
+					// See the note in app/globals.css.
+					surface: 'hsl(var(--destructive-surface))'
 				},
 				muted: {
 					DEFAULT: 'hsl(var(--muted))',

@@ -21,10 +21,10 @@ import { ConfirmDialog } from "@/components/shared/ConfirmDialog";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingPage } from "@/components/shared/Loading";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { WorkHistoryCard } from "@/components/shared/WorkHistoryCard";
 import { ApiError } from "@/lib/api/config";
 import { errorMessage } from "@/lib/api/client";
 import {
-  useCreateProfile,
   useDeleteProfile,
   useProfile,
   useUpdateProfile,
@@ -34,6 +34,15 @@ const EDUCATION_LEVELS = [
   "", "High school", "Undergraduate", "Postgraduate", "PhD", "Self-taught", "Other",
 ];
 
+/**
+ * The six seniority bands the engine compares a user against a role's.
+ *
+ * Choosing one is optional, and leaving it blank is not a penalty: the engine
+ * treats an unstated level as neutral. It is what makes a junior and a
+ * principal with the same declared skills score differently.
+ */
+const SENIORITY_LEVELS = ["", "Entry", "Junior", "Mid", "Senior", "Lead", "Principal"];
+
 interface FormState {
   headline: string;
   career_goal: string;
@@ -41,6 +50,8 @@ interface FormState {
   location: string;
   education_level: string;
   years_experience: string;
+  seniority: string;
+  industry: string;
   preferred_role_family: string;
   github: string;
   linkedin: string;
@@ -49,14 +60,14 @@ interface FormState {
 
 const EMPTY: FormState = {
   headline: "", career_goal: "", bio: "", location: "",
-  education_level: "", years_experience: "", preferred_role_family: "",
+  education_level: "", years_experience: "", seniority: "", industry: "",
+  preferred_role_family: "",
   github: "", linkedin: "", portfolio: "",
 };
 
 export default function ProfilePage() {
   const profile = useProfile();
   const updateProfile = useUpdateProfile();
-  const createProfile = useCreateProfile();
   const deleteProfile = useDeleteProfile();
 
   const [form, setForm] = React.useState<FormState>(EMPTY);
@@ -76,6 +87,8 @@ export default function ProfilePage() {
       education_level: profile.data.education_level ?? "",
       years_experience:
         profile.data.years_experience != null ? String(profile.data.years_experience) : "",
+      seniority: profile.data.seniority ?? "",
+      industry: profile.data.industry ?? "",
       preferred_role_family: profile.data.preferred_role_family ?? "",
       github: profile.data.links?.github ?? "",
       linkedin: profile.data.links?.linkedin ?? "",
@@ -95,7 +108,7 @@ export default function ProfilePage() {
 
   const data = profile.data;
   const isEmpty = !data.headline && !data.bio && !data.career_goal;
-  const isMutating = updateProfile.isPending || createProfile.isPending;
+  const isMutating = updateProfile.isPending;
 
   function update<K extends keyof FormState>(key: K, value: string) {
     setForm((previous) => ({ ...previous, [key]: value }));
@@ -125,6 +138,8 @@ export default function ProfilePage() {
       location: form.location || null,
       education_level: form.education_level || null,
       years_experience: years ? Number(years) : null,
+      seniority: form.seniority || null,
+      industry: form.industry || null,
       preferred_role_family: form.preferred_role_family || null,
       links: Object.fromEntries(
         Object.entries({ github: form.github, linkedin: form.linkedin, portfolio: form.portfolio }).filter(
@@ -266,6 +281,44 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="seniority">Current level</Label>
+                <select
+                  id="seniority" value={form.seniority}
+                  onChange={(e) => update("seniority", e.target.value)}
+                  className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  aria-describedby="seniority-hint"
+                >
+                  {SENIORITY_LEVELS.map((level) => (
+                    <option key={level || "none"} value={level}>
+                      {level || "Not specified"}
+                    </option>
+                  ))}
+                </select>
+                <p id="seniority-hint" className="text-xs text-muted-foreground">
+                  Roles at a different level are matched, but scored lower. Leaving this
+                  blank costs you nothing.
+                </p>
+                {fieldErrors.seniority ? (
+                  <p className="text-sm text-destructive">{fieldErrors.seniority}</p>
+                ) : null}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="industry">Industry</Label>
+                <Input
+                  id="industry" maxLength={120} value={form.industry}
+                  onChange={(e) => update("industry", e.target.value)}
+                  placeholder="fintech, healthcare, e-commerce"
+                  aria-describedby="industry-hint"
+                />
+                <p id="industry-hint" className="text-xs text-muted-foreground">
+                  The sector you work in. It is part of the text your profile is matched on.
+                </p>
+              </div>
+            </div>
+
             <fieldset className="space-y-3 rounded-md border p-4">
               <legend className="px-1 text-sm font-medium">Links</legend>
               {(
@@ -294,11 +347,13 @@ export default function ProfilePage() {
                 {isMutating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : <Save className="mr-2 h-4 w-4" aria-hidden="true" />}
                 {isMutating ? "Saving…" : "Save profile"}
               </Button>
-              {saved ? <p className="text-sm text-emerald-600 dark:text-emerald-400" role="status">Saved.</p> : null}
+              {saved ? <p className="text-sm text-emerald-700 dark:text-emerald-400" role="status">Saved.</p> : null}
             </div>
           </form>
         </CardContent>
       </Card>
+
+      <WorkHistoryCard />
 
       <ConfirmDialog
         open={confirmOpen}

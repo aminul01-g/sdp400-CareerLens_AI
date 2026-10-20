@@ -34,7 +34,10 @@ import { useSkillGap } from "@/lib/hooks/use-skill-gap";
 import { useUserSkills } from "@/lib/hooks/use-skills";
 
 const TIER_STYLE: Record<Tier, { label: string; className: string }> = {
-  critical: { label: "Critical", className: "bg-destructive/15 text-destructive border-destructive/30" },
+  critical: {
+    label: "Critical",
+    className: "bg-destructive-surface/15 text-destructive border-destructive-surface/30",
+  },
   important: { label: "Important", className: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30" },
   desirable: { label: "Desirable", className: "bg-muted text-muted-foreground" },
 };
@@ -184,7 +187,7 @@ function GapReportView({ roleId }: { roleId: number }) {
         </h2>
         {data.missing.length === 0 ? (
           <EmptyState
-            icon={<CheckCircle2 className="h-8 w-8 text-emerald-600" aria-hidden="true" />}
+            icon={<CheckCircle2 className="h-8 w-8 text-emerald-700" aria-hidden="true" />}
             title="You already cover every required skill"
             description="This role has no gaps in terms of which skills you hold. Coverage is still below 100% if any of your proficiencies are below maximum — raising those is the remaining lever here."
           />

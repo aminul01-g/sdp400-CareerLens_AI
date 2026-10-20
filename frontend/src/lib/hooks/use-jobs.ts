@@ -24,12 +24,4 @@ export function useJobFamilies() {
   return useQuery({ queryKey: jobKeys.families, queryFn: () => jobsApi.families(), staleTime: 5 * 60_000 });
 }
 
-export function useJobRole(id: number | null) {
-  return useQuery({
-    queryKey: jobKeys.detail(id ?? 0),
-    queryFn: () => jobsApi.get(id as number),
-    enabled: id != null,
-  });
-}
-
 export type { JobRoleSummary };

@@ -52,6 +52,7 @@ const adminNavLinks = [
   { href: "/admin/taxonomy", label: "Taxonomy" },
   { href: "/admin/users", label: "Users" },
   { href: "/admin/feedback", label: "Feedback" },
+  { href: "/admin/audit", label: "Audit log" },
   { href: "/admin/evaluation", label: "Evaluation" },
 ] as const;
 
@@ -153,7 +154,14 @@ export function Header() {
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-2"
+                    // The name is hidden on small viewports, so the button
+                    // would otherwise have no accessible name at all.
+                    aria-label={`Account menu for ${user.name}`}
+                  >
                     <span className="hidden max-w-32 truncate sm:inline">{user.name}</span>
                     <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary">
                       {user.name.trim().charAt(0).toUpperCase()}
@@ -187,11 +195,16 @@ export function Header() {
               </DropdownMenu>
             </>
           ) : (
+            // Both auth buttons are hidden below `sm`, because at 320 CSS
+            // pixels the logo, two buttons and the menu button do not fit and
+            // the header overflows sideways. The browser suite measured the
+            // overflow; the two links are in the mobile panel below, so
+            // nothing is lost. See `frontend/e2e/reflow.spec.ts`.
             <>
-              <Button asChild variant="ghost" size="sm">
+              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
                 <Link href="/login">Log in</Link>
               </Button>
-              <Button asChild size="sm">
+              <Button asChild size="sm" className="hidden sm:inline-flex">
                 <Link href="/register">Get started</Link>
               </Button>
             </>
@@ -226,9 +239,36 @@ export function Header() {
                 {link.label}
               </Link>
             ))}
+            {!isAuthenticated ? (
+              <>
+                <p
+                  role="heading"
+                  aria-level={2}
+                  className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
+                  Account
+                </p>
+                <Link
+                  href="/login"
+                  className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  Log in
+                </Link>
+                <Link
+                  href="/register"
+                  className="rounded-md px-3 py-2 text-sm font-medium hover:bg-accent"
+                >
+                  Get started
+                </Link>
+              </>
+            ) : null}
             {isAdmin ? (
               <>
-                <p className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                <p
+                  role="heading"
+                  aria-level={2}
+                  className="px-3 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground"
+                >
                   Admin
                 </p>
                 {adminNavLinks.map((link) => (

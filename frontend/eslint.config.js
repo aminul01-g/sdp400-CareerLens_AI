@@ -1,5 +1,6 @@
 import js from "@eslint/js";
 import globals from "globals";
+import jsxA11y from "eslint-plugin-jsx-a11y";
 import reactHooks from "eslint-plugin-react-hooks";
 import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
@@ -21,6 +22,14 @@ import tseslint from "typescript-eslint";
  *    next `shadcn add` produce a diff, which is the thing being avoided.
  *
  *    Application code outside the kit is held to the full rule set.
+ *
+ * 3. **Accessibility is linted, not asserted.** ``eslint-plugin-jsx-a11y`` is
+ *    in the rule set for the same reason the other rules are: a check that
+ *    only runs in a document is a check that nobody runs. The plugin catches
+ *    the structural mistakes — a control with no name, a click handler on a
+ *    non-interactive element, a label pointing at nothing. It cannot judge
+ *    whether the reading order makes sense, and `docs/accessibility-audit.md`
+ *    says exactly what was and was not verified.
  */
 export default tseslint.config(
   {
@@ -42,12 +51,26 @@ export default tseslint.config(
     plugins: {
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
+      "jsx-a11y": jsxA11y,
     },
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
+      // The recommended set, promoted to errors. These are the rules that
+      // catch a control nobody can operate with a keyboard or a screen reader.
+      ...jsxA11y.configs.recommended.rules,
+      // The two rules the recommended set turns off, on purpose:
+      //
+      // * `no-autofocus` — a focus-managed field is legitimate in a dialog,
+      //   and the audit is about *where* focus goes, not whether it moves.
+      // * `no-noninteractive-element-interactions` — the codebase uses
+      //   clickable cards as links, which is a design decision rather than an
+      //   accident. The card components below carry the keyboard handling
+      //   that makes it work.
+      "jsx-a11y/no-autofocus": "off",
+      "jsx-a11y/no-noninteractive-element-interactions": "off",
     },
   },
   {
@@ -59,6 +82,11 @@ export default tseslint.config(
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/no-require-imports": "off",
       "react-refresh/only-export-components": "off",
+      // `CardTitle` and `AlertTitle` are heading elements that receive their
+      // content as children from the caller, so the rule cannot see any. It is
+      // a false positive on a passthrough component, and the fix would be to
+      // edit vendored code — which is the thing this block exists to avoid.
+      "jsx-a11y/heading-has-content": "off",
     },
   },
   {

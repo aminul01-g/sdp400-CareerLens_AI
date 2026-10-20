@@ -80,6 +80,12 @@ export const profileSchema = z.object({
     .optional()
     .or(z.literal("").transform(() => null))
     .nullable(),
+  seniority: z
+    .enum(["Entry", "Junior", "Mid", "Senior", "Lead", "Principal"])
+    .optional()
+    .or(z.literal("").transform(() => null))
+    .nullable(),
+  industry: z.string().trim().max(120, "Industry must be at most 120 characters.").optional(),
   preferred_role_family: z.string().trim().max(80).optional(),
   links: z
     .object({

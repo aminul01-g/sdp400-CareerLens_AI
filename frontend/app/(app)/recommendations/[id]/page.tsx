@@ -197,6 +197,14 @@ export default function RunDetailPage() {
                     </Button>
                   </div>
 
+                  {role.feedback_samples > 0 ? (
+                    <p className="text-xs text-muted-foreground">
+                      {role.feedback_samples} user{role.feedback_samples === 1 ? "" : "s"} have
+                      said something about this role, giving a community prior of{" "}
+                      <span className="font-mono">{role.role_prior.toFixed(3)}</span>.
+                    </p>
+                  ) : null}
+
                   <ScoreBreakdown role={role} />
                 </CardContent>
               </Card>

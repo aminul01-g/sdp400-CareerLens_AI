@@ -11,7 +11,10 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground hover:bg-primary-glow shadow-md hover:shadow-lg transform hover:-translate-y-0.5",
         destructive:
-          "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md hover:shadow-lg",
+          // The *surface* colour, not the text colour. A destructive button is
+          // a filled surface carrying `--destructive-foreground`, and in the
+          // dark theme those are two different reds. See app/globals.css.
+          "bg-destructive-surface text-destructive-foreground hover:bg-destructive-surface/90 shadow-md hover:shadow-lg",
         outline:
           "border border-border bg-background hover:bg-muted hover:text-foreground shadow-sm hover:shadow-md",
         secondary:

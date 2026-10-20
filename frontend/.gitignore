@@ -27,3 +27,10 @@ dist-ssr
 .next/
 out/
 next-env.d.ts
+
+# Playwright
+/e2e/.auth/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

@@ -15,7 +15,6 @@
  */
 import * as React from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { CheckCircle2, Eye, EyeOff, Loader2, UserPlus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -45,7 +44,6 @@ const EDUCATION_LEVELS = [
 ] as const;
 
 export default function RegisterPage() {
-  const router = useRouter();
   const { register } = useAuth();
 
   const [values, setValues] = React.useState<Omit<RegisterInput, "acceptTerms">>({
@@ -87,7 +85,11 @@ export default function RegisterPage() {
         // The field the predecessor form collected and then discarded.
         education_level: parsed.data.educationLevel || null,
       });
-      router.replace("/dashboard");
+      // A full page load, for the same reason as the login form: the router's
+      // prefetch cache holds redirects for the protected routes that were
+      // prefetched while the visitor was signed out, and reusing one of those
+      // after signing in bounces the user back to the login page.
+      window.location.assign("/dashboard");
     } catch (error) {
       if (error instanceof ApiError && error.isValidation) {
         // Prefer the server's own field errors: it is the authority on validation.
@@ -210,7 +212,7 @@ export default function RegisterPage() {
                 {passwordChecks.map((check) => (
                   <li
                     key={check.label}
-                    className={check.ok ? "text-emerald-600 dark:text-emerald-400" : "text-muted-foreground"}
+                    className={check.ok ? "text-emerald-700 dark:text-emerald-400" : "text-muted-foreground"}
                   >
                     <CheckCircle2 className="mr-1 inline h-3 w-3" aria-hidden="true" />
                     {check.label}

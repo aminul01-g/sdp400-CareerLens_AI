@@ -17,6 +17,7 @@ import {
   getStoredUser,
   getToken,
   setSession,
+  setSessionNotice,
   type SessionUser,
 } from "@/lib/auth/session";
 
@@ -58,6 +59,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // treating the visitor as signed in. Any other failure keeps the cached
       // user, because a transient network error is not a revoked session.
       if (error instanceof ApiError && error.isUnauthorized) {
+        // A stale session — the password was changed elsewhere — is worth
+        // explaining. The user did nothing wrong and would otherwise be left
+        // wondering why they were signed out.
+        if (error.code === "session_stale") {
+          setSessionNotice("Your password has changed since this session started. Please sign in again.");
+        }
         clearSession();
         setUser(null);
       } else {

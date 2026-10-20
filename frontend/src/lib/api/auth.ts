@@ -13,4 +13,18 @@ export const authApi = {
   updateMe: (body: { name?: string; password?: string; current_password?: string }) =>
     apiFetch.patch<User>("/auth/me", body),
   deleteMe: () => apiFetch.delete<void>("/auth/me"),
+
+  /** Consume a verification token. */
+  verifyEmail: (token: string) => apiFetch.post<User>("/auth/verify-email", { token }),
+  /** Ask for another verification email. */
+  resendVerification: () => apiFetch.post<{ message: string }>("/auth/resend-verification"),
+  /**
+   * Ask for a reset link. The response is the same whether or not the address
+   * is registered — the server must not become an account-enumeration oracle.
+   */
+  forgotPassword: (email: string) =>
+    apiFetch.post<{ status: string; message: string }>("/auth/forgot-password", { email }),
+  /** Set a new password with a reset token. */
+  resetPassword: (token: string, newPassword: string) =>
+    apiFetch.post<User>("/auth/reset-password", { token, new_password: newPassword }),
 };

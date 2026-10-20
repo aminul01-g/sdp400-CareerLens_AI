@@ -12,6 +12,7 @@ export const adminKeys = {
   taxonomy: (q: string, category: string) => ["admin", "taxonomy", q, category] as const,
   evaluation: ["admin", "evaluation"] as const,
   feedback: ["admin", "feedback"] as const,
+  audit: (action: string, entityType: string) => ["admin", "audit", action, entityType] as const,
 };
 
 export function useAdminOverview() {
@@ -33,10 +34,11 @@ export function useAdminJob(id: number | null) {
   return useQuery({ queryKey: adminKeys.job(id ?? 0), queryFn: () => adminApi.getJob(id as number), enabled: id != null });
 }
 
-export function useAdminTaxonomy(params: { q?: string; category?: string; page?: number }) {
+export function useAdminTaxonomy(params: { q?: string; category?: string; page?: number; enabled?: boolean }) {
   return useQuery({
     queryKey: [...adminKeys.taxonomy(params.q ?? "", params.category ?? ""), params.page ?? 1],
     queryFn: () => adminApi.listTaxonomy({ ...params, page_size: 50 }),
+    enabled: params.enabled ?? true,
   });
 }
 
@@ -48,6 +50,13 @@ export function useEvaluation() {
     // nothing and would make the chart disagree with the document if it did.
     staleTime: Infinity,
     retry: false,
+  });
+}
+
+export function useAdminAudit(params: { action?: string; entity_type?: string; page?: number } = {}) {
+  return useQuery({
+    queryKey: [...adminKeys.audit(params.action ?? "", params.entity_type ?? ""), params.page ?? 1],
+    queryFn: () => adminApi.audit({ ...params, page_size: 50 }),
   });
 }
 

@@ -38,7 +38,7 @@ import {
 import { tierOf, type WeightTier } from "@/features/admin/JobRoleForm";
 
 const TIER_STYLE: Record<WeightTier, string> = {
-  critical: "bg-destructive/15 text-destructive border-destructive/30",
+  critical: "bg-destructive-surface/15 text-destructive border-destructive-surface/30",
   important: "bg-amber-500/15 text-amber-700 dark:text-amber-400 border-amber-500/30",
   desirable: "bg-muted text-muted-foreground",
 };
@@ -52,17 +52,32 @@ export default function AdminJobEditPage() {
   const updateJob = useUpdateJob();
   const replaceSkills = useReplaceJobSkills();
   const deleteJob = useDeleteJob();
-  const taxonomy = useAdminTaxonomy({ q: "" });
 
   const [form, setForm] = React.useState({
     title: "", family: "", seniority: "", description: "", is_active: true,
   });
   const [weights, setWeights] = React.useState<Record<number, { name: string; category: string; weight: number }>>({});
   const [candidate, setCandidate] = React.useState("");
+  const [debouncedCandidate, setDebouncedCandidate] = React.useState("");
   const [notice, setNotice] = React.useState<string | null>(null);
   const [fieldError, setFieldError] = React.useState<string | null>(null);
   const [confirmOpen, setConfirmOpen] = React.useState(false);
   const [dirty, setDirty] = React.useState(false);
+
+  // Debounced so typing does not fire a request per keystroke.
+  React.useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedCandidate(candidate.trim()), 250);
+    return () => window.clearTimeout(timer);
+  }, [candidate]);
+
+  // The taxonomy is searched **server-side**. The catalogue holds 250 skills
+  // across 14 categories, so the first page of an unfiltered list reaches only
+  // four of them: an admin looking for PyTorch or Docker was told "no match"
+  // because the skill had never been fetched, not because it was absent.
+  const taxonomy = useAdminTaxonomy({
+    q: debouncedCandidate || undefined,
+    enabled: debouncedCandidate.length > 0,
+  });
 
   React.useEffect(() => {
     if (!role.data) return;
@@ -94,16 +109,9 @@ export default function AdminJobEditPage() {
   const skillIds = Object.keys(weights).map(Number);
   const total = Object.values(weights).reduce((sum, s) => sum + s.weight, 0);
 
-  const available = (taxonomy.data?.items ?? [])
-    .filter((skill) => !(skill.id in weights))
-    .filter((skill) => {
-      if (!candidate.trim()) return false;
-      const needle = candidate.toLowerCase();
-      return (
-        skill.name.toLowerCase().includes(needle) ||
-        skill.aliases.some((alias) => alias.toLowerCase().includes(needle))
-      );
-    });
+  // The server already matched the query, so this only removes the skills
+  // already attached to this role.
+  const available = (taxonomy.data?.items ?? []).filter((skill) => !(skill.id in weights));
 
   async function saveFields() {
     setNotice(null); setFieldError(null);
@@ -276,7 +284,9 @@ export default function AdminJobEditPage() {
                     </li>
                   ))}
                   {available.length === 0 ? (
-                    <li className="p-2 text-sm text-muted-foreground">No match in the taxonomy.</li>
+                    <li className="p-2 text-sm text-muted-foreground">
+                      {taxonomy.isFetching ? "Searching the taxonomy…" : "No match in the taxonomy."}
+                    </li>
                   ) : null}
                 </ul>
               ) : null}
@@ -320,7 +330,7 @@ export default function AdminJobEditPage() {
       />
 
       {dirty ? (
-        <p className="text-sm text-amber-600 dark:text-amber-400" role="status">
+        <p className="text-sm text-amber-700 dark:text-amber-400" role="status">
           You have unsaved changes.
         </p>
       ) : null}

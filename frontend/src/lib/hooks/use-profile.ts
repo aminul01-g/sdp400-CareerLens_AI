@@ -26,17 +26,6 @@ export function useUpdateProfile() {
   });
 }
 
-export function useCreateProfile() {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: (payload: ProfilePayload) => profileApi.create(payload),
-    onSuccess: () => {
-      void client.invalidateQueries({ queryKey: profileKeys.all });
-      void client.invalidateQueries({ queryKey: ["dashboard"] });
-    },
-  });
-}
-
 export function useDeleteProfile() {
   const client = useQueryClient();
   return useMutation({

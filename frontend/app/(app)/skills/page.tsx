@@ -17,6 +17,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Command, CommandEmpty, CommandInput, CommandItem, CommandList,
 } from "@/components/ui/command";
@@ -30,11 +32,13 @@ import { EmptyState } from "@/components/shared/EmptyState";
 import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingRows } from "@/components/shared/Loading";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { ProficiencyRubric } from "@/components/shared/ProficiencyRubric";
 import { ApiError } from "@/lib/api/config";
 import { errorMessage } from "@/lib/api/client";
 import type { Skill } from "@/lib/api/types";
+import { proficiencySummary } from "@/lib/rubric";
 import {
-  useAddSkill, useRemoveSkill, useTaxonomySearch, useUpdateSkill, useUserSkills,
+  useAddSkill, useRemoveSkill, useTaxonomyCategories, useTaxonomySearch, useUpdateSkill, useUserSkills,
 } from "@/lib/hooks/use-skills";
 
 const PROFILE_SOURCE = { manual: "Added manually", cv_extracted: "From your CV" } as const;
@@ -51,6 +55,7 @@ export default function SkillsPage() {
   const addSkill = useAddSkill();
   const updateSkill = useUpdateSkill();
   const removeSkill = useRemoveSkill();
+  const taxonomyCategories = useTaxonomyCategories();
 
   // Debounced so typing does not fire a request per keystroke.
   React.useEffect(() => {
@@ -69,10 +74,10 @@ export default function SkillsPage() {
     limit: 50,
   });
 
-  const categories = React.useMemo(() => {
-    const found = new Set((skills.data ?? []).map((s) => s.category));
-    return Array.from(found).sort();
-  }, [skills.data]);
+  const categories = React.useMemo(
+    () => (taxonomyCategories.data ?? []).slice().sort(),
+    [taxonomyCategories.data],
+  );
 
   async function handleAdd(skill: Skill) {
     setNotice(null);
@@ -128,11 +133,12 @@ export default function SkillsPage() {
                   placeholder="Search by name or alias (try &quot;sklearn&quot;)"
                   value={query}
                   onValueChange={setQuery}
+                  aria-label="Search the skill taxonomy"
                 />
                 {categories.length > 0 ? (
                   <div className="border-b p-2">
                     <Select value={category} onValueChange={setCategory}>
-                      <SelectTrigger className="h-8">
+                      <SelectTrigger className="h-8" aria-label="Filter by category">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -213,9 +219,14 @@ export default function SkillsPage() {
             {items.length} skill{items.length === 1 ? "" : "s"} · proficiency is how strongly
             you have worked with each one, and it scales your coverage score
           </p>
+          <ProficiencyRubric />
           <div className="grid gap-3 md:grid-cols-2">
             {items.map((item) => (
-              <Card key={item.skill_id}>
+              // `min-w-0` on the grid item: a grid item's default
+              // `min-width: auto` is its min-content width, and one wide card
+              // was enough to make the single column wider than the viewport
+              // at 320 CSS pixels. The browser suite measured the overflow.
+              <Card key={item.skill_id} className="min-w-0">
                 <CardContent className="space-y-3 p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
@@ -258,6 +269,66 @@ export default function SkillsPage() {
                     />
                     <div className="flex justify-between px-0.5 text-xs text-muted-foreground" aria-hidden="true">
                       <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {proficiencySummary(item.proficiency)}
+                    </p>
+                  </div>
+
+                  <div className="grid gap-3 border-t pt-3 sm:grid-cols-2">
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`years-${item.skill_id}`} className="text-xs">
+                        Years used
+                      </Label>
+                      <Input
+                        id={`years-${item.skill_id}`}
+                        type="number"
+                        min={0}
+                        max={60}
+                        step={0.5}
+                        defaultValue={item.years_used ?? ""}
+                        placeholder="—"
+                        disabled={updateSkill.isPending}
+                        onBlur={(event) => {
+                          const raw = event.target.value.trim();
+                          const years = raw === "" ? null : Number(raw);
+                          if (years !== null && (Number.isNaN(years) || years < 0 || years > 60)) {
+                            setNotice("Years used must be between 0 and 60.");
+                            return;
+                          }
+                          if (years === (item.years_used ?? null)) return;
+                          void updateSkill
+                            .mutateAsync({ skillId: item.skill_id, years_used: years })
+                            .catch((error) => setNotice(errorMessage(error)));
+                        }}
+                        aria-describedby={`years-hint-${item.skill_id}`}
+                      />
+                      <p id={`years-hint-${item.skill_id}`} className="text-xs text-muted-foreground">
+                        Optional. How long you have actually used it.
+                      </p>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor={`last-used-${item.skill_id}`} className="text-xs">
+                        Last used
+                      </Label>
+                      <Input
+                        id={`last-used-${item.skill_id}`}
+                        type="date"
+                        defaultValue={item.last_used_at ?? ""}
+                        disabled={updateSkill.isPending}
+                        onBlur={(event) => {
+                          const value = event.target.value.trim() || null;
+                          if (value === (item.last_used_at ?? null)) return;
+                          void updateSkill
+                            .mutateAsync({ skillId: item.skill_id, last_used_at: value })
+                            .catch((error) => setNotice(errorMessage(error)));
+                        }}
+                        aria-describedby={`last-used-hint-${item.skill_id}`}
+                      />
+                      <p id={`last-used-hint-${item.skill_id}`} className="text-xs text-muted-foreground">
+                        Optional. Skills you have not used recently score a little lower.
+                      </p>
                     </div>
                   </div>
                 </CardContent>

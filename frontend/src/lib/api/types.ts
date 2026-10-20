@@ -42,6 +42,9 @@ export interface Profile {
   location: string | null;
   education_level: string | null;
   years_experience: number | null;
+  /** One of Entry / Junior / Mid / Senior / Lead / Principal, or null. */
+  seniority: string | null;
+  industry: string | null;
   preferred_role_family: string | null;
   links: Record<string, string>;
   created_at?: string | null;
@@ -70,10 +73,25 @@ export interface UserSkill {
   category: string;
   proficiency: number;
   years_used: number | null;
+  /** When the skill was last used. Null means "not stated", which is neutral. */
+  last_used_at: string | null;
   source: "manual" | "cv_extracted";
   confirmed: boolean;
   created_at?: string | null;
   updated_at?: string | null;
+}
+
+export interface WorkHistoryEntry {
+  id: number;
+  employer: string;
+  title: string | null;
+  start_date: string | null;
+  end_date: string | null;
+  /** "manual" or "cv_extracted". */
+  source: string;
+  /** False for a proposal the user has not accepted yet. */
+  confirmed: boolean;
+  raw_text: string | null;
 }
 
 export interface TaxonomySearchResponse {
@@ -188,6 +206,28 @@ export interface DetectedSkill {
   match_end: number | null;
   accepted: boolean;
   already_confirmed: boolean;
+  /** The section of the CV the match was found in. */
+  section: string | null;
+  /** True when it was found in a section where the person declares their skills. */
+  is_declared: boolean;
+}
+
+export interface Achievement {
+  /** The sentence the claim was read from. */
+  text: string;
+  /** The quantity as it was written: "80%", "3x", "$2M", "400,000 rows". */
+  metric: string;
+  /** The numeric part of the quantity, when there is one. */
+  value: number | null;
+  /** What the quantity measures. */
+  unit: "percent" | "multiple" | "currency" | "count" | "duration" | string;
+  /** Whether the number went up, went down, or neither. */
+  direction: "increase" | "decrease" | "neutral" | string;
+  /**
+   * Whether the sentence reads as the candidate's own work, the team's, or
+   * does not say. A first-person pronoun, not a judgement.
+   */
+  attribution: "individual" | "team" | "unattributed" | string;
 }
 
 export interface ResumeUpload {
@@ -200,6 +240,8 @@ export interface ResumeUpload {
   created_at?: string | null;
   text_length: number | null;
   detected_skills: DetectedSkill[];
+  /** The quantified claims the document makes. */
+  achievements: Achievement[];
 }
 
 export interface UploadResponse {
@@ -211,6 +253,10 @@ export interface UploadResponse {
   page_count: number | null;
   detected_skills: DetectedSkill[];
   already_confirmed: string[];
+  /** The jobs the experience section proposed. Proposals, not facts. */
+  work_history: WorkHistoryEntry[];
+  /** The quantified claims the document makes. Proposals, not facts. */
+  achievements: Achievement[];
   message: string;
 }
 
@@ -237,6 +283,33 @@ export interface RoleRecommendation {
   missing_skills: SkillContribution[];
   coverage_contribution: number;
   tfidf_contribution: number;
+  /** The coverage the user declared, before recency and depth were applied. */
+  declared_coverage: number;
+  /** That coverage after the recency and depth adjustments. */
+  signal_coverage: number;
+  /** The multiplier for the distance between the user's level and the role's. */
+  level_fit: number;
+  /** The community signal for this role, in [-1, 1]. 0 when there is no evidence. */
+  role_prior: number;
+  /** How many observations the prior is based on. */
+  feedback_samples: number;
+}
+
+export interface AuditEntry {
+  id: number;
+  actor_id: number | null;
+  actor_email: string | null;
+  /** A stable identifier: "job_role.updated", "auth.login_failed". */
+  action: string;
+  entity_type: string;
+  entity_id: string | null;
+  /** Prose for a human. Do not filter on it. */
+  summary: string;
+  changes: Record<string, unknown>;
+  client_ip: string | null;
+  peer_ip: string | null;
+  request_id: string | null;
+  created_at: string;
 }
 
 export interface RecommendationResponse {

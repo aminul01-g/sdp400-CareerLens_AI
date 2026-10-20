@@ -41,7 +41,7 @@ export function ErrorState({ error, onRetry, title, className }: ErrorStateProps
     <div
       role="alert"
       aria-live="assertive"
-      className={`flex flex-col items-start gap-3 rounded-lg border border-destructive/40 bg-destructive/5 p-6 ${className ?? ""}`}
+      className={`flex flex-col items-start gap-3 rounded-lg border border-destructive-surface/40 bg-destructive-surface/5 p-6 ${className ?? ""}`}
     >
       <div className="flex items-start gap-3">
         <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" aria-hidden="true" />

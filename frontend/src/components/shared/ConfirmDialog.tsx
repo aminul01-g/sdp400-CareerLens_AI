@@ -64,7 +64,9 @@ export function ConfirmDialog({
               void onConfirm();
             }}
             disabled={isPending}
-            className={destructive ? "bg-destructive text-destructive-foreground hover:bg-destructive/90" : undefined}
+            className={destructive
+              ? "bg-destructive-surface text-destructive-foreground hover:bg-destructive-surface/90"
+              : undefined}
           >
             {isPending ? "Working…" : confirmLabel}
           </AlertDialogAction>

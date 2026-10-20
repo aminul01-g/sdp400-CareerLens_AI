@@ -327,7 +327,7 @@ export default function AdminEvaluationPage() {
                       <p className="font-medium">{profile.id}</p>
                       <p className="max-w-48 truncate text-xs text-muted-foreground">{profile.name}</p>
                       {profile.note ? (
-                        <p className="mt-1 max-w-48 text-xs text-amber-600 dark:text-amber-500">
+                        <p className="mt-1 max-w-48 text-xs text-amber-700 dark:text-amber-400">
                           {profile.note}
                         </p>
                       ) : null}

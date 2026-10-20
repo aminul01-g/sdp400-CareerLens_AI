@@ -2,6 +2,7 @@ import { apiFetch } from "./client";
 import type {
   AdminOverview,
   AdminUser,
+  AuditEntry,
   EvaluationReport,
   JobRole,
   JobRoleAdminSummary,
@@ -58,5 +59,7 @@ export const adminApi = {
       "/admin/feedback",
       query,
     ),
+  audit: (query?: { action?: string; entity_type?: string; page?: number; page_size?: number }) =>
+    apiFetch.get<Page<AuditEntry>>("/admin/audit", query),
   evaluation: () => apiFetch.get<EvaluationReport>("/admin/evaluation"),
 };

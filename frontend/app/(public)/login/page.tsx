@@ -14,7 +14,7 @@
 import * as React from "react";
 import { Suspense } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff, LogIn, Loader2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
@@ -23,10 +23,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/components/providers/AuthProvider";
 import { errorMessage } from "@/lib/api/client";
+import { takeSessionNotice } from "@/lib/auth/session";
 import { loginSchema, type LoginInput } from "@/lib/schemas";
 
 function LoginForm() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const { login } = useAuth();
   const from = searchParams.get("from");
@@ -36,6 +36,13 @@ function LoginForm() {
   const [formError, setFormError] = React.useState<string | null>(null);
   const [showPassword, setShowPassword] = React.useState(false);
   const [isPending, setIsPending] = React.useState(false);
+  // A one-shot message left by the session layer — "your password has
+  // changed", for instance. It is taken on first render and then gone.
+  const [notice, setNotice] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    setNotice(takeSessionNotice());
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -55,7 +62,22 @@ function LoginForm() {
       await login(parsed.data.email, parsed.data.password);
       // Send the user back to where the guard intercepted them, but only to a
       // same-origin path — an attacker-supplied absolute URL must not be honoured.
-      router.replace(from && from.startsWith("/") && !from.startsWith("//") ? from : "/dashboard");
+      const target = from && from.startsWith("/") && !from.startsWith("//") ? from : "/dashboard";
+      // A **full page load**, not a client-side route change.
+      //
+      // The header prefetches the protected routes, and Next.js prefetches them
+      // *while the visitor is still signed out*, so the router's cache holds a
+      // redirect to `/login?from=/dashboard` for `/dashboard`. A client-side
+      // navigation after signing in reuses that cached redirect and bounces
+      // the user straight back to the login page — the sign-in appears to
+      // have done nothing, and only a manual refresh rescues it. The browser
+      // suite found it.
+      //
+      // A hard navigation throws the stale cache away and lets the server
+      // re-evaluate the guard with the session cookie it now has. It is
+      // marginally slower and it is correct, and a session change is exactly
+      // the situation in which a cached route is known to be wrong.
+      window.location.assign(target);
     } catch (error) {
       setFormError(errorMessage(error, "Email or password is incorrect."));
     } finally {
@@ -75,6 +97,12 @@ function LoginForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} noValidate className="space-y-4">
+            {notice ? (
+              <Alert role="status">
+                <AlertDescription>{notice}</AlertDescription>
+              </Alert>
+            ) : null}
+
             {formError ? (
               <Alert variant="destructive" role="alert">
                 <AlertDescription>{formError}</AlertDescription>
@@ -136,6 +164,12 @@ function LoginForm() {
               {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" /> : null}
               {isPending ? "Signing in…" : "Sign in"}
             </Button>
+
+            <p className="text-center text-sm">
+              <Link href="/forgot-password" className="font-medium text-primary hover:underline">
+                Forgot your password?
+              </Link>
+            </p>
 
             <p className="text-center text-sm text-muted-foreground">
               No account yet?{" "}

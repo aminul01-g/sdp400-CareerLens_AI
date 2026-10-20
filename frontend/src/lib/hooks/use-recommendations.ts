@@ -1,7 +1,10 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { recommendationsApi } from "@/lib/api/recommendations";
+import {
+  recommendationsApi,
+  type FeedbackAction,
+} from "@/lib/api/recommendations";
 import { ApiError } from "@/lib/api/config";
 import type { RecommendationResponse, RunDetail, RunSummary } from "@/lib/api/types";
 
@@ -47,5 +50,24 @@ export function useRun(id: number | null) {
   });
 }
 
+/**
+ * Record what the user thought of a role.
+ *
+ * The mutation invalidates the run so the card reflects the new state. It does
+ * **not** regenerate the recommendations: the prior is applied at generation
+ * time, and a regeneration would cost a full engine run and append a row to
+ * the history for what is, from the user's point of view, a button press.
+ */
+export function useRecordFeedback(runId: number | null) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: { jobRoleId: number; action: FeedbackAction }) =>
+      recommendationsApi.recordFeedback(runId as number, input.jobRoleId, input.action),
+    onSuccess: () => {
+      void client.invalidateQueries({ queryKey: recommendationKeys.run(runId ?? 0) });
+    },
+  });
+}
+
 export { ApiError };
-export type { RunSummary, RunDetail };
+export type { RunSummary, RunDetail, FeedbackAction };

@@ -82,7 +82,9 @@ export default function AdminJobsPage() {
           </div>
         </div>
         <Select value={family} onValueChange={setFamily}>
-          <SelectTrigger><SelectValue placeholder="All families" /></SelectTrigger>
+          <SelectTrigger aria-label="Filter by role family">
+            <SelectValue placeholder="All families" />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All families</SelectItem>
             {(families.data ?? []).map((f) => (
@@ -91,7 +93,9 @@ export default function AdminJobsPage() {
           </SelectContent>
         </Select>
         <Select value={isActive} onValueChange={setIsActive}>
-          <SelectTrigger><SelectValue /></SelectTrigger>
+          <SelectTrigger aria-label="Filter by seniority">
+            <SelectValue />
+          </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">Active and inactive</SelectItem>
             <SelectItem value="true">Active only</SelectItem>

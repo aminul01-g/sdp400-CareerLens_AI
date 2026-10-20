@@ -136,6 +136,8 @@ Mock data — `mockRecommendations`, `mockStats`, `mockQuizData`, the hardcoded
 | Adding a screen | [`../docs/tutorials.md`](../docs/tutorials.md#8-add-a-frontend-screen) |
 | Deployment | [`../docs/deployment.md`](../docs/deployment.md) |
 | What the product cannot do | [`../docs/limitations.md`](../docs/limitations.md) |
+| What a proficiency number means | [`../docs/proficiency-rubric.md`](../docs/proficiency-rubric.md) |
+| What was checked for accessibility, and what was not | [`../docs/accessibility-audit.md`](../docs/accessibility-audit.md) |
 
 ## Deploying
 

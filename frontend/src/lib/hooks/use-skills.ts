@@ -7,12 +7,22 @@ import type { TaxonomySearchResponse, UserSkill } from "@/lib/api/types";
 export const skillKeys = {
   all: ["skills"] as const,
   taxonomy: (q: string, category?: string) => ["skills", "taxonomy", q, category ?? ""] as const,
+  categories: ["skills", "taxonomy", "categories"] as const,
 };
 
 export function useUserSkills(filters?: { source?: string; category?: string }) {
   return useQuery({
     queryKey: [...skillKeys.all, "mine", filters?.source ?? "", filters?.category ?? ""],
     queryFn: () => skillsApi.list(filters),
+  });
+}
+
+/** The catalogue's own categories, for the picker's category filter. */
+export function useTaxonomyCategories() {
+  return useQuery({
+    queryKey: skillKeys.categories,
+    queryFn: () => skillsApi.taxonomyCategories(),
+    staleTime: 60_000,
   });
 }
 
@@ -35,8 +45,12 @@ function invalidate(client: ReturnType<typeof useQueryClient>) {
 export function useAddSkill() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (input: { skill_id: number; proficiency?: number; years_used?: number | null }) =>
-      skillsApi.add(input),
+    mutationFn: (input: {
+      skill_id: number;
+      proficiency?: number;
+      years_used?: number | null;
+      last_used_at?: string | null;
+    }) => skillsApi.add(input),
     onSuccess: () => invalidate(client),
   });
 }
@@ -51,6 +65,7 @@ export function useUpdateSkill() {
       skillId: number;
       proficiency?: number;
       years_used?: number | null;
+      last_used_at?: string | null;
       confirmed?: boolean;
     }) => skillsApi.update(skillId, payload),
     onSuccess: () => invalidate(client),

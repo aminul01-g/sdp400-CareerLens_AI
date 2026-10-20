@@ -15,7 +15,7 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  ChevronDown, History, Loader2, RefreshCw, Sparkles, Target,
+  Bookmark, ChevronDown, History, Loader2, RefreshCw, Sparkles, Target, ThumbsDown,
 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -31,8 +31,13 @@ import { LoadingCards, LoadingRows } from "@/components/shared/Loading";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { ApiError } from "@/lib/api/config";
 import type { RecommendationResponse, RoleRecommendation } from "@/lib/api/types";
+import {
+  OUTCOME_ACTIONS, OUTCOME_LABELS, type FeedbackAction,
+} from "@/lib/api/recommendations";
 import { useJobFamilies } from "@/lib/hooks/use-jobs";
-import { useGenerateRecommendations, useRuns } from "@/lib/hooks/use-recommendations";
+import {
+  useGenerateRecommendations, useRecordFeedback, useRuns,
+} from "@/lib/hooks/use-recommendations";
 import { useUserSkills } from "@/lib/hooks/use-skills";
 import { ScoreBreakdown } from "@/features/recommendations/ScoreBreakdown";
 
@@ -72,7 +77,9 @@ export default function RecommendationsPage() {
         actions={
           <div className="flex flex-wrap items-center gap-2">
             <Select value={String(limit)} onValueChange={(value) => setLimit(Number(value))}>
-              <SelectTrigger className="w-28"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-28" aria-label="Number of roles to show">
+                <SelectValue />
+              </SelectTrigger>
               <SelectContent>
                 {[5, 10, 20, 50].map((n) => (
                   <SelectItem key={n} value={String(n)}>Top {n}</SelectItem>
@@ -80,7 +87,9 @@ export default function RecommendationsPage() {
               </SelectContent>
             </Select>
             <Select value={family} onValueChange={setFamily}>
-              <SelectTrigger className="w-52"><SelectValue placeholder="All families" /></SelectTrigger>
+              <SelectTrigger className="w-52" aria-label="Filter by role family">
+                <SelectValue placeholder="All families" />
+              </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All role families</SelectItem>
                 {(families.data ?? []).map((f) => (
@@ -155,7 +164,7 @@ export default function RecommendationsPage() {
           ) : (
             <div className="space-y-3">
               {result.results.map((role) => (
-                <RecommendationCard key={role.job_role_id} role={role} />
+                <RecommendationCard key={role.job_role_id} role={role} runId={result.run_id} />
               ))}
             </div>
           )}
@@ -218,10 +227,23 @@ export default function RecommendationsPage() {
   );
 }
 
-function RecommendationCard({ role }: { role: RoleRecommendation }) {
+function RecommendationCard({
+  role,
+  runId,
+}: {
+  role: RoleRecommendation;
+  runId: number;
+}) {
   const [open, setOpen] = React.useState(false);
+  const [action, setAction] = React.useState<FeedbackAction | null>(null);
+  const record = useRecordFeedback(runId);
   const topMatched = role.matched_skills.slice(0, 3);
   const topMissing = role.missing_skills.slice(0, 3);
+
+  function mark(next: FeedbackAction) {
+    setAction(next);
+    record.mutate({ jobRoleId: role.job_role_id, action: next });
+  }
 
   return (
     <Card>
@@ -294,7 +316,65 @@ function RecommendationCard({ role }: { role: RoleRecommendation }) {
           <Button asChild variant="outline" size="sm">
             <Link href={`/skill-gap?role=${role.job_role_id}`}>Skill gap</Link>
           </Button>
+
+          <div className="ml-auto flex items-center gap-2">
+            <Button
+              variant={action === "saved" ? "default" : "ghost"}
+              size="sm"
+              disabled={record.isPending}
+              onClick={() => mark("saved")}
+              aria-pressed={action === "saved"}
+            >
+              <Bookmark className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              {action === "saved" ? "Saved" : "Save"}
+            </Button>
+            <Button
+              variant={action === "dismissed" ? "secondary" : "ghost"}
+              size="sm"
+              disabled={record.isPending}
+              onClick={() => mark("dismissed")}
+              aria-pressed={action === "dismissed"}
+            >
+              <ThumbsDown className="mr-1.5 h-4 w-4" aria-hidden="true" />
+              {action === "dismissed" ? "Not for me" : "Not for me"}
+            </Button>
+          </div>
         </div>
+
+        {/*
+          The outcome row. These are the user's own reports of what happened
+          after they left the shortlist, and they are weighted above the
+          buttons above: a role somebody got an interview for is better
+          evidence of a good match than a role somebody saved. The
+          application cannot observe any of this — the user tells it, and
+          the community prior counts the report.
+        */}
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t pt-3">
+          <span className="text-xs text-muted-foreground">How did it go?</span>
+          {OUTCOME_ACTIONS.map((outcome) => (
+            <Button
+              key={outcome}
+              variant={action === outcome ? "default" : "outline"}
+              size="sm"
+              disabled={record.isPending}
+              onClick={() => mark(outcome)}
+              aria-pressed={action === outcome}
+            >
+              {OUTCOME_LABELS[outcome]}
+            </Button>
+          ))}
+        </div>
+
+        {role.feedback_samples > 0 ? (
+          <p className="mt-2 text-xs text-muted-foreground">
+            {role.feedback_samples} other user{role.feedback_samples === 1 ? "" : "s"} have
+            said something about this role
+            {role.role_prior !== 0
+              ? `, and it has moved the score by ${(role.role_prior * 10).toFixed(1)}%`
+              : ""}
+            .
+          </p>
+        ) : null}
 
         {open ? <ScoreBreakdown role={role} /> : null}
       </CardContent>

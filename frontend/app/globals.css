@@ -43,8 +43,27 @@
     --warning: 30 100% 55%;
     --warning-foreground: 0 0% 100%;
 
-    /* Destructive Colors */
-    --destructive: 0 85% 60%;
+    /* Destructive Colors
+     *
+     * Two tokens, because one cannot do both jobs.
+     *
+     * `--destructive` is the colour destructive **text** is drawn in, and it
+     * has to be readable on the page background and on a tinted background.
+     * `--destructive-surface` is the colour destructive **surfaces** are
+     * filled with, and it has to carry `--destructive-foreground` legibly.
+     *
+     * In the light theme the two are the same colour, because a red that is
+     * readable as text on white is also dark enough to carry white text. In
+     * the dark theme they cannot be: a red light enough to read on a near-black
+     * background cannot carry white text, and a red dark enough to carry white
+     * text is unreadable on a near-black background. So the dark theme uses a
+     * light red for text and a dark red for surfaces.
+     *
+     * The measured ratios are in `docs/accessibility-audit.md`; the axe run in
+     * `frontend/e2e/a11y.spec.ts` is what keeps them true.
+     */
+    --destructive: 0 84% 42%;
+    --destructive-surface: 0 84% 42%;
     --destructive-foreground: 0 0% 100%;
 
     /* Border and Input */
@@ -109,7 +128,8 @@
     --accent: 217.2 32.6% 17.5%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 84% 66%;
+    --destructive-surface: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
@@ -133,5 +153,37 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  /*
+   * A visible focus ring on every interactive element.
+   *
+   * The default ring is removed by several of the shadcn/ui components, which
+   * left the application with no visible focus indicator at all. A keyboard
+   * user could not tell where they were. `focus-visible` is used rather than
+   * `focus` so that a mouse click does not leave a ring behind, while a
+   * keyboard user always gets one.
+   */
+  :focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+
+  /*
+   * Respect the operating system's "reduce motion" setting.
+   *
+   * The application uses a handful of transitions, and one of the design
+   * system's declared effects is a bounce. For a user who has asked the
+   * operating system for less movement, that bounce can be a genuine
+   * problem — it is a recognised trigger for vestibular disorders.
+   */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
