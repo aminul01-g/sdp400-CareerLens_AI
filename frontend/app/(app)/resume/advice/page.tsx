@@ -31,6 +31,7 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadingPage } from "@/components/shared/Loading";
 import { AiToolsNav } from "@/features/ai/AiToolsNav";
 import { AiUnavailable } from "@/features/ai/AiUnavailable";
+import { MarkdownText } from "@/features/ai/MarkdownText";
 import { StoredLanguageToggle, usePreferredLanguage } from "@/features/ai/LanguageToggle";
 import { ApiError } from "@/lib/api/config";
 import { errorMessage } from "@/lib/api/client";
@@ -234,9 +235,9 @@ export default function CvAdvicePage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="whitespace-pre-wrap rounded-md bg-muted p-4 text-sm">
-                      {result.professional_summary}
-                    </p>
+                    <div className="rounded-md bg-muted p-4">
+                      <MarkdownText text={result.professional_summary} />
+                    </div>
                   </CardContent>
                 </Card>
               ) : null}
@@ -300,9 +301,9 @@ export default function CvAdvicePage() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <p className="whitespace-pre-wrap rounded-md bg-muted p-4 text-sm">
-                      {result.cover_letter}
-                    </p>
+                    <div className="rounded-md bg-muted p-4">
+                      <MarkdownText text={result.cover_letter} />
+                    </div>
                   </CardContent>
                 </Card>
               ) : null}

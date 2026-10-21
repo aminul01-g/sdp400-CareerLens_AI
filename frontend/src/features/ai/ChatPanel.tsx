@@ -18,6 +18,7 @@ import { Bot, Loader2, Send, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
+import { MarkdownText } from "@/features/ai/MarkdownText";
 import type { MentorAnswer, MentorTurn } from "@/lib/api/types";
 
 export interface ChatMessage {
@@ -116,7 +117,9 @@ export function ChatPanel({
                   : "bg-muted text-foreground",
               )}
             >
-              <p className="whitespace-pre-wrap break-words">{message.content}</p>
+              <div className="break-words">
+                <MarkdownText text={message.content} />
+              </div>
               {message.answer ? (
                 <AnswerDetails answer={message.answer} />
               ) : null}

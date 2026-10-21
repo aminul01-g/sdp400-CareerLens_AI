@@ -31,6 +31,7 @@ import { LoadingPage } from "@/components/shared/Loading";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { AiToolsNav } from "@/features/ai/AiToolsNav";
 import { AiUnavailable } from "@/features/ai/AiUnavailable";
+import { MarkdownText } from "@/features/ai/MarkdownText";
 import { StoredLanguageToggle, usePreferredLanguage } from "@/features/ai/LanguageToggle";
 import { ApiError } from "@/lib/api/config";
 import { errorMessage } from "@/lib/api/client";
@@ -532,9 +533,9 @@ function FeedbackCard({ exchange }: { exchange: InterviewExchange }) {
         {feedback.example_answer ? (
           <div>
             <p className="text-sm font-medium">A stronger answer</p>
-            <p className="mt-1 whitespace-pre-wrap rounded-md bg-muted p-3 text-sm">
-              {feedback.example_answer}
-            </p>
+            <div className="mt-1 rounded-md bg-muted p-3">
+              <MarkdownText text={feedback.example_answer} />
+            </div>
           </div>
         ) : null}
       </CardContent>
