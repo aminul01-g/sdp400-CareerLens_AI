@@ -45,6 +45,7 @@ _APP_ENV_PREFIXES = (
     "CAREERLENS_",
     "JWT_",
     "LLM_",
+    "GROQ_",
     "DATABASE_",
     "ADMIN_",
     "ALLOWED_",
@@ -171,6 +172,14 @@ class Settings(BaseSettings):
     # Upload: CV submission.
     rate_limit_upload_requests: int = 10
     rate_limit_upload_window_seconds: int = 300
+    # AI: every call that reaches the external model provider. The window is
+    # deliberately longer than the others. A mentor conversation is a
+    # multi-turn exchange, and a learner following a roadmap may regenerate it
+    # a few times, so a per-minute cap would punish the exact behaviour the
+    # feature exists to encourage. The cap still exists because every one of
+    # these calls costs money.
+    rate_limit_ai_requests: int = 20
+    rate_limit_ai_window_seconds: int = 300
     # Networks whose ``X-Forwarded-For`` header may be believed, as a
     # comma-separated list of CIDR blocks or bare addresses. Empty — the
     # default — means believe none of them.
@@ -188,7 +197,45 @@ class Settings(BaseSettings):
     # empty in development, where the peer *is* the client.
     trusted_proxy_cidrs: str = ""
 
-    # ---- Optional LLM (proposal 4.2: the core must work without it) ---
+    # ---- Groq (the AI layer) ------------------------------------------
+    # The AI layer is an *enhancement*. Nothing in the core — CV processing,
+    # career matching, skill-gap analysis — reads any of these, and every AI
+    # route returns a clean 503 when they are unset. That is the whole
+    # contract, and it is why the defaults below are empty strings rather
+    # than a key that might exist somewhere.
+    #
+    # ``groq_enabled`` defaults to true so that setting ``GROQ_API_KEY`` and
+    # ``GROQ_MODEL`` is genuinely all a deployment has to do. It does not by
+    # itself switch anything on: :attr:`groq_is_configured` also requires a
+    # key, so an unconfigured deployment still answers 503.
+    groq_enabled: bool = True
+    # The default is empty, and it must stay empty. A key pasted into this
+    # file would be committed to the repository and published with the code.
+    # The key belongs in the environment: `backend/.env` locally, and the
+    # deployment's encrypted environment variables in production.
+    # `scripts/verify_compliance.py` fails the build if a key ever appears
+    # in a tracked file.
+    groq_api_key: str = ""
+    # ``openai/gpt-oss-120b`` is a Groq *production* model and one of the four
+    # that support strict-mode structured outputs, so the provider constrains
+    # decoding to the JSON schema and the output cannot drift from it.
+    # ``openai/gpt-oss-20b`` is the cheaper, faster alternative with the same
+    # structured-output support.
+    groq_model: str = "openai/gpt-oss-120b"
+    groq_base_url: str = "https://api.groq.com/openai/v1"
+    groq_timeout_seconds: int = 45
+    # How many *extra* attempts a transient provider failure gets. Bounded on
+    # purpose: an unbounded retry loop against a paid API is a denial of
+    # wallet, and the user's request should fail fast and visibly rather than
+    # hang.
+    groq_max_retries: int = 1
+
+    # ---- Deprecated LLM settings --------------------------------------
+    # The first AI experiment used a generic OpenAI-compatible endpoint. It
+    # still works and the learning-path endpoint still honours it, but Groq is
+    # the supported provider now: :mod:`app.core.config` resolves
+    # ``GROQ_*`` first and falls back to these only when a ``GROQ_*`` value is
+    # absent. New deployments should set ``GROQ_*`` and leave these alone.
     llm_enabled: bool = False
     llm_api_key: str = ""
     llm_model: str = "gpt-4o-mini"
@@ -385,6 +432,43 @@ class Settings(BaseSettings):
     @property
     def job_roles_path(self) -> Path:
         return DATA_DIR / "job_roles.json"
+
+    @property
+    def learning_resources_path(self) -> Path:
+        return DATA_DIR / "learning_resources.json"
+
+    @property
+    def groq_is_configured(self) -> bool:
+        """Whether the AI layer can actually reach the provider.
+
+        A key is required, not merely requested. The flag alone is not enough:
+        a deployment that sets ``GROQ_ENABLED=true`` and forgets the key would
+        otherwise fail at the first request with a provider error instead of
+        the clean, actionable 503 the rest of the system expects.
+        """
+        return bool(self.groq_enabled and self.provider_api_key.strip())
+
+    @property
+    def provider_api_key(self) -> str:
+        """The API key to use, preferring ``GROQ_API_KEY``.
+
+        The legacy ``LLM_API_KEY`` is still honoured so that an existing
+        deployment does not break the moment this version is deployed; a
+        ``GROQ_*`` value always wins.
+        """
+        return (self.groq_api_key.strip() or self.llm_api_key.strip())
+
+    @property
+    def provider_model(self) -> str:
+        return (self.groq_model.strip() or self.llm_model.strip() or "openai/gpt-oss-120b")
+
+    @property
+    def provider_base_url(self) -> str:
+        return (self.groq_base_url.strip() or self.llm_base_url.strip())
+
+    @property
+    def provider_timeout_seconds(self) -> int:
+        return self.groq_timeout_seconds or self.llm_timeout_seconds or 45
 
 
 @lru_cache(maxsize=1)

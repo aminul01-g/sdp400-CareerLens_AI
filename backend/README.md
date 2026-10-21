@@ -20,8 +20,9 @@ build that usually fails. The full reasoning is at the top of
 uses PostgreSQL enums, trigram indexes and `ON DELETE` behaviour that SQLite does
 not offer.
 
-**No GPU, no network at request time.** Every model runs on CPU and is baked into
-the image.
+**No GPU, and no network at request time for the core.** Every model runs on
+CPU and is baked into the image. The *optional* AI layer is the one thing
+that reaches the network, and it is off unless a provider key is configured.
 
 ## Setup
 
@@ -54,7 +55,7 @@ Then:
 
 ```bash
 alembic upgrade head
-python -m scripts.seed_taxonomy       # 181 skills, 804 alias surface forms
+python -m scripts.seed_taxonomy       # 250 skills, 1,159 alias surface forms
 python -m scripts.seed_job_roles      # 100 roles, 1,234 weighted requirements
 python -m scripts.seed_admin          # reads ADMIN_EMAIL / ADMIN_PASSWORD
 ```
@@ -84,7 +85,7 @@ that will fail on its first real request.
 ## Tests
 
 ```bash
-python -m pytest                                  # 552 tests, ~140s
+python -m pytest                                  # 847 tests, ~240s
 python -m pytest tests/test_ranker.py -v
 python -m pytest -k ownership
 python -m pytest --cov=app --cov-report=term-missing
@@ -118,9 +119,10 @@ app/
   schemas/        Pydantic request and response models.
   schemas/dashboard.py   Real aggregates, not stored numbers.
 alembic/          Migrations. Never edit one that has been applied.
-data/             The knowledge base. skills_taxonomy.json, job_roles.json.
+data/             The knowledge base. skills_taxonomy.json, job_roles.json,
+                  learning_resources.json (211 verified learning resources).
 scripts/          Seeds, doc generators, fixture generator.
-tests/            29 files, 552 tests.
+tests/            47 files, 847 tests.
 ```
 
 Dependencies point downwards. A route that contains an `if` statement is a route
@@ -189,3 +191,63 @@ python scripts/generate_erd.py         # docs/erd.md   — needs a migrated data
 ```
 
 `tests/test_api_docs.py` and `tests/test_erd.py` fail if either is stale.
+
+## The optional AI layer
+
+`app/ml/groq.py` is the **only** place in the application that opens a
+connection to a model provider. `app/services/groq_service.py` is the only
+place that calls it, and it is the only thing the five AI features have in
+common.
+
+| | |
+|---|---|
+| `GET /api/ai/status` | Whether the provider is configured, and which model answers. Never the key |
+| `POST /api/ai/mentor/ask` | A conversational mentor, grounded in your confirmed skills, projects, latest run and gap report |
+| `POST /api/ai/roadmaps` | A four- or six-week plan for a role, with a portfolio project, tasks and checkable completion criteria |
+| `PATCH /api/ai/roadmaps/{id}/tasks/{key}` | Progress, notes and a portfolio link — recorded beside the plan, never inside it |
+| `POST /api/ai/job-analysis` | Reads a pasted job description, normalises its skills against the taxonomy, and compares them with your profile |
+| `POST /api/ai/cv-advice` | Suggests how to present an analysed CV more clearly, without inventing anything |
+| `POST /api/ai/interviews` | A mock interview with rubric-scored feedback, saved for later |
+
+### Configuration
+
+```bash
+GROQ_API_KEY=gsk_...              # from https://console.groq.com/keys
+GROQ_MODEL=openai/gpt-oss-120b    # a Groq model with structured-output support
+```
+
+The key is read in `app/core/config.py` and nowhere else. It is never sent to
+the browser, never logged, and never included in a response — three checks in
+`../scripts/verify_compliance.py` and `tests/test_groq_service.py` say so.
+
+Without a key every route above answers `503 feature_disabled`, the interface
+shows an honest "not enabled on this deployment" panel, and the rest of the
+application is unaffected.
+
+### What the model is and is not allowed to do
+
+The boundary is enforced in code, not by prompt wording:
+
+- **It never computes a number the engine owns.** The job analyser computes
+  the coverage with `app/ml/matcher.py`, the same function the ranker uses. The
+  model only says *which* skills a description wants.
+- **It never adds a skill the gap report did not produce.** A roadmap task
+  naming a skill outside the verified gap set has its `skill_slug` cleared
+  (`app/services/roadmap_service.py::_sanitise_plan`).
+- **It never produces a link.** It is shown resource *identifiers* and never a
+  URL, and its output schema has no field for one. A link comes from
+  `data/learning_resources.json`, and an identifier the registry does not hold
+  resolves to nothing.
+- **It never overwrites a verified fact.** Suggestions are a separate list; the
+  CV, the skills and the scores are untouched.
+- **It is told when the record is thin.** The mentor reports what it used and
+  what was missing.
+
+`tests/test_ai_trust_boundary.py` asserts all of this against the live code.
+
+### Untrusted documents
+
+A CV and a job description are *data*, not instructions. Both are wrapped in an
+`<untrusted_…>` block with an explicit statement that the contents cannot
+change the rules, and the prompt says plainly that nothing may be invented.
+`tests/test_cv_advisor_api.py` and `tests/test_job_analysis_api.py` cover it.

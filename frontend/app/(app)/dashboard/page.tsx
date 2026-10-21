@@ -12,8 +12,8 @@
 import * as React from "react";
 import Link from "next/link";
 import {
-  Award, CheckCircle2, Circle, FileText, FolderGit2, GraduationCap,
-  LayoutDashboard, Sparkles, Target, TrendingUp,
+  Award, CheckCircle2, Circle, ClipboardList, FileSearch, FileText, FolderGit2,
+  GraduationCap, LayoutDashboard, MessagesSquare, Route, Sparkles, Target, TrendingUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,12 +22,44 @@ import { ErrorState } from "@/components/shared/ErrorState";
 import { LoadingPage } from "@/components/shared/Loading";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { useAuth } from "@/components/providers/AuthProvider";
+import { useAiStatus } from "@/lib/hooks/use-ai";
 import { useDashboardSummary, useProfileCompleteness } from "@/lib/hooks/use-dashboard";
+
+/** The AI workspace's four entry points, shown on the dashboard. */
+const aiTools = [
+  {
+    href: "/mentor",
+    label: "Career mentor",
+    description: "Ask questions about your career and get answers from your own record.",
+    icon: MessagesSquare,
+  },
+  {
+    href: "/roadmaps",
+    label: "Learning roadmap",
+    description: "A four- or six-week plan with a portfolio project to show for it.",
+    icon: Route,
+  },
+  {
+    href: "/job-analysis",
+    label: "Job analysis",
+    description: "Paste a job description and see which requirements you already meet.",
+    icon: FileSearch,
+  },
+  {
+    href: "/interview",
+    label: "Mock interview",
+    description: "Practise against a role and get structured feedback on each answer.",
+    icon: ClipboardList,
+  },
+];
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const summary = useDashboardSummary();
   const completeness = useProfileCompleteness();
+  const aiStatus = useAiStatus();
+
+  const aiEnabled = aiStatus.data?.enabled === true;
 
   if (summary.isPending || completeness.isPending) return <LoadingPage label="Loading your dashboard" />;
 
@@ -82,7 +114,11 @@ export default function DashboardPage() {
           <CardContent className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xl font-semibold">{stats.top_role_title}</p>
-              <p className="text-sm text-muted-foreground">
+              {/* Not `text-muted-foreground`: on this tinted card it lands at
+                  4.42:1, just under the 4.5:1 that WCAG AA asks for. The
+                  browser suite caught it once a user had a recommendation
+                  run, which is the normal state rather than an edge case. */}
+              <p className="text-sm text-foreground/70">
                 {stats.total_recommendation_runs} run
                 {stats.total_recommendation_runs === 1 ? "" : "s"} so far
               </p>
@@ -90,7 +126,7 @@ export default function DashboardPage() {
             {stats.top_compatibility_pct != null ? (
               <div className="text-right">
                 <p className="text-3xl font-bold text-primary">{stats.top_compatibility_pct}%</p>
-                <p className="text-xs text-muted-foreground">compatibility</p>
+                <p className="text-xs text-foreground/70">compatibility</p>
               </div>
             ) : null}
           </CardContent>
@@ -165,6 +201,32 @@ export default function DashboardPage() {
           </Card>
         </section>
       ) : null}
+
+      <section aria-labelledby="ai-heading" className="space-y-3">
+        <h2 id="ai-heading" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+          AI assistant
+        </h2>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {aiTools.map((tool) => (
+            <Link key={tool.href} href={tool.href} className="group">
+              <Card className="h-full transition-colors group-hover:border-primary/50">
+                <CardContent className="space-y-1 p-5">
+                  <tool.icon className="h-5 w-5 text-muted-foreground group-hover:text-primary" aria-hidden="true" />
+                  <p className="pt-1 font-medium">{tool.label}</p>
+                  <p className="text-sm text-muted-foreground">{tool.description}</p>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+        {!aiEnabled ? (
+          <p className="text-sm text-muted-foreground">
+            The AI tools are not enabled on this deployment. Everything else on
+            this page — the matching, the skill gap, the CV analysis — works
+            without them.
+          </p>
+        ) : null}
+      </section>
     </div>
   );
 }

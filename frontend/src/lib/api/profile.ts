@@ -12,6 +12,12 @@ export interface ProfilePayload {
   industry?: string | null;
   preferred_role_family?: string | null;
   links?: Record<string, string>;
+  /**
+   * The language the generated AI guidance is written in. It changes the
+   * language of an explanation and nothing else: skill names, role titles and
+   * every calculated score stay exactly as the engine produced them.
+   */
+  preferred_language?: "en" | "bn";
 }
 
 export const workHistoryApi = {

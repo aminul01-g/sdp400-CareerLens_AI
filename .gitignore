@@ -44,6 +44,12 @@ out/
 *.tsbuildinfo
 next-env.d.ts
 
+# ---- Vercel ----
+# The local project link and a full production build. Vercel rebuilds from
+# the source, so committing 4 MB of build output buys nothing and risks a
+# stale artefact being served.
+frontend/.vercel/
+
 # ---- Uploads (user CVs must never be committed) ----
 uploads/
 backend/uploads/

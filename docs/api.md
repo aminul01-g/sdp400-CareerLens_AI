@@ -4,7 +4,7 @@ Base URL in production: `https://<api-host>`
 Local: `http://localhost:8000`  
 Interactive schema: `/docs` (Swagger UI), `/redoc`, `/openapi.json`
 
-**56 paths, 80 operations.** Generated from the live OpenAPI schema by `backend/scripts/generate_api_docs.py`, so this page cannot describe an API the application does not have. Re-run that script after changing a route.
+**67 paths, 95 operations.** Generated from the live OpenAPI schema by `backend/scripts/generate_api_docs.py`, so this page cannot describe an API the application does not have. Re-run that script after changing a route.
 
 ## Conventions
 
@@ -51,154 +51,23 @@ Service banner
 - Auth: public
 - Success: `200`
 
-#### `GET /api/admin/audit`
+#### `GET /health`
 
-The audit trail, newest first
+Liveness and database readiness
 
-- Auth: bearer token
-- Success: `200`
-- Errors: `401, 403, 422`
-- Query: `action, entity_type, actor_id, page, page_size`
-
-Who changed what, when, and from where.
-
-#### `GET /api/admin/evaluation`
-
-The committed evaluation report as JSON
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404`
-
-Serve the **committed** report rather than re-running the harness.
-
-#### `GET /api/admin/feedback`
-
-Submitted feedback, paged
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `category, page, page_size`
-
-#### `GET /api/admin/health`
-
-Lightweight admin liveness probe
-
-- Auth: bearer token
+- Auth: public
 - Success: `200`
 
-A probe proving the role gate works end to end.
+#### `GET /readyz`
 
-#### `GET /api/admin/jobs`
+Readiness probe
 
-List every role, including deactivated ones
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `q, family, is_active, page, page_size`
-
-#### `POST /api/admin/jobs`
-
-Create a job role with its weighted required skills
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `409, 422`
-
-#### `GET /api/admin/jobs/{role_id}`
-
-Get Job Admin
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `PATCH /api/admin/jobs/{role_id}`
-
-Update Job
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 409, 422`
-
-#### `DELETE /api/admin/jobs/{role_id}`
-
-Delete a job role
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `404, 409, 422`
-
-#### `PUT /api/admin/jobs/{role_id}/skills`
-
-Atomically replace a role's weighted required-skill set
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-Full replacement, not a diff.
-
-#### `GET /api/admin/overview`
-
-Real system aggregates
-
-- Auth: bearer token
+- Auth: public
 - Success: `200`
 
-#### `GET /api/admin/taxonomy`
+### Authentication
 
-Browse the skill taxonomy
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `q, category, page, page_size`
-
-#### `POST /api/admin/taxonomy`
-
-Add a skill to the taxonomy
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `409, 422`
-
-#### `PATCH /api/admin/taxonomy/{skill_id}`
-
-Update Skill
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 409, 422`
-
-#### `DELETE /api/admin/taxonomy/{skill_id}`
-
-Delete Skill
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `404, 409, 422`
-
-#### `GET /api/admin/users`
-
-Paged user list (never includes password_hash)
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `page, page_size`
-
-#### `PATCH /api/admin/users/{user_id}/role`
-
-Promote or demote
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-
-An admin cannot demote themselves.
+Session lifecycle. Every other route needs `Authorization: Bearer <token>`.
 
 #### `POST /api/auth/forgot-password`
 
@@ -301,180 +170,9 @@ Confirm an email address
 
 Consume a verification token and mark the address as verified.
 
-#### `GET /api/certifications`
+### Profile
 
-The caller's certifications
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `page, page_size`
-
-#### `POST /api/certifications`
-
-Add a certification
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `422`
-
-#### `GET /api/certifications/{cert_id}`
-
-Get Certification
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `PATCH /api/certifications/{cert_id}`
-
-Update Certification
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `DELETE /api/certifications/{cert_id}`
-
-Delete Certification
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `404, 422`
-
-#### `GET /api/cv`
-
-The caller's uploads
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `page, page_size`
-
-#### `POST /api/cv/upload`
-
-Upload a CV, extract its text, and detect skills
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `401, 413, 415, 422, 429`
-
-Extraction runs on upload; nothing is written to ``user_skill`` here.
-
-#### `GET /api/cv/{upload_id}`
-
-One upload with its detected skills
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `DELETE /api/cv/{upload_id}`
-
-Delete an upload and the stored file
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `404, 422`
-
-Removes the row **and** the file on disk.
-
-#### `GET /api/cv/{upload_id}/text`
-
-The extracted plain text
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `GET /api/dashboard/completeness`
-
-0-100 profile completeness with named next steps
-
-- Auth: bearer token
-- Success: `200`
-
-#### `GET /api/dashboard/summary`
-
-Real counts for this user
-
-- Auth: bearer token
-- Success: `200`
-
-#### `GET /api/education`
-
-The caller's education records
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `page, page_size`
-
-#### `POST /api/education`
-
-Add a degree
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `422`
-
-#### `GET /api/education/{record_id}`
-
-Get Education
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `PATCH /api/education/{record_id}`
-
-Update Education
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `DELETE /api/education/{record_id}`
-
-Delete Education
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `404, 422`
-
-#### `POST /api/feedback`
-
-Send feedback
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `422`
-
-#### `GET /api/jobs`
-
-Browse active job roles
-
-- Auth: public
-- Success: `200`
-- Errors: `422`
-- Query: `family, q, page, page_size`
-
-#### `GET /api/jobs/families`
-
-Role families with counts
-
-- Auth: public
-- Success: `200`
-
-#### `GET /api/jobs/{role_id}`
-
-Get Job
-
-- Auth: public
-- Success: `200`
-- Errors: `404, 422`
-
-Includes the weighted skill set, so a user can see what a role asks for.
+The single profile a user owns, and the work history on it.
 
 #### `GET /api/profile`
 
@@ -509,181 +207,6 @@ Delete the profile (account and data are kept)
 - Success: `204`
 
 Deletes the profile row only.
-
-#### `GET /api/projects`
-
-The caller's projects
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `page, page_size`
-
-Paged. The generic Page[ProjectRead] is the response model, so the
-
-#### `POST /api/projects`
-
-Create a project
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `422`
-
-#### `GET /api/projects/{project_id}`
-
-One project
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `PATCH /api/projects/{project_id}`
-
-Update a project
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `DELETE /api/projects/{project_id}`
-
-Delete a project
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `404, 422`
-
-#### `POST /api/recommendations`
-
-Generate a ranked, explainable set of recommendations
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `401, 409, 422, 429`
-
-Runs the deterministic engine and persists the run.
-
-#### `GET /api/recommendations/runs`
-
-The caller's run history
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `page, page_size`
-
-#### `GET /api/recommendations/runs/{run_id}`
-
-A persisted run, read from the database
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-Read-only, and never recomputed — a stored run is a historical record.
-
-#### `GET /api/recommendations/runs/{run_id}/feedback`
-
-What the caller said about the roles in a run
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-
-``job_role_id -> action`` for one of the caller's runs.
-
-#### `POST /api/recommendations/runs/{run_id}/roles/{job_role_id}/feedback`
-
-Record what the user did with a recommended role
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `401, 404, 422`
-
-Say whether a role is worth keeping.
-
-#### `GET /api/skill-gap/{job_role_id}`
-
-Skill-gap analysis for a target role
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-Reads confirmed ``user_skill`` rows only.
-
-#### `POST /api/skill-gap/{job_role_id}/learning-path`
-
-Optional LLM-generated learning path
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422, 503`
-
-The one route in the system that may return ``503``.
-
-#### `GET /api/skills`
-
-The caller's skills
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `source, category`
-
-#### `POST /api/skills`
-
-Add a skill from the taxonomy
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `409, 422`
-
-#### `POST /api/skills/confirm`
-
-Confirm or reject CV-detected skills
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-
-Upsert accepted skills into ``user_skill``.
-
-#### `GET /api/skills/taxonomy`
-
-Search the skill taxonomy by name or alias
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-- Query: `q, category, limit, offset`
-
-Searching ``sklearn`` finds ``Scikit-learn`` — the alias feature made visible.
-
-#### `GET /api/skills/taxonomy/categories`
-
-The taxonomy's categories, for a filter that does not depend on the user
-
-- Auth: bearer token
-- Success: `200`
-
-The distinct categories in the skill taxonomy.
-
-#### `PATCH /api/skills/{skill_id}`
-
-Update proficiency, years used, or confirmed state
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `404, 422`
-
-#### `DELETE /api/skills/{skill_id}`
-
-Remove a skill
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `404, 422`
 
 #### `GET /api/work-history`
 
@@ -725,124 +248,6 @@ Accept a role the CV pipeline proposed
 - Errors: `404, 422`
 
 Accept a proposal.
-
-#### `GET /health`
-
-Liveness and database readiness
-
-- Auth: public
-- Success: `200`
-
-#### `GET /readyz`
-
-Readiness probe
-
-- Auth: public
-- Success: `200`
-
-### Authentication
-
-Session lifecycle. Every other route needs `Authorization: Bearer <token>`.
-
-#### `POST /api/auth/login`
-
-Exchange credentials for an access token
-
-- Auth: public
-- Success: `200`
-- Errors: `401, 422, 429`
-
-#### `POST /api/auth/logout`
-
-End the client session
-
-- Auth: bearer token
-- Success: `204`
-- Errors: `401`
-
-Acknowledge a logout.
-
-#### `GET /api/auth/me`
-
-The authenticated user
-
-- Auth: bearer token
-- Success: `200`
-
-#### `PATCH /api/auth/me`
-
-Update name or password
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-
-#### `DELETE /api/auth/me`
-
-Delete the account and all of its data
-
-- Auth: bearer token
-- Success: `204`
-
-Delete the authenticated user.
-
-#### `POST /api/auth/refresh`
-
-Issue a fresh access token
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `401, 422`
-
-Re-issue a token for a still-valid subject.
-
-#### `POST /api/auth/register`
-
-Create an account and start a session
-
-- Auth: public
-- Success: `201`
-- Errors: `409, 422, 429`
-
-Register a new user. Returns a token so the session starts immediately.
-
-### Profile
-
-The single profile a user owns.
-
-#### `GET /api/profile`
-
-The caller's profile
-
-- Auth: bearer token
-- Success: `200`
-
-#### `POST /api/profile`
-
-Create or replace the caller's profile
-
-- Auth: bearer token
-- Success: `201`
-- Errors: `422`
-
-Idempotent: a user who already has a profile has it updated, not duplicated.
-
-#### `PATCH /api/profile`
-
-Partially update the profile
-
-- Auth: bearer token
-- Success: `200`
-- Errors: `422`
-
-#### `DELETE /api/profile`
-
-Delete the profile (account and data are kept)
-
-- Auth: bearer token
-- Success: `204`
-
-Deletes the profile row only.
 
 ### Skills
 
@@ -1166,6 +571,161 @@ Optional LLM-generated learning path
 
 The one route in the system that may return ``503``.
 
+### AI assistant
+
+The optional AI layer. Every route here answers `503 feature_disabled` when no model provider is configured, and none of them is on the path of a core feature. The engine still owns every score: the model explains, sequences, drafts and asks, and never decides.
+
+#### `POST /api/ai/cv-advice`
+
+Suggest how to present a CV more effectively
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422, 503`
+
+Review an analysed CV and suggest clearer, more effective wording.
+
+#### `GET /api/ai/interviews`
+
+The user's interview history
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `422`
+- Query: `page, page_size`
+
+Past sessions, newest first, with the practice score each one averaged.
+
+#### `POST /api/ai/interviews`
+
+Start a mock interview and generate its questions
+
+- Auth: bearer token
+- Success: `201`
+- Errors: `422, 503`
+
+Prepare an interview for a role or a pasted job description.
+
+#### `GET /api/ai/interviews/{session_id}`
+
+One interview session with its feedback
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422`
+
+The session, every exchange, and the feedback given.
+
+#### `DELETE /api/ai/interviews/{session_id}`
+
+Delete an interview session
+
+- Auth: bearer token
+- Success: `204`
+- Errors: `404, 422`
+
+Remove the session and its exchanges.
+
+#### `POST /api/ai/interviews/{session_id}/answers`
+
+Submit an answer and receive structured feedback
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422, 503`
+
+Assess one answer against the five-dimension rubric.
+
+#### `POST /api/ai/interviews/{session_id}/next-question`
+
+A follow-up question based on the previous answer
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422, 503`
+
+A question that digs into what the candidate actually said.
+
+#### `POST /api/ai/job-analysis`
+
+Analyse a job description against the user's profile
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `422, 503`
+
+Extract the requirements, normalise them, and compare them with the profile.
+
+#### `POST /api/ai/mentor/ask`
+
+Ask the career assistant a question
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `422, 503`
+
+Answer one question, grounded in the user's verified record.
+
+#### `GET /api/ai/roadmaps`
+
+The user's saved learning plans
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `422`
+- Query: `page, page_size`
+
+The user's plans, newest first.
+
+#### `POST /api/ai/roadmaps`
+
+Generate a learning plan for a role and save it
+
+- Auth: bearer token
+- Success: `201`
+- Errors: `422, 503`
+
+Build a four- or six-week plan from the engine's own gap report.
+
+#### `GET /api/ai/roadmaps/{roadmap_id}`
+
+One saved learning plan
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422`
+
+A plan and the learner's progress on it.
+
+#### `DELETE /api/ai/roadmaps/{roadmap_id}`
+
+Delete a saved learning plan
+
+- Auth: bearer token
+- Success: `204`
+- Errors: `404, 422`
+
+Remove a plan and its tasks.
+
+#### `PATCH /api/ai/roadmaps/{roadmap_id}/tasks/{task_key}`
+
+Record progress on one task
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `404, 422`
+
+Mark a task complete, add a note, or attach a portfolio link.
+
+#### `GET /api/ai/status`
+
+Whether the AI layer is available on this deployment
+
+- Auth: bearer token
+- Success: `200`
+
+The provider's availability, and which model is answering.
+
 ### Job roles (public)
 
 Readable without a token, so a signed-out visitor can browse.
@@ -1229,6 +789,17 @@ Send feedback
 ### Admin
 
 Requires the `admin` role. A normal user gets 403, not 404.
+
+#### `GET /api/admin/audit`
+
+The audit trail, newest first
+
+- Auth: bearer token
+- Success: `200`
+- Errors: `401, 403, 422`
+- Query: `action, entity_type, actor_id, page, page_size`
+
+Who changed what, when, and from where.
 
 #### `GET /api/admin/evaluation`
 

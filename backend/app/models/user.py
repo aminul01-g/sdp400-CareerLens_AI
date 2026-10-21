@@ -24,10 +24,12 @@ from app.db.base import Base, TimestampMixin
 
 if TYPE_CHECKING:  # pragma: no cover
     from app.models.education import Certification, EducationRecord
+    from app.models.interview import InterviewSession
     from app.models.profile import Profile
     from app.models.project import Project
     from app.models.recommendation import RecommendationRun
     from app.models.resume import ResumeUpload
+    from app.models.roadmap import LearningRoadmap
     from app.models.user_skill import UserSkill
 
 
@@ -116,6 +118,12 @@ class User(Base, TimestampMixin):
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
     recommendation_runs: Mapped[list[RecommendationRun]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    learning_roadmaps: Mapped[list[LearningRoadmap]] = relationship(
+        back_populates="user", cascade="all, delete-orphan", passive_deletes=True
+    )
+    interview_sessions: Mapped[list[InterviewSession]] = relationship(
         back_populates="user", cascade="all, delete-orphan", passive_deletes=True
     )
 

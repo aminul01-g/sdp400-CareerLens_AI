@@ -43,6 +43,10 @@ const userNavLinks = [
   { href: "/resume", label: "Resume" },
   { href: "/recommendations", label: "Recommendations" },
   { href: "/skill-gap", label: "Skill Gap" },
+  // The AI workspace. It is one entry rather than five, because the header
+  // already carries ten links and swaps them for the admin links on the wide
+  // layout; the AI screens carry their own sub-navigation.
+  { href: "/mentor", label: "AI Assistant" },
   { href: "/feedback", label: "Feedback" },
 ] as const;
 

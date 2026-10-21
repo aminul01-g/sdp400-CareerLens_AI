@@ -1,7 +1,13 @@
 # CareerLens AI — Frontend
 
-Next.js 16 App Router client for CareerLens AI. Twenty routes, all rendering, no
-mock data anywhere in the tree.
+Next.js 16 App Router client for CareerLens AI. Twenty-six routes, all rendering,
+no mock data anywhere in the tree.
+
+Five of them are the AI workspace — a career mentor, learning roadmaps, a job
+analyser, a mock interview and a CV advisor. They live under their own
+sub-navigation and are reached from one **AI Assistant** entry in the header,
+because the header already carries ten links and swaps them for the admin
+links on the wide layout.
 
 ## Requirements
 
@@ -155,3 +161,28 @@ Then set `ALLOWED_ORIGINS` on the API to the Vercel URL and redeploy the API. Th
 two must agree, and the order matters — an API with no allowed origins is safe, an
 API allowing `*` is not. Full sequence in
 [`../docs/deployment.md`](../docs/deployment.md#6-deploy-order).
+
+## The AI workspace
+
+| Route | What it does |
+|---|---|
+| `/mentor` | A conversation with an assistant grounded in your own record |
+| `/roadmaps` | Generate a four- or six-week plan, and keep it |
+| `/roadmaps/[id]` | The plan, its portfolio project, and your progress on it |
+| `/job-analysis` | Paste a job description; see what you meet and what you do not |
+| `/interview` | A mock interview, with the rubric behind every score |
+| `/resume/advice` | Suggestions for presenting your uploaded CV more clearly |
+
+The API decides whether the AI layer is available (`GET /api/ai/status`) and
+the interface says so plainly when it is not. There is no fake assistant
+message, no placeholder conversation and no simulated progress: on a
+deployment with no provider, the screens explain that and link to the features
+that still work.
+
+**Language.** The generated explanations can be in English or Bangla. The
+choice is stored on the profile and can be overridden per screen. It changes
+the language of an answer and nothing else — a skill name, a role title and
+every calculated score stay exactly as the engine produced them.
+
+**The credential never reaches the browser.** The frontend asks the API
+whether the provider is configured; it never sees a key.

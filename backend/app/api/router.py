@@ -10,16 +10,22 @@ from fastapi import APIRouter
 
 from app.api.routes import (
     admin,
+    ai,
     auth,
     certifications,
     cv,
+    cv_advisor,
     dashboard,
     education,
     feedback,
+    interview,
+    job_analysis,
     jobs,
+    mentor,
     profile,
     projects,
     recommendations,
+    roadmap,
     skill_gap,
     skills,
     work_history,
@@ -42,6 +48,14 @@ api_router.include_router(skill_gap.router)
 api_router.include_router(work_history.router)
 api_router.include_router(dashboard.router)
 api_router.include_router(feedback.router)
+# The AI layer. Every route here answers 503 when the provider is not
+# configured, and none of them is on the path of any core feature.
+api_router.include_router(ai.router)
+api_router.include_router(mentor.router)
+api_router.include_router(roadmap.router)
+api_router.include_router(job_analysis.router)
+api_router.include_router(cv_advisor.router)
+api_router.include_router(interview.router)
 api_router.include_router(admin.router)
 
 __all__ = ["api_router"]

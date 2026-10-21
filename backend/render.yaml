@@ -76,14 +76,37 @@ services:
       # Left empty the API rejects browser traffic, which is the safe default.
       - key: ALLOWED_ORIGINS
         sync: false
-      # Proposal section 4.2: the LLM learning path stays off. The core product
-      # must not depend on a third-party provider.
-      - key: LLM_ENABLED
-        value: "false"
-      - key: LLM_API_KEY
+      # ---- The optional AI layer (Groq) -------------------------------
+      # The AI career assistant. It is an *enhancement*: CV processing,
+      # career matching and the skill-gap report never read any of these,
+      # and every AI route answers 503 feature_disabled without them.
+      #
+      # GROQ_API_KEY is marked `sync: false` on purpose. It is a real
+      # credential, so it is set in the dashboard rather than committed
+      # here. `scripts/verify_compliance.py` fails the build if a key ever
+      # appears in a tracked file.
+      - key: GROQ_ENABLED
+        value: "true"
+      - key: GROQ_API_KEY
         sync: false
-      - key: LLM_MODEL
-        value: gpt-4o-mini
+      # A Groq production model with strict-mode structured-output support.
+      # `openai/gpt-oss-20b` is the cheaper, faster alternative.
+      - key: GROQ_MODEL
+        value: openai/gpt-oss-120b
+      - key: GROQ_BASE_URL
+        value: https://api.groq.com/openai/v1
+      - key: GROQ_TIMEOUT_SECONDS
+        value: "45"
+      # How many *extra* attempts a transient provider failure gets.
+      # Bounded on purpose: every attempt costs money.
+      - key: GROQ_MAX_RETRIES
+        value: "1"
+      # The limit on calls that reach the provider. Reading a saved plan is
+      # not rate limited -- only generating something is.
+      - key: RATE_LIMIT_AI_REQUESTS
+        value: "20"
+      - key: RATE_LIMIT_AI_WINDOW_SECONDS
+        value: "300"
       # Consumed by scripts/seed_admin.py, which creates the single admin
       # account. Not read by the API itself, so a missing value is not a boot
       # failure -- it just means no admin exists yet.

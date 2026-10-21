@@ -25,6 +25,15 @@ if TYPE_CHECKING:  # pragma: no cover
     from app.models.user import User
 
 
+#: The languages the AI guidance can be given in. The application itself is
+#: English-only; this governs the language of the *generated* explanations
+#: only, and never the name of a skill or the value of a score.
+ALLOWED_LANGUAGES = ("en", "bn")
+
+#: The same list as a SQL fragment, for the check constraint.
+_LANGUAGE_CHECK = "language IN (" + ", ".join(f"'{value}'" for value in ALLOWED_LANGUAGES) + ")"
+
+
 class Profile(Base, TimestampMixin):
     __tablename__ = "profile"
     __table_args__ = (
@@ -32,6 +41,7 @@ class Profile(Base, TimestampMixin):
             "years_experience IS NULL OR years_experience BETWEEN 0 AND 60",
             name="years_experience_range",
         ),
+        CheckConstraint(_LANGUAGE_CHECK, name="preferred_language_allowed"),
     )
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
@@ -57,6 +67,13 @@ class Profile(Base, TimestampMixin):
     # {"github": ..., "linkedin": ..., "portfolio": ...}
     links: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, default=dict, server_default="{}"
+    )
+    # The language the AI guidance is given in. "en" or "bn". It changes the
+    # language of a generated explanation and nothing else: skill names, role
+    # titles and every calculated score stay exactly as the engine produced
+    # them.
+    preferred_language: Mapped[str] = mapped_column(
+        String(2), nullable=False, default="en", server_default="en"
     )
 
     user: Mapped[User] = relationship(back_populates="profile")

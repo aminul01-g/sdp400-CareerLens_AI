@@ -9,6 +9,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.exceptions import ConflictError, NotFoundError, UnprocessableError
+from app.ml.taxonomy import normalise_surface
 from app.models.skill import Skill, SkillAlias
 from app.models.user import User
 from app.models.user_skill import SkillSource, UserSkill
@@ -157,6 +158,56 @@ def list_taxonomy_categories(db: Session) -> list[str]:
     """
     rows = db.scalars(select(Skill.category).distinct().order_by(Skill.category.asc())).all()
     return [row for row in rows if row]
+
+
+def canonicalise_skill(
+    db: Session, term: str
+) -> tuple[str, str, int] | None:
+    """Resolve a written skill name onto the live taxonomy.
+
+    Returns ``(canonical_name, slug, skill_id)``, or ``None`` when the
+    taxonomy does not know the term.
+
+    The *database* is the source of truth here, not the JSON seed file. An
+    administrator can add an alias or rename a skill through the admin
+    screens, and a resolver that ignored those edits would quietly disagree
+    with the rest of the application about what a skill is called.
+
+    The comparison is done on the normalised surface form — lower case, with
+    punctuation and spacing collapsed — which is the same rule the extractor
+    uses, so "K8s", "k8s " and "K8S" all resolve alike.
+    """
+    cleaned = normalise_surface(term)
+    if not cleaned:
+        return None
+
+    rows = db.execute(
+        select(Skill.id, Skill.name, Skill.slug).where(
+            func.lower(Skill.name) == cleaned, Skill.slug == func.lower(Skill.slug)
+        )
+    ).all()
+    for skill_id, name, slug in rows:
+        if normalise_surface(str(name)) == cleaned:
+            return str(name), str(slug), int(skill_id)
+
+    alias_row = db.execute(
+        select(Skill.id, Skill.name, Skill.slug, SkillAlias.alias)
+        .join(SkillAlias, SkillAlias.skill_id == Skill.id)
+        .where(SkillAlias.alias == term.strip())
+    ).first()
+    if alias_row is not None:
+        return str(alias_row[1]), str(alias_row[2]), int(alias_row[0])
+
+    # The alias table stores the alias as written, so a case-insensitive or
+    # punctuation-insensitive match needs a second pass over every alias.
+    alias_rows = db.execute(
+        select(Skill.id, Skill.name, Skill.slug, SkillAlias.alias)
+        .join(SkillAlias, SkillAlias.skill_id == Skill.id)
+    ).all()
+    for skill_id, name, slug, alias in alias_rows:
+        if normalise_surface(str(alias)) == cleaned:
+            return str(name), str(slug), int(skill_id)
+    return None
 
 
 def search_taxonomy(

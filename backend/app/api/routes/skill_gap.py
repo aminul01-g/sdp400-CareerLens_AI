@@ -78,7 +78,7 @@ def skill_gap(job_role_id: int, db: DbSession, user: CurrentUser) -> SkillGapRes
             for m in report.missing
         ],
         tiers=tiers,
-        learning_path_available=get_settings().llm_enabled,
+        learning_path_available=get_settings().groq_is_configured,
         declared_coverage=round(report.declared_coverage, 6),
         signal_coverage=round(report.signal_coverage, 6),
         level_fit=round(report.level_fit, 4),
@@ -101,10 +101,10 @@ def learning_path(job_role_id: int, db: DbSession, user: CurrentUser) -> Learnin
     and every other endpoint is unaffected.
     """
     settings = get_settings()
-    if not settings.llm_enabled:
+    if not settings.groq_is_configured:
         raise FeatureDisabledError(
             "The learning-path feature is disabled. It is optional: the skill-gap "
-            "report above is complete without it. Set LLM_ENABLED=true to enable it."
+            "report above is complete without it. Set GROQ_API_KEY to enable it."
         )
 
     from app.ml.learning_path import build_learning_path
@@ -120,14 +120,16 @@ def learning_path(job_role_id: int, db: DbSession, user: CurrentUser) -> Learnin
         | {m.skill_id: m.weight for m in report.missing},
     )
     # Credentials are passed in as plain arguments so app/ml stays free of any
-    # application-configuration import.
+    # application-configuration import. The values come from the shared
+    # provider resolution, so GROQ_API_KEY works here exactly as it does
+    # everywhere else.
     steps, generated_by = build_learning_path(
         spec,
         report,
-        api_key=settings.llm_api_key,
-        model=settings.llm_model,
-        base_url=settings.llm_base_url,
-        timeout=settings.llm_timeout_seconds,
+        api_key=settings.provider_api_key,
+        model=settings.provider_model,
+        base_url=settings.provider_base_url,
+        timeout=settings.provider_timeout_seconds,
     )
     return LearningPathResponse(
         job_role_id=role.id,

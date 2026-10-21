@@ -47,17 +47,18 @@ though `JWT_SECRET_KEY` genuinely is, and must be generated per environment.
                             │  Render private network
                             ▼
                  ┌──────────────────────┐
-                 │  Render Postgres 16  │  20 tables + alembic_version
+                 │  Render Postgres 16  │  24 tables + alembic_version
                  └──────────────────────┘
 
   Optional, off by default and off the critical path:
-  LLM provider ──(only when LLM_ENABLED=true AND a key is set)──▶ learning path
+  Groq ──(only when GROQ_API_KEY is set)──▶ the AI career assistant
 ```
 
-The optional learning path is a single outbound call that turns a skill-gap list
-into a short plan. The core product never calls it. See
-[`evaluation_report.md`](evaluation_report.md) for why no model is trained at
-inference time.
+The AI career assistant is the only outbound call the application makes, and it
+is off without a key: every route in it answers `503 feature_disabled` and the
+core product never reaches it. The core product still trains no model and
+loads none at inference time — see
+[`evaluation_report.md`](evaluation_report.md).
 
 ---
 
@@ -92,7 +93,15 @@ valid session for any account.
 |---|---|---|
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | `1440` | 7 days is `10080`. |
 | `DEBUG` | `false` | Must be `false` in production. |
-| `LLM_ENABLED` | `false` | Leave `false`. Proposal §4.2 makes it optional. |
+| `GROQ_API_KEY` | — | **Optional.** Set it to turn the AI career assistant on. Without it, every AI route answers `503 feature_disabled` and nothing else changes. |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | A Groq model with strict-mode structured-output support. `openai/gpt-oss-20b` is the cheaper, faster alternative. |
+| `GROQ_ENABLED` | `true` | Set `false` to switch the AI layer off on a deployment that has a key. |
+| `GROQ_BASE_URL` | `https://api.groq.com/openai/v1` | |
+| `GROQ_TIMEOUT_SECONDS` | `45` | |
+| `GROQ_MAX_RETRIES` | `1` | Extra attempts after a transient provider failure. Bounded on purpose: every attempt costs money. |
+| `RATE_LIMIT_AI_REQUESTS` | `20` | Calls that reach the model provider, per window. Reading a saved plan is not rate limited. |
+| `RATE_LIMIT_AI_WINDOW_SECONDS` | `300` | |
+| `LLM_ENABLED` | `false` | **Deprecated.** Read only as a fallback when the corresponding `GROQ_*` value is absent. |
 | `SKILL_COVERAGE_WEIGHT` | `0.6` | Must sum to 1.0 with `TFIDF_WEIGHT`. |
 | `TFIDF_WEIGHT` | `0.4` | See the sweep in the evaluation report. |
 | `RATE_LIMIT_ENABLED` | `true` | Per process, not shared across replicas. See the limitations. |
@@ -143,8 +152,19 @@ Environment variable ALLOWED_ORIGIN is not read by this application; did you mea
    ```
 
 2. In the Render dashboard, set the variables the blueprint marks `sync: false`:
-   `ALLOWED_ORIGINS`, `ADMIN_EMAIL`. `JWT_SECRET_KEY` and `ADMIN_PASSWORD` are set
-   to `generateValue: true` and are shown to you once — copy them somewhere safe.
+   `ALLOWED_ORIGINS`, `ADMIN_EMAIL`, and `GROQ_API_KEY` if you want the AI
+   assistant. `JWT_SECRET_KEY` and `ADMIN_PASSWORD` are set to
+   `generateValue: true` and are shown to you once — copy them somewhere safe.
+
+   `GROQ_API_KEY` is a real credential and belongs in the dashboard's
+   encrypted environment variables, never in a committed file.
+   `scripts/verify_compliance.py` fails the build if a key ever appears in a
+   file git tracks.
+
+   **Set the AI variables before the first deploy, not after.** The container
+   reads its environment at boot, so a key added after a deploy is not seen
+   until the next one. Without a key the application is unaffected: every AI
+   route answers `503 feature_disabled` and the interface says so.
 
 3. Deploy. `render.yaml` runs, in order:
 
@@ -152,12 +172,27 @@ Environment variable ALLOWED_ORIGIN is not read by this application; did you mea
    alembic upgrade head
    python -m scripts.seed_taxonomy
    python -m scripts.seed_job_roles
+   python -m scripts.seed_admin
    uvicorn app.main:app --host 0.0.0.0 --port $PORT
    ```
 
    The `&&` between migration and serve is load-bearing. If the migration fails the
    service does not start, rather than serving traffic against a schema it does not
    understand.
+
+### The AI layer, and what it costs
+
+The assistant is optional and metered. Every call that reaches the provider
+is one billable request, so the service rate-limits the routes that generate
+something (`RATE_LIMIT_AI_REQUESTS`, 20 per 300 seconds by default) while
+leaving the routes that read a user's own saved plans and interviews
+unlimited. A learner coming back to their roadmap is never told to wait.
+
+The provider enforces its own quota per organisation, which is usually lower
+than the deployment's per-client limit. When it is reached, the application
+answers `429` with a `Retry-After` rather than retrying: the quota is
+organisation-wide, so an immediate second attempt would be refused for the
+same reason.
 
 ### Why migrations run on boot here, but not in the Dockerfile
 
@@ -187,19 +222,34 @@ path. This bit the first deploy attempt.
 
 ## 5. Deploying the frontend
 
-1. Import the repository into Vercel. Root directory: `frontend`. Framework
-   preset: Next.js. `vercel.json` supplies the build command and the security
-   headers, so nothing else needs setting.
+The frontend can be deployed two ways, and this project uses the first.
 
-2. Set one environment variable:
+**From the command line (what is set up here).** The Vercel project is
+`careerlens-web`, and it is *not* connected to the Git repository, so a push
+does not build it. A deploy is made explicitly:
 
-   | Variable | Value |
-   |---|---|
-   | `NEXT_PUBLIC_API_URL` | `https://careerlens-api.onrender.com` |
+```bash
+cd frontend
+npx vercel --prod --scope <your-team-or-account>
+```
 
-   `NEXT_PUBLIC_*` values are **inlined at build time**. Setting it after the first
-   deploy requires a rebuild, not just a restart. This is the single most common
-   way to end up with a frontend still pointing at localhost.
+`npx vercel link --yes --project careerlens-web --scope <team>` re-establishes
+the local link if `.vercel/project.json` is missing or stale.
+
+**From Git.** Import the repository into Vercel instead. Root directory:
+`frontend`. Framework preset: Next.js. `vercel.json` supplies the build command
+and the security headers, so nothing else needs setting. Every push to the
+connected branch then builds a deployment.
+
+Either way, set one environment variable:
+
+| Variable | Value |
+|---|---|
+| `NEXT_PUBLIC_API_URL` | `https://careerlens-api.onrender.com` |
+
+`NEXT_PUBLIC_*` values are **inlined at build time**. Setting it after the first
+deploy requires a rebuild, not just a restart. This is the single most common
+way to end up with a frontend still pointing at localhost.
 
 3. Deploy, then set `ALLOWED_ORIGINS` on the API to the Vercel URL and redeploy the
    API. The two must agree; see §12.
@@ -362,7 +412,27 @@ curl -s https://<api-host>/api/jobs/families | jq 'length' # 21
 
 # 5. Anonymous writes are refused.
 curl -s -o /dev/null -w '%{http_code}\n' -X POST https://<api-host>/api/recommendations   # 401
+
+# 6. The AI layer's status. "enabled":false means no GROQ_API_KEY is set, and
+#    that is a valid state: every AI route answers 503 and nothing else changes.
+TOKEN=$(curl -s -X POST https://<api-host>/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"<you>","password":"<password>"}' | jq -r .access_token)
+curl -s https://<api-host>/api/ai/status -H "Authorization: Bearer $TOKEN" | jq
+# {"enabled":true,"model":"openai/gpt-oss-120b","features":["mentor",…]}
 ```
+
+When `enabled` is `true`, one call proves the whole path — request, provider,
+schema, validation, persistence:
+
+```bash
+curl -s -X POST https://<api-host>/api/ai/mentor/ask \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"message":"Which career path best matches my current skills, and why?"}' | jq .answer
+```
+
+A non-empty answer means the credential reached the provider, the model
+answered, and the answer was validated against the application's schema.
 
 Then the user journey, on a phone viewport and a desktop viewport:
 

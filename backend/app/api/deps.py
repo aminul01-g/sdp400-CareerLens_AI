@@ -178,6 +178,13 @@ def rate_limit(bucket: str) -> Callable[[], None]:
                 settings.rate_limit_upload_requests,
                 settings.rate_limit_upload_window_seconds,
             ),
+            # AI: every call that reaches the external model provider. The
+            # window is longer than the others because a mentor conversation
+            # is a multi-turn exchange and a learner may regenerate a plan.
+            "ai": (
+                settings.rate_limit_ai_requests,
+                settings.rate_limit_ai_window_seconds,
+            ),
         }
         limit, window = limits.get(bucket, (0, 0))
         if limit <= 0:

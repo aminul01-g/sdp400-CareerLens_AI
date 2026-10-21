@@ -34,6 +34,12 @@ const PROTECTED_PREFIXES = [
   "/resume",
   "/recommendations",
   "/skill-gap",
+  // The AI workspace. One entry in the header, five screens, and they share
+  // their own sub-navigation.
+  "/mentor",
+  "/roadmaps",
+  "/job-analysis",
+  "/interview",
 ];
 
 /** Routes that require the admin role. */

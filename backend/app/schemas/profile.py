@@ -25,6 +25,11 @@ ALLOWED_LINK_KEYS = {"github", "linkedin", "portfolio", "website", "other"}
 #: engine, and the two are cross-checked in ``tests/test_signals.py``.
 SENIORITY_BANDS = ("Entry", "Junior", "Mid", "Senior", "Lead", "Principal")
 
+#: The languages the generated AI guidance can be written in. The application
+#: itself is English-only; this governs the language of the *generated*
+#: explanations, and never the name of a skill or the value of a score.
+AI_LANGUAGES = ("en", "bn")
+
 
 def _validate_links(value: dict[str, Any] | None) -> dict[str, Any]:
     if value is None:
@@ -55,6 +60,16 @@ class ProfileBase(BaseModel):
     seniority: Annotated[str | None, Field(max_length=40)] = None
     industry: Annotated[str | None, Field(max_length=MAX_INDUSTRY)] = None
     links: dict[str, str] = Field(default_factory=dict)
+    preferred_language: str = "en"
+
+    @field_validator("preferred_language")
+    @classmethod
+    def _known_language(cls, value: str) -> str:
+        if value not in AI_LANGUAGES:
+            raise ValueError(
+                "preferred_language must be one of: " + ", ".join(AI_LANGUAGES) + "."
+            )
+        return value
 
     @field_validator("seniority")
     @classmethod
@@ -115,6 +130,18 @@ class ProfileUpdate(BaseModel):
     seniority: Annotated[str | None, Field(max_length=40)] = None
     industry: Annotated[str | None, Field(max_length=MAX_INDUSTRY)] = None
     links: dict[str, str] | None = None
+    preferred_language: str | None = None
+
+    @field_validator("preferred_language")
+    @classmethod
+    def _known_language(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        if value not in AI_LANGUAGES:
+            raise ValueError(
+                "preferred_language must be one of: " + ", ".join(AI_LANGUAGES) + "."
+            )
+        return value
 
     @field_validator("seniority")
     @classmethod
@@ -154,6 +181,7 @@ class ProfileRead(BaseModel):
     seniority: str | None = None
     industry: str | None = None
     links: dict[str, Any] = Field(default_factory=dict)
+    preferred_language: str = "en"
     created_at: datetime | None = None
     updated_at: datetime | None = None
 

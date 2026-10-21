@@ -91,12 +91,21 @@ function describe(violations: readonly AxeViolation[]) {
     .join("\n");
 }
 
-for (const route of PUBLIC_ROUTES) {
-  test(`no WCAG A/AA violations on ${route}`, async ({ page }) => {
-    const results = await analyse(page, route);
-    expect(describe(results.violations)).toBe("");
-  });
-}
+test.describe("the public pages", () => {
+  // An anonymous browser, for the same reason the administrator block uses
+  // one: `/login` and `/register` redirect a signed-in visitor to the
+  // dashboard. Measuring them with the shared session was therefore
+  // measuring the dashboard, twice, and the two pages themselves were never
+  // checked at all.
+  test.use({ storageState: { cookies: [], origins: [] } });
+
+  for (const route of PUBLIC_ROUTES) {
+    test(`no WCAG A/AA violations on ${route}`, async ({ page }) => {
+      const results = await analyse(page, route);
+      expect(describe(results.violations), route).toBe("");
+    });
+  }
+});
 
 test.describe("signed in", () => {
   // The session comes from the storage state the setup project wrote; see
@@ -136,11 +145,17 @@ test.describe("administrator", () => {
  * the only way to know the split is right is to measure both themes.
  */
 test.describe("the dark theme", () => {
-  test("no WCAG A/AA violations on the public pages", async ({ page }) => {
-    for (const route of ["/", "/login", "/register", "/feedback"]) {
-      const results = await analyse(page, route, "dark");
-      expect(describe(results.violations), route).toBe("");
-    }
+  test.describe("the public pages", () => {
+    // Anonymous, for the same reason the light-theme block is: a signed-in
+    // visitor is redirected away from /login and /register.
+    test.use({ storageState: { cookies: [], origins: [] } });
+
+    test("no WCAG A/AA violations on the public pages", async ({ page }) => {
+      for (const route of ["/", "/login", "/register", "/feedback"]) {
+        const results = await analyse(page, route, "dark");
+        expect(describe(results.violations), route).toBe("");
+      }
+    });
   });
 
   test("no WCAG A/AA violations on the signed-in pages", async ({ page }) => {

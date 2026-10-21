@@ -17,6 +17,7 @@ independent and leave no residue.
 
 from __future__ import annotations
 
+import json
 import os
 import sys
 from collections.abc import Generator, Iterator
@@ -45,6 +46,18 @@ os.environ.setdefault("RATE_LIMIT_ENABLED", "false")
 # the shared one commits real rows, and the route-level wiring is exercised
 # deliberately in tests/test_rate_limit_shared.py.
 os.environ.setdefault("RATE_LIMIT_BACKEND", "memory")
+# The AI layer is off for the whole suite unless a test turns it on.
+#
+# These are set here rather than left to the configuration's defaults because
+# `Settings` also reads `backend/.env`, and a developer with a provider key
+# configured locally would otherwise get a different application under test
+# from the one CI runs. The environment wins over the file, so pinning them
+# here makes the suite the same everywhere. The `groq` fixture turns the
+# layer on for the tests that exercise it.
+os.environ.setdefault("GROQ_ENABLED", "false")
+os.environ.setdefault("GROQ_API_KEY", "")
+os.environ.setdefault("LLM_ENABLED", "false")
+os.environ.setdefault("LLM_API_KEY", "")
 
 import logging
 
@@ -276,6 +289,72 @@ def auth_client(client: TestClient, make_user):
         return client, user
 
     return _login
+
+
+class ProviderFake:
+    """A stand-in for the model provider.
+
+    The AI layer's tests must not need a key, must not depend on the provider
+    being reachable, and must not cost anything. This fake is patched over
+    :func:`app.ml.groq.complete`, which is the lowest level that still
+    exercises the real prompt building, the real response parsing and the
+    real Pydantic validation.
+    """
+
+    def __init__(self, monkeypatch) -> None:
+        self.replies: list[str] = []
+        self.raises: list[BaseException] = []
+        self.calls: list[dict] = []
+        monkeypatch.setattr("app.ml.groq.complete", self._complete)
+
+    def reply(self, text: str) -> ProviderFake:
+        """Queue one assistant message."""
+        self.replies.append(text)
+        return self
+
+    def reply_json(self, payload: object) -> ProviderFake:
+        """Queue one assistant message carrying a JSON document."""
+        return self.reply(json.dumps(payload))
+
+    def fail(self, error: BaseException) -> ProviderFake:
+        """Queue a failure for the next call."""
+        self.raises.append(error)
+        return self
+
+    def _complete(self, messages, **kwargs):
+        self.calls.append({"messages": messages, **kwargs})
+        if self.raises:
+            raise self.raises.pop(0)
+        if not self.replies:
+            raise AssertionError(
+                "the provider was called but no reply was queued; add one with "
+                "the 'groq' fixture"
+            )
+        return self.replies.pop(0)
+
+
+@pytest.fixture
+def groq(monkeypatch) -> ProviderFake:
+    """A fake provider, and the place to configure what it answers."""
+    from app.core.config import get_settings
+
+    # The AI layer is off unless a deployment says otherwise. These tests
+    # turn it on so the routes are reachable, and the tests that care about
+    # the off state turn it off again explicitly.
+    settings = get_settings()
+    monkeypatch.setattr(settings, "groq_enabled", True, raising=False)
+    monkeypatch.setattr(settings, "groq_api_key", "test-key-not-a-real-credential")
+    return ProviderFake(monkeypatch)
+
+
+@pytest.fixture
+def groq_disabled(monkeypatch) -> None:
+    """A deployment with no provider configured at all."""
+    from app.core.config import get_settings
+
+    settings = get_settings()
+    monkeypatch.setattr(settings, "groq_enabled", False, raising=False)
+    monkeypatch.setattr(settings, "groq_api_key", "", raising=False)
 
 
 @pytest.fixture

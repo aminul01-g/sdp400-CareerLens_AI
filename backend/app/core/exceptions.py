@@ -109,6 +109,22 @@ class FeatureDisabledError(APIError):
     message = "This optional feature is not enabled."
 
 
+class UpstreamError(APIError):
+    """A third-party service the application depends on failed.
+
+    The AI layer is the only part of the system that calls an external
+    provider, and the provider's own error text is never returned: it can
+    echo the request, and the request carries the user's document. The client
+    is told that the feature is temporarily unavailable and nothing more.
+    """
+
+    status_code = status.HTTP_502_BAD_GATEWAY
+    code = "upstream_unavailable"
+    message = (
+        "The AI service is temporarily unavailable. Please try again shortly."
+    )
+
+
 class BadRequestError(APIError):
     status_code = status.HTTP_400_BAD_REQUEST
     code = "bad_request"

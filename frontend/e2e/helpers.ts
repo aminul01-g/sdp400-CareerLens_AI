@@ -93,6 +93,14 @@ export const APP_ROUTES = [
   "/resume",
   "/recommendations",
   "/skill-gap",
+  // The AI workspace. On a deployment with no model provider configured these
+  // render an honest "not enabled here" panel, which is a real state and is
+  // worth covering.
+  "/mentor",
+  "/roadmaps",
+  "/job-analysis",
+  "/interview",
+  "/resume/advice",
 ];
 
 export const ADMIN_ROUTES = [

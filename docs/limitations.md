@@ -11,6 +11,11 @@ survives anywhere in the repository.
 This is the third pass. The first two closed eleven items and reduced five
 more. What remains is what is still true.
 
+The optional AI layer added a fourth kind of limitation — a model can be
+*confident* and still be wrong in a way a formula never is — so it has its own
+section below. It is written as carefully as the rest of this document, because
+a limitation nobody states is a limitation nobody is protected from.
+
 ---
 
 ## 1. The recommendations are not career advice
@@ -122,6 +127,57 @@ curation date. Adding a role is a JSON edit and a re-seed, so this is a data
 problem rather than an architectural one — but a data problem that is only
 partly solved, and the size of the catalogue is not the only thing wrong with
 it. A larger hand-curated list of AI/ML roles is still a list of AI/ML roles.
+
+## 4a. What the AI assistant can be wrong about
+
+The AI layer is optional, but it is not infallible, and the failure modes are
+different from the engine's. The engine is wrong only when its inputs are
+wrong, and it is wrong the same way every time. A model is wrong in ways that
+depend on the question, and it is wrong in a fluent, confident register.
+
+**The safeguards are structural, not advisory.** A prompt that says "do not
+invent anything" is advice. The things that actually hold are:
+
+- the model is never asked for a number the engine owns;
+- a skill it names that is not in the verified gap set is dropped;
+- a learning resource it names that the registry does not hold resolves to
+  nothing, and it never sees a URL at all;
+- a CV claim with no source in the user's own record is returned as a
+  question, not as a draft sentence.
+
+Those are enforced in code and asserted in `tests/test_ai_trust_boundary.py`.
+What they do **not** do is make the prose true. A well-phrased suggestion can
+still misdescribe a project, and a mentor answer can still be less good than a
+person's own understanding of their career. The suggestions are a draft to
+argue with, which is why the interface labels them that way and why the CV
+advisor asks for what it is missing instead of filling the gap.
+
+**The model has no knowledge of the labour market either.** The mentor is
+grounded in your record and in the application's knowledge base, and both are
+as limited as section 1 and section 4 describe. It will not tell you which
+roles are hiring, because nothing here knows.
+
+**The interview score is a practice score.** It measures how your answer
+performed against five named dimensions, and the dimensions are shown next to
+it so you can disagree with them. It is not a prediction of hiring, and the
+interface says so every time the number appears.
+
+**The learning resources are a curated list, not a search engine.** 211
+verified official documents covering 247 of the 250 taxonomy skills. A skill
+without one gets the learning task and no link, which is the honest outcome
+rather than a plausible-looking one.
+
+**The Bangla is a translation, not a localisation.** The English technical
+terms are kept in English on purpose — a reader who needs to look up
+`FastAPI` cannot look it up in Bangla. What is translated is the explanation
+around them, and the quality of that translation is the model's, not a
+human translator's.
+
+**Nothing is measured.** There is no evaluation of the AI layer's output
+quality, because there is no labelled set of good career advice to measure it
+against. The tests assert that the layer is *well-behaved* — grounded,
+bounded, honest about what it does not know. They do not assert that it is
+*good*. That is a real gap and it is stated here rather than implied away.
 
 ## 5. How it runs
 

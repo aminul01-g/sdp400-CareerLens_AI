@@ -6,9 +6,19 @@ to a `file:line` or a test name.
 **A row is only ticked where the evidence exists.** Four rows are not met, and
 each says so and says why. A matrix that is 100% green is a matrix nobody checked.
 
+**One section has grown since this matrix was first written.** §18.3 and §18.5
+now carry two rows the proposal did not ask for — the full AI career assistant
+and the guarantee that it does not change a number the engine owns. They are
+marked *(beyond the proposal's scope)* rather than presented as requirements,
+because a row that claims a requirement it invented is exactly the failure this
+document exists to prevent. §18.9 is the section a reader should look at
+first: the proposal excluded a RAG chatbot, the product now has a
+conversational assistant, and the exclusion is stated in terms precise enough
+to be checked rather than quietly reinterpreted.
+
 | | Count | |
 |---|---|---|
-| ✅ Met, evidence in this repository | 62 | |
+| ✅ Met, evidence in this repository | 65 | |
 | ⚠️ Implemented, not verified by the means §18 asks for | 5 | responsive viewports, browser testing, deployed journey, the agile board, the AI/ML-specialisation wording |
 | ⬜ Not done | 2 | Jupyter notebook, deployed URL |
 | 🚫 Correctly absent (out of scope, §18.9) | 3 | |
@@ -24,11 +34,11 @@ named. Where a plan task is cited, the citation is to the task in
 
 | Proposal requirement | Implementation | Evidence | Status |
 |---|---|---|---|
-| React / **Next.js** | Next.js 16.3.7 App Router, 27 routes, three route groups | `frontend/package.json:3` (`"next": "^16.3.7"`), `frontend/app/**` | ✅ |
+| React / **Next.js** | Next.js 16.3.7 App Router, 33 routes, three route groups | `frontend/package.json:3` (`"next": "^16.3.7"`), `frontend/app/**` | ✅ |
 | **Tailwind CSS** | Unmodified `tailwind.config.ts` + `app/globals.css`; 25 shadcn components retained byte-identically | `frontend/tailwind.config.ts`, `frontend/src/components/ui/**` | ✅ |
 | TypeScript | Next.js TypeScript config; build clean | `frontend/tsconfig.json`; `npx tsc --noEmit` → 0 errors | ✅ |
 | Python 3 | Python 3.12 | `backend/.python-version` (`3.12`); `backend/requirements.txt:1-13` (why 3.12) | ✅ |
-| **FastAPI** | `app/main.py` factory, 14 `APIRouter`s, **80 operations over 56 paths** | `backend/app/main.py:create_app`; `backend/app/api/router.py`; count from `app.openapi()` | ✅ *(exceeds the plan's estimate of 61)* |
+| **FastAPI** | `app/main.py` factory, 20 `APIRouter`s, **95 operations over 67 paths** | `backend/app/main.py:create_app`; `backend/app/api/router.py`; count from `app.openapi()` | ✅ *(exceeds the plan's estimate of 61)* |
 | **SQLAlchemy** | 2.0 `DeclarativeBase`, `Mapped[]`, `SessionLocal` | `backend/app/db/base.py`, `backend/app/db/session.py` | ✅ |
 | **Pydantic** | `schemas/` with separate Create/Update/Read per domain | `backend/app/schemas/{auth,profile,skill,project,education,job,recommendation,cv,dashboard}.py` | ✅ |
 | **JWT** authentication | PyJWT HS256, explicit `exp`, `sub`, `role` | `backend/app/core/security.py`; `test_auth.py::test_token_issued_now_is_valid_now` | ✅ |
@@ -39,14 +49,14 @@ named. Where a plan task is cited, the citation is to the task in
 | **spaCy** | `PhraseMatcher` over 1,016 normalised surface forms (250 canonical + aliases) | `backend/app/ml/extractor.py:113` (`taxonomy.all_patterns()`); `tests/test_extractor.py` (43) | ✅ |
 | pdfplumber / PyPDF | PDF branch of the loader | `backend/app/ml/text_loader.py`; `tests/test_extraction_pipeline.py` (25, includes a real PDF) | ✅ |
 | **python-docx** | DOCX branch of the loader | same, plus `sample_cv_ml_engineer.docx` parsed end to end | ✅ |
-| Optional LLM API | `ml/learning_path.py`, flag-gated off, **P2** | `backend/app/core/config.py:93` (`llm_enabled: bool = False`); `tests/test_learning_path.py` (28) | ✅ *(built, disabled by default)* |
+| Optional LLM API | `app/ml/groq.py` — one client, one call site. The AI layer is flag-gated and answers `503 feature_disabled` when unconfigured | `backend/app/core/config.py` (`groq_enabled`, `groq_api_key`, `groq_model`); `tests/test_groq_service.py` (17); `tests/test_learning_path.py` (28) | ✅ *(built, off without a key)* |
 | Docker | Compose + multi-stage `backend/Dockerfile` | `backend/Dockerfile` (built and run; non-root, health-checked) | ✅ |
 | Git / GitHub | Repository initialised **and published**: `origin` → `github.com/aminul01-g/sdp400-CareerLens_AI.git`; `git ls-remote origin` resolves | `git remote -v`; `git log --oneline` | ✅ *(see §18.6 agile row for the board, which is the part still open)* |
 | Postman | OpenAPI UI at `/docs` covers the same need | `http://localhost:8000/docs` → 200 | ✅ *(substituted, as the plan permits)* |
 | Figma / draw.io | No Figma file; `docs/erd.md` is Mermaid, rendered from the live catalogue | `docs/erd.md:6` (` ```mermaid ` block) | ✅ *(substituted)* |
 | Jupyter Notebook | **Not produced.** The weight sweep was done as `evaluation/tuning.py` and is reproducible, tested and committed | `app/ml/evaluation/tuning.py`; `tests/test_evaluation.py::test_sweep_covers_the_planned_range_and_holds_the_default` | ⬜ *(see note below)* |
-| **pytest** | **702 tests, 0 failures, 92% coverage** — against a floor of 60 | `backend/tests/` (38 files); `python -m pytest` | ✅ |
-| **Browser suite** | **38 Playwright tests, 0 failures** — axe over every route in both themes, a keyboard walkthrough, a reflow check and the full journey | `frontend/e2e/`; `npm run test:e2e` | ✅ |
+| **pytest** | **847 tests, 0 failures** — against a floor of 60 | `backend/tests/` (47 files); `python -m pytest` | ✅ |
+| **Browser suite** | **47 Playwright tests, 0 failures** (46 pass; the administrator spec is skipped without credentials) — axe over every route in both themes, a keyboard walkthrough, a reflow check, the full journey and the AI workspace | `frontend/e2e/`; `npm run test:e2e` | ✅ |
 | Browser testing | CRUD matrix and journey verified **over HTTP against the running container**, not through a browser | `docs/deployment.md:§11`; container journey recorded in `IMPLEMENTATION_PROGRESS.md` | ⚠️ *(no real-browser pass)* |
 | **Vercel** (frontend) | `vercel.json` + `NEXT_PUBLIC_API_URL` template | `frontend/vercel.json`, `frontend/.env.example` | ✅ *(config complete; not deployed)* |
 | **Render / Railway** (backend + DB) | `render.yaml` + managed PostgreSQL blueprint | `backend/render.yaml` | ⚠️ *(config complete; not provisioned — T165)* |
@@ -109,7 +119,8 @@ required as a graded artefact, it is a small piece of work — but producing one
 | Initial weights ~60% / 40% | `skill_coverage_weight = 0.60`, `tfidf_weight = 0.40`, and they must sum to 1.0 | `config.py:99-100`; `test_config.py::test_weights_must_sum_to_one` | ✅ |
 | Weights tuned on the labelled sample profiles | sweep over 0.5–0.9 plus component-isolation probes at 0.0 and 1.0 | `app/ml/evaluation/tuning.py`; `docs/evaluation_report.md` *Weight sweep*; `test_evaluation.py` (27) | ✅ |
 | Gap = required − user skills, ranked by importance weight | tiered at 0.8 / 0.5 | `app/ml/gap_analysis.py`; `test_gap_analysis.py` | ✅ |
-| LLM turns the gap into a learning path, **core works without it** | `503 feature_disabled` when off; no key needed to boot; degrades to deterministic steps | `app/ml/learning_path.py`; `test_learning_path.py` (26) | ✅ |
+| LLM turns the gap into a learning path, **core works without it** | `503 feature_disabled` when off; no key needed to boot; degrades to deterministic steps | `app/ml/learning_path.py`; `test_learning_path.py` (28) | ✅ |
+| **A full AI career assistant** — a conversational mentor, four- and six-week learning roadmaps with a portfolio project, a job-description analyser, a truthful CV advisor and a mock interview with a rubric | `app/ml/groq.py` (one provider client), `app/services/groq_service.py` (one service), `app/ml/prompts.py` (every prompt), `app/ml/learning_resources.py` (a verified resource registry) | `tests/test_groq_service.py` (17), `test_mentor_api.py` (12), `test_roadmap_api.py` (13), `test_job_analysis_api.py` (13), `test_cv_advisor_api.py` (10), `test_interview_api.py` (14), `test_ai_language.py` (13), `test_ai_trust_boundary.py` (15), `test_learning_resources.py` (12) | ✅ *(beyond the proposal's scope)* |
 | **Context signals** — recency, depth and level fit | `app/ml/signals.py`; folded into the coverage component, with the adjustments reported alongside the score | `test_signals.py` (29); `test_signals_api.py` (10) | ✅ *(beyond the proposal's scope)* |
 | **A community prior from use** | A bounded formula, not a fitted model; gated on a minimum sample size. Outcomes the user reports — applied, interviewed, offered — count for more than opinions, and are still self-reported | `app/services/feedback_service.py`; `test_feedback_loop.py` (14); `test_feedback_outcomes.py` (15) | ✅ *(beyond the proposal's scope)* |
 | **Section-aware CV extraction** | `app/ml/cv_sections.py`; a declared skill and a mentioned one are distinguishable | `test_cv_sections.py` (23) | ✅ *(beyond the proposal's scope)* |
@@ -139,6 +150,7 @@ required as a graded artefact, it is a small piece of work — but producing one
 | Skill-gap analysis for any target role, ordered by importance | weight-ordered, tiered | `test_gap_analysis.py` (13) | ✅ |
 | **Validate on 20+ hand-labelled profiles**, target: expected role in top 3 for most | **26 profiles, 20 distinct roles, 11 families**; top-3 **1.000** against a 0.75 target | `app/ml/evaluation/labelled_profiles.jsonl`; `docs/evaluation_report.md`; `test_evaluation.py::test_top3_hit_rate_meets_the_committed_target` | ✅ |
 | Optional LLM learning path, core does not depend on it | built, off by default | `test_learning_path.py::test_no_api_key_means_the_llm_is_never_called` | ✅ |
+| The AI layer does not change a single number the engine owns | the model reports ratings; the application computes the total, the coverage and the tiers. A model cannot add a skill the gap report did not produce, or a learning link the registry does not hold | `tests/test_ai_trust_boundary.py` (15); `app/services/roadmap_service.py::_sanitise_plan` | ✅ *(beyond the proposal's scope)* |
 
 ---
 
@@ -150,7 +162,7 @@ required as a graded artefact, it is a small piece of work — but producing one
 | 50–100 job listings with required skills and weights | 100 roles | `data/job_roles.json`; verified in the database | ✅ |
 | Sample CVs and 20+ labelled profiles; **only consented or anonymised** | 3 **fully synthetic** CVs; 26 synthetic profiles. No real personal data anywhere | `app/ml/evaluation/sample_cvs/`; `test_extraction_pipeline.py::test_no_real_contact_details_in_the_fixtures` (asserts the reserved `.invalid`/`example.com` convention) | ✅ |
 | Agile, six two-week sprints, shared backlog | git history on a published remote; **no external project board** | 11 commits grouped by phase; `git log --oneline` | ⚠️ *(the board is the open half of T002 — the repository itself is published)* |
-| Database creation with PostgreSQL schema, migrations, seed data | 20 tables, 12 migrations, 4 seed scripts | `alembic/versions/000*.py`; migrations applied and seeds run inside the container | ✅ |
+| Database creation with PostgreSQL schema, migrations, seed data | 24 tables, 13 migrations, 4 seed scripts | `alembic/versions/000*.py`; migrations applied and seeds run inside the container | ✅ |
 
 **On the samples.** The proposal permits consented **or anonymised** samples. The
 three committed CVs are stronger than anonymised: they are generated by
@@ -201,8 +213,8 @@ Each claim must be **demonstrably true in the shipped product**.
 | Excluded item | Verification | Status |
 |---|---|---|
 | Applying to jobs, employer accounts, chat, payments, job-portal scraping | no routes, no tables, no UI | ✅ absent — `grep -riE "payment\|stripe\|chat\|employer\|apply" backend/app/api/routes/*.py` → no matches. The feedback loop records what a user *reports* about their own job search — "I applied", "I got an interview" — as a signal about a role. The application never applies anywhere: there is no route, no table and no outbound call that submits anything to an employer |
-| A RAG chatbot | no vector store, no retrieval endpoints | ✅ absent — `grep -riE "vector_store\|faiss\|pinecone\|chroma\|retriev" backend/app` → no matches. `faiss` and `vector-databases` appear only as *skill names in the taxonomy*, not as code |
-| A trained deep-learning ranking model | no classifier, no model file, no `predict` | ✅ absent — `grep -riE "joblib\|pickle\|\.predict\|sklearn.*fit\(" backend/app` → no matches; disclosed in `docs/report.md` §5 |
+| A RAG chatbot | no vector store, no retrieval endpoints | ✅ absent — `grep -riE "vector_store\|faiss\|pinecone\|chroma\|retriev" backend/app` → no matches. `faiss` and `vector-databases` appear only as *skill names in the taxonomy*, not as code. **Stated precisely, because a conversational assistant was added after this matrix was first written:** `/api/ai/mentor/ask` is a conversation, but it is not a RAG chatbot. It has no embedding index, no document corpus and no retrieval step; it reads the application's own relational data — confirmed skills, projects, the recommendation run, the skill-gap report — and puts that in the prompt. The machinery §18.4 excluded is still verifiably absent, and `tests/test_ai_trust_boundary.py` asserts it. What changed is that the assistant is *grounded in structured application data* rather than *grounded in nothing*, which is the opposite of the failure the exclusion was guarding against |
+| A trained deep-learning ranking model | no classifier, no model file, no `predict` | ✅ absent — `grep -riE "joblib\|pickle\|\.predict\|sklearn.*fit\(" backend/app` → no matches; disclosed in `docs/report.md` §5. The AI layer does not change this: the model explains and sequences, and the engine still computes every score (`tests/test_ai_trust_boundary.py`) |
 
 ---
 

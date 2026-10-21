@@ -13,6 +13,7 @@ from app.models.audit import AuditLog
 from app.models.auth_token import AuthToken, TokenPurpose
 from app.models.education import Certification, EducationRecord
 from app.models.feedback import Feedback
+from app.models.interview import InterviewExchange, InterviewSession
 from app.models.job import JobRole, JobRoleSkill
 from app.models.profile import Profile
 from app.models.project import Project
@@ -23,6 +24,7 @@ from app.models.recommendation_feedback import (
     RecommendationFeedback,
 )
 from app.models.resume import ResumeDetectedSkill, ResumeUpload
+from app.models.roadmap import LearningRoadmap, LearningRoadmapTask
 from app.models.skill import SKILL_CATEGORIES, Skill, SkillAlias
 from app.models.user import User, UserRole
 from app.models.user_skill import SkillSource, UserSkill
@@ -37,8 +39,12 @@ __all__ = [
     "EducationRecord",
     "Feedback",
     "FeedbackAction",
+    "InterviewExchange",
+    "InterviewSession",
     "JobRole",
     "JobRoleSkill",
+    "LearningRoadmap",
+    "LearningRoadmapTask",
     "Profile",
     "Project",
     "RateLimitEvent",
@@ -58,10 +64,11 @@ __all__ = [
     "WorkHistorySource",
 ]
 
-# The 14-table core from proposal section 6.1, plus the extras that are not
-# proposal requirements: `feedback` (alembic/versions/0003_feedback.py),
-# `audit_log` (alembic/versions/0005_audit_log.py), and `rate_limit_event`
-# (alembic/versions/0009_rate_limit_event.py), which makes the rate limit a
-# deployment-wide limit rather than a per-process one.
+#: The 14-table core from proposal section 6.1, plus the extras that are not
+#: proposal requirements: `feedback` (alembic/versions/0003_feedback.py),
+#: `audit_log` (alembic/versions/0005_audit_log.py), and `rate_limit_event`
+#: (alembic/versions/0009_rate_limit_event.py), which makes the rate limit a
+#: deployment-wide limit rather than a per-process one.
 CORE_TABLE_COUNT = 14
-TOTAL_TABLE_COUNT = 20
+TOTAL_TABLE_COUNT = 24
+

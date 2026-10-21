@@ -15,11 +15,13 @@ Not on any core path           Reachable only through
 No key needed to boot          Nothing here reads configuration at import
 Cannot influence a score      It receives an already-computed ``GapReport``
                               and computes nothing
-Pure module                    Imports only ``app.ml.types`` and the standard
-                              library, so it inherits the ML layer's
-                              no-ORM / no-framework guarantee. Provider
-                              credentials arrive as plain arguments, and the
-                              Pydantic response model is built by the route
+Pure module                    Imports only ``app.ml.types``,
+                               ``app.ml.groq`` and the standard library, so
+                               it inherits the ML layer's no-ORM /
+                               no-framework guarantee. Provider credentials
+                               arrive as plain arguments, and the Pydantic
+                               response model is built by the route
+
 Distinct failure signal        ``503 feature_disabled`` when off, and a
                               logged fallback on provider failure — never a
                               silent empty result
@@ -33,9 +35,8 @@ from __future__ import annotations
 
 import json
 import logging
-import urllib.error
-import urllib.request
 
+from app.ml import groq
 from app.ml.types import GapReport, RoleSpec
 
 logger = logging.getLogger("app.ml.learning_path")
@@ -91,24 +92,26 @@ def build_prompt(spec: RoleSpec, report: GapReport) -> str:
 def _call_provider(
     prompt: str, *, api_key: str, model: str, base_url: str, timeout: int
 ) -> str:
-    """One HTTPS POST. Raises on any failure; the caller degrades."""
-    payload = json.dumps(
-        {
-            "model": model,
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.3,
-            "max_tokens": 800,
-        }
-    ).encode("utf-8")
-    request = urllib.request.Request(
-        f"{base_url.rstrip('/')}/chat/completions",
-        data=payload,
-        headers={"Content-Type": "application/json", "Authorization": f"Bearer {api_key}"},
-        method="POST",
+    """One provider call, through the shared client.
+
+    The HTTP itself lives in :mod:`app.ml.groq` so that the application has
+    exactly one place that reaches the network. This function is the narrow
+    seam between that client and the learning-path logic: it sends the prompt
+    and returns the assistant's text, and raises
+    :class:`app.ml.groq.GroqError` on any failure.
+    """
+    return groq.complete(
+        [{"role": "user", "content": prompt}],
+        api_key=api_key,
+        model=model,
+        base_url=base_url,
+        timeout=timeout,
+        # One attempt. The caller degrades to the deterministic steps, and a
+        # second attempt would only slow that down.
+        max_retries=0,
+        temperature=0.3,
+        max_completion_tokens=800,
     )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        body = json.loads(response.read().decode("utf-8"))
-    return str(body["choices"][0]["message"]["content"])
 
 
 def _parse_provider_output(raw: str, report: GapReport) -> list[dict[str, object]]:
@@ -179,7 +182,7 @@ def build_learning_path(
             build_prompt(spec, report),
             api_key=api_key, model=model, base_url=base_url, timeout=timeout,
         )
-    except (urllib.error.URLError, TimeoutError, KeyError, ValueError, OSError) as exc:
+    except (groq.GroqError, KeyError, ValueError, OSError) as exc:
         logger.warning("LLM learning path unavailable; using the deterministic steps: %s", exc)
         return fallback, "careerlens-rules"
 

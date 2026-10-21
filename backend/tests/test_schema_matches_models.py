@@ -79,7 +79,7 @@ def _live_constraints(session: Session) -> dict[str, set[str]]:
 def test_the_models_describe_every_table() -> None:
     import app.models  # noqa: F401
 
-    assert len(Base.metadata.tables) == 20, (
+    assert len(Base.metadata.tables) == 24, (
         "the schema has grown; the table count in "
         "app/models/__init__.py and in docs/erd.md has to follow"
     )

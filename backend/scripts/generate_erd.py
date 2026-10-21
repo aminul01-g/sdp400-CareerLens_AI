@@ -41,6 +41,10 @@ TABLE_PURPOSE: dict[str, str] = {
     "job_role_skill": "A role's requirements, each weighted in (0, 1].",
     "recommendation_run": "One generated shortlist, persisted so it can be re-read.",
     "recommendation_result": "One role's score within a run, with both components stored.",
+    "learning_roadmap": "A saved learning plan for one role, generated from the gap report.",
+    "learning_roadmap_task": "One task in a plan, with the learner's progress on it.",
+    "interview_session": "A mock interview, with the rubric that was in force.",
+    "interview_exchange": "One question, the answer, and the feedback that followed.",
     "feedback": "Optional. Not one of the proposal's nine modules.",
 }
 

@@ -5,6 +5,13 @@ tells you which of 100 job roles you are a credible candidate for, shows you the
 arithmetic behind every percentage, and tells you exactly which skills stand
 between you and each one.
 
+An optional **AI career assistant**, powered by Groq, sits on top of that: a
+conversational mentor, four- and six-week learning roadmaps with a portfolio
+project, a job-description analyser, a truthful CV advisor and a mock interview
+with a visible rubric. The assistant explains and sequences; the engine still
+decides every number. It is off unless you give it an API key, and nothing in
+the core needs it.
+
 Built for SDP400. Runs entirely on your machine with `docker compose up`.
 
 ---
@@ -22,7 +29,29 @@ Built for SDP400. Runs entirely on your machine with `docker compose up`.
 | **Learns from use** | Say whether a role is worth keeping; the aggregate moves future rankings by at most 10% |
 | **Operational** | Rate limiting, email verification, password reset and a full audit log |
 | **Evaluation** | 26 hand-labelled profiles; top-3 hit rate 1.000 against a committed threshold of 0.75 |
+| **AI career assistant** *(optional)* | A mentor that answers from your own record, learning roadmaps with a portfolio project, a job-description analyser, a CV advisor and a mock interview — in **English or Bangla** |
 | **No trained model** | A formula, chosen so every number in the UI can be checked by hand |
+
+### The AI assistant, and what it is not
+
+The assistant is an *enhancement*. It reads the application's own structured
+data — your confirmed skills, your projects, your latest recommendation run,
+your skill-gap report — and explains it. Three rules hold, and each is a test
+rather than a claim:
+
+- **The engine owns every number.** The model reports a rating per rubric
+  dimension; the application adds them up. It never produces a compatibility
+  score, a tier, or a skill the gap report did not.
+- **The model cannot invent a link.** It is shown resource *identifiers* and
+  never a URL, and its output schema has no field for one. A learning
+  resource comes from a curated registry of 211 verified official documents.
+- **The CV advisor cannot invent your history.** It works from your CV and
+  your stored records, and where something is missing it asks rather than
+  filling the gap.
+
+Without `GROQ_API_KEY` every AI route answers `503 feature_disabled` and the
+core is unaffected. The API key is read in one place, never sent to the
+browser and never logged.
 
 **No model is trained and none is loaded at inference time.** That is a decision,
 not an omission, and it has costs. Both the reasoning and the costs are written
@@ -47,6 +76,17 @@ cp .env.example .env.local        # NEXT_PUBLIC_API_URL=http://localhost:8000
 npm run dev
 ```
 
+### Turning the AI assistant on (optional)
+
+```bash
+# backend/.env
+GROQ_API_KEY=gsk_...              # from https://console.groq.com/keys
+GROQ_MODEL=openai/gpt-oss-120b    # a Groq model with structured-output support
+```
+
+Nothing else changes. Without the key the AI screens explain that they are
+unavailable and everything else keeps working.
+
 | | |
 |---|---|
 | Frontend | http://localhost:3000 |
@@ -66,13 +106,13 @@ If you are **not** using Docker, see [`docs/tutorials.md`](docs/tutorials.md#1-s
 
 ```bash
 cd backend
-python -m pytest                      # 702 tests
+python -m pytest                      # 847 tests
 python -m app.ml.evaluation --check   # the evaluation, as a gate
 cd .. && python scripts/verify_compliance.py
 cd frontend && npm run build && npx eslint .
 ```
 
-`verify_compliance.py` runs 34 repository-level assertions: no legacy code, no
+`verify_compliance.py` runs 37 repository-level assertions: no legacy code, no
 tracked secrets, no mock data, no branding leakage, and the ML layer's purity.
 
 There is a browser suite as well. It drives the real application against the
@@ -81,7 +121,7 @@ real API, so the API has to be running first:
 ```bash
 cd backend && python -m uvicorn app.main:app --port 8000   # in another terminal
 cd frontend && npx playwright install chromium              # once
-npm run test:e2e                                            # 38 tests
+npm run test:e2e                                            # 47 tests, 1 skipped without admin credentials
 ```
 
 It checks the accessibility of every route with `axe-core` in both colour
@@ -160,8 +200,9 @@ at the top of `backend/requirements.txt`.
 
 ## Engineering
 
-- **702 tests**, 92% statement coverage, ruff and mypy clean.
-- **38 browser tests** (Playwright + axe) over the live application.
+- **847 tests**, ruff and mypy clean.
+- **47 browser tests** (Playwright + axe) over the live application — 46 pass;
+  the administrator spec is skipped unless `E2E_ADMIN_PASSWORD` is set.
 - **Determinism** is a stated acceptance criterion: the same input gives the same
   output on every run, and there is a test for it.
 - **The app refuses to start** without a real 32-character signing key, rather than

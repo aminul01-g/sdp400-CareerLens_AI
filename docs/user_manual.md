@@ -10,9 +10,10 @@ plus what to do when something goes wrong.
 - [5. Uploading a CV](#5-uploading-a-cv)
 - [6. Getting recommendations](#6-getting-recommendations)
 - [7. Reading your skill gap](#7-reading-your-skill-gap)
-- [8. Admin tools](#8-admin-tools)
-- [9. Troubleshooting](#9-troubleshooting)
-- [10. Privacy](#10-privacy)
+- [8. The AI assistant](#8-the-ai-assistant)
+- [9. Admin tools](#9-admin-tools)
+- [10. Troubleshooting](#10-troubleshooting)
+- [11. Privacy](#11-privacy)
 
 ---
 
@@ -231,13 +232,121 @@ The ordering is strictly by weight, so the first item is the highest-value thing
 you can learn next. Work down the list in order; the payoff falls off sharply
 after the critical tier.
 
-**The learning path** button turns the gap into a short study plan. It is optional
-and **switched off in this deployment**, so the button either does nothing or is
-absent. That is intentional — the core features work without it. When no provider
-is configured, the plan falls back to deterministic local steps, so it never
-fails and never blocks.
+**The learning path** button turns the gap into a short study plan. It is
+optional: when no provider is configured, the plan falls back to deterministic
+local steps, so it never fails and never blocks.
 
-## 8. Admin tools
+For a full plan — weeks, tasks, a portfolio project and something to work
+through — use **Learning roadmap** in the AI assistant (section 8).
+
+## 8. The AI assistant
+
+Five screens, reached from **AI Assistant** in the header or from the cards on
+your dashboard. They share a sub-navigation, so you can move between them
+without going back to the header.
+
+They are **optional**. On a deployment with no model provider configured, each
+one says so and links you back to the features that do work. Nothing you have
+already entered is affected.
+
+### The career mentor (`/mentor`)
+
+Ask a question in your own words. The answer is built from your confirmed
+skills, your projects, your education, your latest recommendation run and your
+skill-gap report — and the panel under the answer says which of those it used.
+
+If something your question needs is not in your record, the assistant says so
+and asks for it. It will not invent an employer, a credential, a metric or a
+salary figure, because the application holds no salary data at all.
+
+Suggested questions are offered as buttons, and the first one is about *your*
+top match from your latest run.
+
+**The conversation is short-lived.** Only the last few turns are sent to the
+provider, so a long conversation does not grow the request, and your transcript
+is not stored by the application.
+
+### Learning roadmaps (`/roadmaps`)
+
+Pick a role and a length — four or six weeks — and the application turns the
+role's **verified** skill gaps into a plan:
+
+- the skills the plan targets are the ones the engine reported as missing, in
+  the order it weights them;
+- every task has activities, a deliverable and **completion criteria you can
+  check**;
+- each task shows its estimated hours, for a student with a part-time schedule;
+- learning resources are **verified official documentation**, linked from a
+  curated list;
+- the plan ends in a **portfolio project** with a problem statement,
+  technologies, milestones, expected outputs and how it would be judged.
+
+Mark tasks complete, write notes against them, and paste a link to what you
+built. Your progress is saved next to the plan, and the plan itself never
+changes underneath you — regenerating makes a new one.
+
+### Job analysis (`/job-analysis`)
+
+Paste a job description, or pick a role from the knowledge base to compare it
+against. You get the requirements split three ways, and the difference matters:
+
+| | Meaning |
+|---|---|
+| **On your profile** | You have it, with the proficiency you declared |
+| **Genuine gap** | The role verifiably needs it and you do not have it |
+| **Not on your profile** | The description asks for it, and your record does not say either way |
+
+The third one is not "you do not have this". It means nobody wrote it down. If
+you have used it, add it to your skills and the next analysis will say so.
+
+The coverage figure is measured against the skills extracted from the
+description you pasted. When you also select a role from the knowledge base,
+the engine's own score for that role is shown separately and labelled.
+
+### CV advice (`/resume/advice`)
+
+Choose one of your uploaded CVs and the assistant suggests how to present it
+more clearly. It works from the document and your stored records, and it never
+adds something you did not do.
+
+- the suggestions are a **separate list** — your CV is not changed;
+- where the CV is missing something, you are **asked for it** rather than
+  having a sentence written for you;
+- a draft professional summary, bullet points and an optional cover letter use
+  only what is already in your record.
+
+Read every suggested line against the truth of your own record before you use
+it. The tool helps you describe what you did; it does not decide what you
+should claim.
+
+### Mock interview (`/interview`)
+
+Choose a role and answer its questions in your own words. The questions are
+drawn from the role's requirements and from your own experience, so they are
+answerable rather than generic, and each one can be followed by a follow-up
+based on what you actually said.
+
+Your answer is scored against five dimensions — relevance, correctness,
+completeness, reasoning and clarity — and the dimensions are shown next to the
+score, each with the note explaining it. The score is a **practice score**, not
+a prediction of hiring; the interface says so every time it appears.
+
+Every session is saved with its questions, your answers and the feedback, so
+you can read it again later.
+
+### English or Bangla
+
+Every generated explanation can be in **English** or **Bangla**. The toggle is
+at the top of every AI screen, and the choice is saved to your profile.
+
+Technical terms stay in English on purpose: if you need to look up `FastAPI` or
+`pandas`, you need it spelled the way the documentation spells it. What is
+translated is the explanation around them.
+
+The language changes the *words*, never the *data*. Skill names, role titles
+and every score stay exactly as the engine produced them.
+
+## 9. Admin tools
 
 For accounts with the administrator role only. If you cannot see the admin section,
 you do not have it.
@@ -270,7 +379,7 @@ outlives the account: deleting a user does not delete what that user did.
 The client address is best-effort — behind a proxy it is the first entry of
 `X-Forwarded-For`, which the proxy sets, not the client.
 
-## 9. Troubleshooting
+## 10. Troubleshooting
 
 **"The page won't load" / "Failed to fetch"**
 The API is unreachable or CORS is blocking you. If you are self-hosting, check
@@ -321,11 +430,40 @@ Only PDF and DOCX. Not DOC, not RTF, not an image.
 **Recommendations are empty**
 Your profile has no skills, so coverage is 0 everywhere. Add skills first.
 
+**"The AI assistant is not enabled on this deployment"**
+The AI layer needs a model provider, and this deployment has no key configured.
+Everything else in CareerLens — CV analysis, career matching, the skill-gap
+report — works without it. An administrator can turn it on by setting
+`GROQ_API_KEY` in the deployment's environment; there is nothing else to do.
+
+**"The AI service is temporarily unavailable"**
+The model provider could not be reached, or answered with something the
+application could not read. This is a provider-side problem and it is usually
+brief. Your saved plans, interviews and CVs are unaffected — try again in a
+moment.
+
+**"The AI service returned an answer this application could not read"**
+The provider's answer did not match the shape the application asked for. It
+retries once and then refuses rather than storing something malformed. Please
+try again; if it repeats, it is worth reporting, because it points at a
+provider behaviour change.
+
+**A roadmap came back with fewer tasks than you expected**
+A task that names a skill the application has not recorded as missing is
+removed rather than shown, and a learning link the application cannot verify
+is dropped. A plan that contains a skill you do not have would send you down
+the wrong path.
+
+**The mentor said it does not have something**
+That is it being honest. Your record does not contain the fact the question
+needed — an experience level, a salary, a job description. Add it, or ask a
+different question.
+
 **My upload detected skills I do not have**
 Expected. The extractor matches text, not meaning. Decline them. This is the
 confirmation step doing its job.
 
-## 10. Privacy
+## 11. Privacy
 
 What the system stores about you: name, email, a bcrypt password hash, your
 profile, your skills and their proficiencies, your projects, education and

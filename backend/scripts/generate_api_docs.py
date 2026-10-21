@@ -31,12 +31,14 @@ GROUPS: list[tuple[str, str, list[str]]] = [
         "Authentication",
         "Session lifecycle. Every other route needs `Authorization: Bearer <token>`.",
         ["/api/auth/register", "/api/auth/login", "/api/auth/refresh", "/api/auth/logout",
-         "/api/auth/me"],
+         "/api/auth/me", "/api/auth/verify-email", "/api/auth/resend-verification",
+         "/api/auth/forgot-password", "/api/auth/reset-password"],
     ),
     (
         "Profile",
-        "The single profile a user owns.",
-        ["/api/profile"],
+        "The single profile a user owns, and the work history on it.",
+        ["/api/profile", "/api/work-history", "/api/work-history/{entry_id}",
+         "/api/work-history/{entry_id}/confirm"],
     ),
     (
         "Skills",
@@ -68,6 +70,26 @@ GROUPS: list[tuple[str, str, list[str]]] = [
         ["/api/skill-gap/{job_role_id}", "/api/skill-gap/{job_role_id}/learning-path"],
     ),
     (
+        "AI assistant",
+        "The optional AI layer. Every route here answers `503 feature_disabled` when no "
+        "model provider is configured, and none of them is on the path of a core "
+        "feature. The engine still owns every score: the model explains, sequences, "
+        "drafts and asks, and never decides.",
+        [
+            "/api/ai/status",
+            "/api/ai/mentor/ask",
+            "/api/ai/roadmaps",
+            "/api/ai/roadmaps/{roadmap_id}",
+            "/api/ai/roadmaps/{roadmap_id}/tasks/{task_key}",
+            "/api/ai/job-analysis",
+            "/api/ai/cv-advice",
+            "/api/ai/interviews",
+            "/api/ai/interviews/{session_id}",
+            "/api/ai/interviews/{session_id}/answers",
+            "/api/ai/interviews/{session_id}/next-question",
+        ],
+    ),
+    (
         "Job roles (public)",
         "Readable without a token, so a signed-out visitor can browse.",
         ["/api/jobs", "/api/jobs/families"],
@@ -86,7 +108,8 @@ GROUPS: list[tuple[str, str, list[str]]] = [
         "Admin",
         "Requires the `admin` role. A normal user gets 403, not 404.",
         ["/api/admin/overview", "/api/admin/users", "/api/admin/jobs", "/api/admin/taxonomy",
-         "/api/admin/evaluation", "/api/admin/feedback", "/api/admin/health"],
+         "/api/admin/evaluation", "/api/admin/feedback", "/api/admin/health",
+         "/api/admin/audit"],
     ),
 ]
 
@@ -222,12 +245,21 @@ def main() -> int:
         # Prefix match, so "/api/projects/{project_id}" is documented under
         # Projects rather than dumped into the catch-all at the bottom. Matched
         # prefixes are consumed, so the most specific group wins.
+        #
+        # A trailing slash means "everything under here", which is what
+        # "/api/admin/" would mean — but the root path "/" is not a directory
+        # prefix. Treating it as one made the Health group swallow every route
+        # in the API, and every curated group below it repeated its own.
         matched = [
             (path, ops)
             for path, ops in sorted(paths.items())
             if any(
                 path == prefix
-                or (prefix.endswith("/") and path.startswith(prefix))
+                or (
+                    prefix.endswith("/")
+                    and len(prefix) > 1
+                    and path.startswith(prefix)
+                )
                 or path.startswith(prefix + "/")
                 or path.startswith(prefix + "?")
                 or path.startswith(prefix + "{")

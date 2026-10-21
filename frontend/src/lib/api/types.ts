@@ -47,6 +47,8 @@ export interface Profile {
   industry: string | null;
   preferred_role_family: string | null;
   links: Record<string, string>;
+  /** The language the generated AI guidance is written in. */
+  preferred_language: "en" | "bn";
   created_at?: string | null;
   updated_at?: string | null;
   skills_count: number;
@@ -552,4 +554,250 @@ export interface EvaluationReport {
   /** Compatibility a meaningless ranking would score, for scale. */
   noise_floor: number;
   outcomes: EvaluationOutcome[];
+}
+
+/* ------------------------------------------------------------------ *
+ * The AI layer.
+ *
+ * These mirror the Pydantic models in `backend/app/schemas/ai.py`. Two
+ * conventions carry over from the backend and are worth stating here:
+ *
+ * - `language` chooses the language of a *generated explanation*. It never
+ *   changes a skill name, a role title or a calculated score, so none of
+ *   those fields has a language-specific variant.
+ * - Every generated answer says which provider produced it (`generated_by`)
+ *   and, where a number is shown, what that number measures.
+ * ------------------------------------------------------------------ */
+
+export type AiLanguage = "en" | "bn";
+
+export interface AiStatus {
+  enabled: boolean;
+  model: string;
+  features: string[];
+  languages: AiLanguage[];
+}
+
+export interface MentorTurn {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface MentorAnswer {
+  answer: string;
+  generated_by: string;
+  language: AiLanguage;
+  /** The verified records the answer was grounded in, by name. */
+  context_used: string[];
+  /** What the answer could not do because the record does not contain it. */
+  limitations: string[];
+}
+
+export interface LearningResource {
+  id: string;
+  title: string;
+  url: string;
+  kind: string;
+  summary: string;
+}
+
+export interface RoadmapTask {
+  task_key: string;
+  week: number;
+  position: number;
+  title: string;
+  objective: string;
+  activities: string[];
+  deliverable: string;
+  completion_criteria: string[];
+  estimated_hours: number;
+  skill_slug: string;
+  resources: LearningResource[];
+  portfolio_hint: string;
+  is_complete: boolean;
+  notes: string;
+  portfolio_url: string;
+  completed_at: string | null;
+}
+
+export interface PortfolioProject {
+  title: string;
+  problem_statement: string;
+  required_technologies: string[];
+  milestones: string[];
+  expected_outputs: string[];
+  evaluation_criteria: string[];
+  demonstrates_skills: string[];
+}
+
+export interface Roadmap {
+  id: number;
+  job_role_id: number | null;
+  job_role_title: string;
+  title: string;
+  duration_weeks: number;
+  language: AiLanguage;
+  generated_by: string;
+  created_at: string;
+  target_role: string;
+  starting_profile: string;
+  strengths: string[];
+  skill_gaps: string[];
+  learning_objectives: string[];
+  tasks: RoadmapTask[];
+  portfolio_project: PortfolioProject | null;
+  portfolio_presentation: string[];
+  total_estimated_hours: number;
+  notes: string;
+  gap_skills: string[];
+  completed_tasks: number;
+  total_tasks: number;
+  progress_pct: number;
+}
+
+export interface RoadmapSummary {
+  id: number;
+  job_role_id: number | null;
+  job_role_title: string;
+  title: string;
+  duration_weeks: number;
+  language: AiLanguage;
+  created_at: string;
+  completed_tasks: number;
+  total_tasks: number;
+  progress_pct: number;
+}
+
+/**
+ * How a requirement from a job description stands against the profile.
+ *
+ * Three states, not two. `no_evidence` means the profile does not record the
+ * skill either way — which is *not* the same as the person not having it.
+ */
+export type RequirementStatus = "met" | "gap" | "no_evidence";
+
+export interface AnalyzedRequirement {
+  skill: string;
+  importance: "required" | "preferred";
+  evidence: string;
+  normalized_skill: string;
+  normalized_slug: string;
+  status: RequirementStatus;
+  proficiency: number | null;
+  note: string;
+}
+
+export interface JobAnalysis {
+  role_title: string;
+  summary: string;
+  generated_by: string;
+  language: AiLanguage;
+  /**
+   * The coverage the *application* computed over the skills extracted from
+   * this description. Not the official score for a knowledge-base role —
+   * that is `official_compatibility_pct` below, and it is only present when
+   * the request named a role.
+   */
+  coverage: number;
+  coverage_pct: number;
+  official_compatibility_pct: number | null;
+  matched_count: number;
+  gap_count: number;
+  no_evidence_count: number;
+  requirements: AnalyzedRequirement[];
+  tools_and_technologies: string[];
+  experience_requirement: string;
+  education_requirement: string;
+  responsibilities: string[];
+  deliverables: string[];
+  checklist: string[];
+  limitations: string[];
+  unrecognised_skills: string[];
+}
+
+export interface CvAdvice {
+  generated_by: string;
+  language: AiLanguage;
+  effective_summary: string[];
+  emphasise: string[];
+  clarity_suggestions: string[];
+  wording_suggestions: string[];
+  project_suggestions: string[];
+  job_specific_recommendations: string[];
+  professional_summary: string;
+  bullet_points: string[];
+  cover_letter: string;
+  /** What the user must supply before a stronger draft is possible. */
+  needs_information: string[];
+  disclaimer: string;
+}
+
+export type InterviewCategory =
+  | "technical"
+  | "problem_solving"
+  | "project"
+  | "behavioral"
+  | "scenario"
+  | "follow_up";
+
+export interface InterviewQuestion {
+  question: string;
+  category: InterviewCategory;
+  focus: string;
+  difficulty: "basic" | "intermediate" | "advanced";
+  skill_slugs: string[];
+}
+
+export interface RubricDimension {
+  key: string;
+  label: string;
+  description: string;
+  score: number;
+  max_score: number;
+  note: string;
+}
+
+export interface InterviewFeedback {
+  strengths: string[];
+  missed_points: string[];
+  technical_inaccuracies: string[];
+  clarity_improvements: string[];
+  example_answer: string;
+  further_practice: string[];
+  dimensions: RubricDimension[];
+  /**
+   * An informal practice score out of the rubric's maximum. It measures how
+   * the answer performed against the five dimensions listed and nothing else.
+   */
+  practice_score: number;
+  max_practice_score: number;
+  score_note: string;
+}
+
+export interface InterviewExchange {
+  position: number;
+  question: InterviewQuestion;
+  answer: string;
+  feedback: InterviewFeedback | null;
+}
+
+export interface InterviewSession {
+  id: number;
+  job_role_id: number | null;
+  job_label: string;
+  language: AiLanguage;
+  created_at: string;
+  rubric: RubricDimension[];
+  exchanges: InterviewExchange[];
+}
+
+export interface InterviewSessionSummary {
+  id: number;
+  job_role_id: number | null;
+  job_label: string;
+  language: AiLanguage;
+  created_at: string;
+  answered_count: number;
+  question_count: number;
+  average_practice_score: number | null;
 }

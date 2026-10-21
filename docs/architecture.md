@@ -14,7 +14,8 @@ know what they are defending against.
 - [8. Frontend](#8-frontend)
 - [9. Determinism](#9-determinism)
 - [10. Deliberate non-choices](#10-deliberate-non-choices)
-- [11. Where to look in the code](#11-where-to-look-in-the-code)
+- [11. The AI layer](#11-the-ai-layer)
+- [12. Where to look in the code](#12-where-to-look-in-the-code)
 
 ---
 
@@ -46,12 +47,13 @@ know what they are defending against.
              │ SQLAlchemy                       │ pure function calls
 ┌────────────▼─────────────┐        ┌───────────▼──────────────────┐
 │ PostgreSQL 16            │        │ data/skills_taxonomy.json    │
-│ 20 tables, pg_trgm       │        │ data/job_roles.json          │
-└──────────────────────────┘        └──────────────────────────────┘
+│ 24 tables, pg_trgm       │        │ data/job_roles.json          │
+└──────────────────────────┘        │ data/learning_resources.json  │
+                                    └──────────────────────────────┘
 ```
 
-Roughly 18,700 lines of Python across 108 modules, 12,700 lines of TypeScript
-across 110 files, 702 tests in 38 files, and 38 browser tests in 6 files.
+Roughly 22,000 lines of Python across 130 modules, 14,000 lines of TypeScript
+across 120 files, 831 tests in 46 files, and 47 browser tests in 7 files.
 
 ---
 
@@ -336,14 +338,81 @@ these numbers, and is pure cost now.
 
 **No Redis.** Nothing here needs a cache that a query index cannot serve.
 
-**The learning path is off and optional.** `LLM_ENABLED=false` by default, no key
-required to boot, reachable only through one endpoint, and a provider failure
-degrades to deterministic local steps with the error logged server-side and never
-returned to the client.
+**The AI layer is off and optional.** No provider key is required to boot, and
+every route in it answers `503 feature_disabled` without one. A provider failure
+is mapped onto the application's own error types, logged server-side, and never
+returned to the client. Section 11 says what the model is and is not allowed to
+do.
+
+**No vector store, no RAG.** The assistant reads the application's own
+relational data — confirmed skills, projects, the stored recommendation run,
+the gap report — and puts that in the prompt. There is no embedding index, no
+document corpus and no retrieval step, and
+`scripts/verify_compliance.py` asserts the absence of `vector_store`, `faiss`,
+`pinecone` and `chroma` in `app/`.
 
 ---
 
-## 11. Where to look in the code
+## 11. The AI layer
+
+The AI layer is a set of five features on top of the engine. It is the only
+part of the system that reaches the network, and it is off without a key.
+
+```
+app/ml/groq.py            the ONLY place that opens a connection
+        │                 (stdlib only; credentials are plain arguments)
+        ▼
+app/services/groq_service.py
+        │                 the ONLY caller: config → provider → Pydantic
+        │                 validation → the application's own error types
+        ▼
+app/ml/prompts.py         every prompt, in one reviewable place
+app/ml/learning_resources.py
+                          the verified resource registry
+app/services/ai_context_service.py
+                          the verified fact block, assembled from the DB
+```
+
+`app/services/ai_context_service.py` is the trust boundary. It reads confirmed
+`user_skill` rows and the engine's stored outputs, and produces the facts the
+model is shown. A CV extraction that has not been confirmed is a proposal and
+never appears in that block.
+
+### The separation
+
+| | The engine | The model |
+|---|---|---|
+| Skill extraction and normalisation | owns it | never sees a raw CV skill list |
+| The compatibility score | computes it | explains it |
+| Missing skills and their tiers | computes them | sequences them |
+| Role requirements | the knowledge base | reads them |
+| What to learn first | the weight | the order and the exercises |
+| What a CV should say | the record | the wording |
+| Interview feedback | the rubric and the total | the ratings and the notes |
+| The language of an answer | — | English or Bangla |
+
+Three things make that a property rather than a hope:
+
+1. **The model is never asked for a number.** The job analyser computes the
+   coverage with `app/ml/matcher.py`, the same function the ranker uses.
+2. **The model cannot carry a fact it was not given.** A roadmap task naming a
+   skill outside the verified gap set has its slug cleared; a learning
+   resource identifier the registry does not hold resolves to nothing.
+3. **The model has no tools.** No function calling, no code execution, no
+   retrieval. It is asked for text and returns text.
+
+`tests/test_ai_trust_boundary.py` asserts all three against the live code.
+
+### Untrusted documents
+
+A CV and a job description are wrapped in an `<untrusted_…>` block, with a
+statement that the contents are material and cannot change the rules, and with
+a rule that nothing may be invented. The prompt is a single user message
+because Groq's open-weight reasoning models do not support a system message.
+
+---
+
+## 12. Where to look in the code
 
 | Question | Start at |
 |---|---|
@@ -363,4 +432,8 @@ returned to the client.
 | What does the data look like? | [`erd.md`](erd.md) — generated from the live catalogue |
 | How good is the engine, honestly? | [`evaluation_report.md`](evaluation_report.md) |
 | How do I run this? | [`deployment.md`](deployment.md) |
+| Where does the model provider get called? | `app/ml/groq.py`, then `app/services/groq_service.py` |
+| What is the model allowed to do? | `app/ml/prompts.py`, `app/services/ai_context_service.py` |
+| Where do the learning resources come from? | `data/learning_resources.json`, `app/ml/learning_resources.py` |
+| How is a roadmap kept free of invented skills? | `app/services/roadmap_service.py::_sanitise_plan` |
 | How do I run the tests? | `cd backend && python -m pytest` |

@@ -180,6 +180,27 @@ def main() -> int:  # noqa: C901 - a checklist is linear by nature
     hits = scan([BACKEND_APP], r"jwt_required\s*\(\s*optional")
     check("no optional auth on any endpoint", not hits)
 
+    # The AI layer's credential is a server-side secret. A single *value* in
+    # the frontend would put it in the browser bundle, where every visitor can
+    # read it, and the provider's bill would show it.
+    #
+    # Naming the variable in a help message is not a leak — the interface
+    # tells an administrator which variable to set — so this looks for an
+    # assignment or an environment read, not for the word.
+    hits = scan(
+        [FRONTEND_SRC, FRONTEND_APP],
+        r"GROQ_API_KEY\s*[:=]\s*[\"']?\S|process\.env\.GROQ_",
+    )
+    check("no Groq credential in the frontend", not hits, ", ".join(hits[:3]))
+
+    # The provider's own key is a name the application must never expose as a
+    # field. A *parameter* of the pure client is fine — the credential has to
+    # arrive somehow, and a plain argument is the safest way — but a response
+    # model carrying it would be a leak waiting for somebody to add a field.
+    hits = scan([BACKEND_APP / "schemas"], r"\b(api_key|apiKey)\b\s*:\s*(str|Optional)")
+    check("no response schema carries an API key", not hits, ", ".join(hits[:3]))
+
+
     # Scoped deliberately: `src/components/ui/chart.tsx` is vendored shadcn/recharts
     # code that the migration plan requires preserving byte-identically, and it uses
     # dangerouslySetInnerHTML for the recharts tooltip container. Editing vendored
@@ -345,7 +366,7 @@ def main() -> int:  # noqa: C901 - a checklist is linear by nature
             if not name.endswith(template_suffixes):
                 continue
             try:
-                body = Path(name).read_text(encoding="utf-8", errors="ignore")
+                body = (ROOT / name).read_text(encoding="utf-8", errors="ignore")
             except OSError:
                 continue
             for lineno, line in enumerate(body.splitlines(), start=1):
@@ -371,6 +392,30 @@ def main() -> int:  # noqa: C901 - a checklist is linear by nature
             and not name.startswith(new_prefixes)
         ]
         check("no legacy Flask module remains tracked", not tracked_legacy, ", ".join(tracked_legacy[:4]))
+
+        # A provider key pasted into a tracked file is the worst way to configure
+        # this application: it is committed, pushed and published with the code,
+        # and the repository is public. The key belongs in the environment --
+        # `backend/.env` locally, the deployment's encrypted environment
+        # variables in production -- and this fails the build if one ever turns
+        # up in a file git tracks.
+        key_pattern = re.compile(r"\bgsk_[A-Za-z0-9_\-]{16,}|\brnd_[A-Za-z0-9_\-]{16,}")
+        secret_hits: list[str] = []
+        for name in sorted(tracked):
+            if Path(name).suffix in {".png", ".jpg", ".jpeg", ".gif", ".ico", ".pdf", ".zip"}:
+                continue
+            try:
+                body = (ROOT / name).read_text(encoding="utf-8", errors="ignore")
+            except OSError:
+                continue
+            for lineno, line in enumerate(body.splitlines(), start=1):
+                if key_pattern.search(line):
+                    secret_hits.append(f"{name}:{lineno}")
+        check(
+            "no provider key in a tracked file",
+            not secret_hits,
+            ", ".join(secret_hits[:3]),
+        )
     else:
         print("  SKIP  git-tracked checks (not a git repository)")
 
