@@ -55,7 +55,7 @@ named. Where a plan task is cited, the citation is to the task in
 | Postman | OpenAPI UI at `/docs` covers the same need | `http://localhost:8000/docs` → 200 | ✅ *(substituted, as the plan permits)* |
 | Figma / draw.io | No Figma file; `docs/erd.md` is Mermaid, rendered from the live catalogue | `docs/erd.md:6` (` ```mermaid ` block) | ✅ *(substituted)* |
 | Jupyter Notebook | **Not produced.** The weight sweep was done as `evaluation/tuning.py` and is reproducible, tested and committed | `app/ml/evaluation/tuning.py`; `tests/test_evaluation.py::test_sweep_covers_the_planned_range_and_holds_the_default` | ⬜ *(see note below)* |
-| **pytest** | **847 tests, 0 failures** — against a floor of 60 | `backend/tests/` (47 files); `python -m pytest` | ✅ |
+| **pytest** | **849 tests, 0 failures** — against a floor of 60 | `backend/tests/` (48 files); `python -m pytest` | ✅ |
 | **Browser suite** | **47 Playwright tests, 0 failures** (46 pass; the administrator spec is skipped without credentials) — axe over every route in both themes, a keyboard walkthrough, a reflow check, the full journey and the AI workspace | `frontend/e2e/`; `npm run test:e2e` | ✅ |
 | Browser testing | CRUD matrix and journey verified **over HTTP against the running container**, not through a browser | `docs/deployment.md:§11`; container journey recorded in `IMPLEMENTATION_PROGRESS.md` | ⚠️ *(no real-browser pass)* |
 | **Vercel** (frontend) | `vercel.json` + `NEXT_PUBLIC_API_URL` template | `frontend/vercel.json`, `frontend/.env.example` | ✅ *(config complete; not deployed)* |

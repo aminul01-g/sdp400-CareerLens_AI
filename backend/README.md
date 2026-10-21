@@ -85,7 +85,7 @@ that will fail on its first real request.
 ## Tests
 
 ```bash
-python -m pytest                                  # 847 tests, ~240s
+python -m pytest                                  # 849 tests, ~235s
 python -m pytest tests/test_ranker.py -v
 python -m pytest -k ownership
 python -m pytest --cov=app --cov-report=term-missing
@@ -122,7 +122,7 @@ alembic/          Migrations. Never edit one that has been applied.
 data/             The knowledge base. skills_taxonomy.json, job_roles.json,
                   learning_resources.json (211 verified learning resources).
 scripts/          Seeds, doc generators, fixture generator.
-tests/            47 files, 847 tests.
+tests/            48 files, 849 tests.
 ```
 
 Dependencies point downwards. A route that contains an `if` statement is a route

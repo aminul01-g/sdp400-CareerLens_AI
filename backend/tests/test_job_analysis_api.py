@@ -290,3 +290,75 @@ def test_the_description_is_treated_as_data_not_as_instructions(
 def test_the_analyser_requires_authentication(client: TestClient, groq) -> None:
     response = client.post(ANALYSE, json={"job_description": DESCRIPTION})
     assert response.status_code == 401
+
+
+def test_a_qualified_phrase_resolves_to_the_skill(
+    client: TestClient, auth_client, groq, taxonomy_seed, db
+) -> None:
+    """A description says "Strong SQL is essential" and the skill is "SQL".
+
+    The model is asked for the bare name, and the application strips the
+    qualifier as a second line of defence -- because a phrase that is not a
+    skill would otherwise be reported as unrecognised and the requirement
+    would be lost.
+    """
+    auth, user = auth_client()
+    _seed_skill(db, user, "sql")
+    groq.reply_json(
+        _analysis_document(
+            required=[
+                ("Strong SQL", "Strong SQL is essential."),
+                ("Python", "Python is required."),
+            ],
+            preferred=[],
+        )
+    )
+    body = client.post(ANALYSE, json={"job_description": DESCRIPTION}).json()
+    requirement = next(
+        item for item in body["requirements"] if item["skill"] == "Strong SQL"
+    )
+    assert requirement["normalized_skill"] == "SQL"
+    assert requirement["status"] == "met"
+
+
+def test_a_full_phrase_is_preferred_over_its_suffix(
+    client: TestClient, auth_client, groq, taxonomy_seed, db
+) -> None:
+    """The full phrase is tried first, so a skill whose name ends in another
+    skill's name is not mistaken for that other skill.
+
+    The two skills are created here rather than taken from the seeded slice,
+    because the point of the test is a *pair* whose names overlap, and the
+    shared fixture does not contain one.
+    """
+    from app.models.skill import Skill, SkillAlias
+
+    auth, _user = auth_client()
+    testing = Skill(
+        name="Testing", slug="testing", category="MLOps & Cloud", description="t"
+    )
+    db.add(testing)
+    db.flush()
+    ab = Skill(
+        name="A/B Testing", slug="a-b-testing", category="Statistics", description="t"
+    )
+    db.add(ab)
+    db.flush()
+    db.add(SkillAlias(alias="a/b testing", skill_id=ab.id))
+    db.commit()
+
+    groq.reply_json(
+        _analysis_document(
+            required=[
+                ("A/B Testing", "Experience with A/B Testing."),
+                ("Python", "Python is required."),
+            ],
+            preferred=[],
+        )
+    )
+    body = client.post(ANALYSE, json={"job_description": DESCRIPTION}).json()
+    requirement = next(
+        item for item in body["requirements"] if item["skill"] == "A/B Testing"
+    )
+    assert requirement["normalized_skill"] == "A/B Testing"
+    assert requirement["normalized_slug"] == "a-b-testing"

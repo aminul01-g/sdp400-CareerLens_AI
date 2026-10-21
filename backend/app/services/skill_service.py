@@ -176,24 +176,53 @@ def canonicalise_skill(
     The comparison is done on the normalised surface form — lower case, with
     punctuation and spacing collapsed — which is the same rule the extractor
     uses, so "K8s", "k8s " and "K8S" all resolve alike.
+
+    A phrase that is not a skill on its own is tried a second time with its
+    leading words removed, because a job description says "Strong SQL is
+    essential" and the *skill* in that sentence is "SQL". Only a suffix that
+    resolves to a real taxonomy skill is accepted, and the full phrase is
+    always tried first, so "A/B Testing" resolves to A/B testing rather than
+    to the skill called testing.
     """
-    cleaned = normalise_surface(term)
+    cleaned = (term or "").strip()
     if not cleaned:
+        return None
+
+    found = _canonicalise_exact(db, cleaned)
+    if found is not None:
+        return found
+
+    # The head of an English noun phrase is its last word, so the words before
+    # it are the qualifier.
+    words = cleaned.split()
+    for take in (1, 2):
+        if len(words) <= take:
+            break
+        found = _canonicalise_exact(db, " ".join(words[-take:]))
+        if found is not None:
+            return found
+    return None
+
+
+def _canonicalise_exact(db: Session, cleaned: str) -> tuple[str, str, int] | None:
+    """Resolve one exact surface form: the canonical name, then the aliases."""
+    surface = normalise_surface(cleaned)
+    if not surface:
         return None
 
     rows = db.execute(
         select(Skill.id, Skill.name, Skill.slug).where(
-            func.lower(Skill.name) == cleaned, Skill.slug == func.lower(Skill.slug)
+            func.lower(Skill.name) == surface, Skill.slug == func.lower(Skill.slug)
         )
     ).all()
     for skill_id, name, slug in rows:
-        if normalise_surface(str(name)) == cleaned:
+        if normalise_surface(str(name)) == surface:
             return str(name), str(slug), int(skill_id)
 
     alias_row = db.execute(
         select(Skill.id, Skill.name, Skill.slug, SkillAlias.alias)
         .join(SkillAlias, SkillAlias.skill_id == Skill.id)
-        .where(SkillAlias.alias == term.strip())
+        .where(SkillAlias.alias == cleaned)
     ).first()
     if alias_row is not None:
         return str(alias_row[1]), str(alias_row[2]), int(alias_row[0])
@@ -205,7 +234,7 @@ def canonicalise_skill(
         .join(SkillAlias, SkillAlias.skill_id == Skill.id)
     ).all()
     for skill_id, name, slug, alias in alias_rows:
-        if normalise_surface(str(alias)) == cleaned:
+        if normalise_surface(str(alias)) == surface:
             return str(name), str(slug), int(skill_id)
     return None
 

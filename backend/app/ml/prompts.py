@@ -323,8 +323,11 @@ def job_analysis_prompt(
             "Report only what the description actually states. Do not guess "
             "requirements that are implied but not written, and do not "
             "evaluate the candidate — only describe the role.",
-            "For each skill, write it exactly the way the description writes "
-            "it. Do not rename it and do not expand an abbreviation.",
+            "For each skill, write only the name of the skill or technology "
+            "itself. Do not include adjectives, qualifiers or any surrounding "
+            "words: 'Strong SQL is essential' is the skill 'SQL', and "
+            "'Experience with Excel' is the skill 'Excel'. Do not rename a "
+            "skill and do not expand an abbreviation.",
             wrap_untrusted("job_description", truncate(job_description, MAX_JOB_DESCRIPTION_CHARS)),
             STRUCTURED_OUTPUT_RULE,
         ]

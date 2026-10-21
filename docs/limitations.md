@@ -162,6 +162,29 @@ performed against five named dimensions, and the dimensions are shown next to
 it so you can disagree with them. It is not a prediction of hiring, and the
 interface says so every time the number appears.
 
+**The CV advisor can misstate the document it is advising on.** This was
+observed against the live provider and it is the most important limit on the
+whole AI layer. Given a CV that says a reporting run went "from 90 minutes
+to 25 minutes", the advisor wrote a correct draft bullet — "reducing nightly
+reporting runtime from 90 minutes to 25 minutes" — and, in the *commentary*
+above it, described the same achievement as "the 65-minute reduction". The
+number 65 is the difference, not the achievement, and it appears nowhere in
+the source.
+
+So the guard-rails keep the *document* truthful and do not keep the
+*commentary* about the document truthful. The suggestions are a draft to
+argue with, which is why the interface says so on every screen and why the
+disclaimer is on the page rather than in a footnote. A learner who does not
+read the disclaimer will still paste a wrong number into a cover letter, and
+the tool will have helped them do it.
+
+**The model can be confidently wrong about a skill's name.** A job description
+saying "Strong SQL is essential" was read as a skill called "Strong SQL",
+which is not a skill, so the requirement was lost. The prompt now asks for
+the bare name, and the application strips the qualifier as a second line of
+defence, but the failure mode is inherent: the model reads a sentence, and
+what it returns is its reading of that sentence.
+
 **The learning resources are a curated list, not a search engine.** 211
 verified official documents covering 247 of the 250 taxonomy skills. A skill
 without one gets the learning task and no link, which is the honest outcome

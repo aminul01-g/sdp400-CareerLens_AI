@@ -106,7 +106,7 @@ If you are **not** using Docker, see [`docs/tutorials.md`](docs/tutorials.md#1-s
 
 ```bash
 cd backend
-python -m pytest                      # 847 tests
+python -m pytest                      # 849 tests
 python -m app.ml.evaluation --check   # the evaluation, as a gate
 cd .. && python scripts/verify_compliance.py
 cd frontend && npm run build && npx eslint .
@@ -200,7 +200,7 @@ at the top of `backend/requirements.txt`.
 
 ## Engineering
 
-- **847 tests**, ruff and mypy clean.
+- **849 tests**, ruff and mypy clean.
 - **47 browser tests** (Playwright + axe) over the live application — 46 pass;
   the administrator spec is skipped unless `E2E_ADMIN_PASSWORD` is set.
 - **Determinism** is a stated acceptance criterion: the same input gives the same
