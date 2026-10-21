@@ -34,3 +34,7 @@ next-env.d.ts
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+.vercel
+.env*
+# The template is tracked; the rule above must not hide it.
+!.env.example
